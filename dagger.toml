@@ -1,0 +1,22 @@
+# This repository as the workspace's ruby SDK, and the scopes it generates.
+# hack/e2e.sh runs the checks on the dedicated engine that hack/engine.sh starts,
+# in a copy of this tree whose dagger.toml also registers the fixture scopes of
+# .dagger/modules/e2e/fixtures/scopes.toml.
+
+[modules.ruby-sdk]
+source = "."
+
+[modules.e2e]
+source = ".dagger/modules/e2e"
+
+[sdks.ruby]
+module = "ruby-sdk"
+
+# The SDK module's Ruby half is a plain scope: generation keeps its core
+# bindings, dagger.gemfile and lock. The SDK module itself is a Dang module.
+[sdks.ruby.scopes."."]
+
+[sdks.ruby.scopes.".dagger/modules/e2e"]
+is-module = true
+name = "e2e"
+clients = ["."]

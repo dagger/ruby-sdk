@@ -1,0 +1,53 @@
+PATH
+  remote: clients/core
+  specs:
+    dagger-clients-core (0.0.0)
+      dagger-sdk
+
+PATH
+  remote: clients/roots
+  specs:
+    dagger-clients-roots (0.0.0)
+      dagger-clients-core
+      dagger-sdk
+
+PATH
+  remote: sdk
+  specs:
+    dagger-sdk (0.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    logger (1.7.0)
+    perfect_toml (0.9.1)
+    prism (1.9.0)
+    rbs (4.2.0)
+      logger
+      prism (>= 1.6.0)
+      tsort
+    tsort (0.2.0)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  dagger-clients-core!
+  dagger-clients-roots!
+  dagger-sdk!
+  perfect_toml (= 0.9.1)
+  rbs (= 4.2.0)
+
+CHECKSUMS
+  dagger-clients-core (0.0.0)
+  dagger-clients-roots (0.0.0)
+  dagger-sdk (0.0.0)
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  perfect_toml (0.9.1) sha256=f494a27922eda2ad848f23d4087470261e75cf0045cbbdbcc74a16fd156bbf87
+  prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
+  rbs (4.2.0) sha256=51f7b886dcc05bc09e10b901daa6a81829f6adc03101d6ca9ea4aac6103e0674
+  tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
+
+BUNDLED WITH
+  4.0.20

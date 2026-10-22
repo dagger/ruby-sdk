@@ -1,0 +1,29 @@
+require "dagger"
+require "dagger/clients/roots"
+
+class {{class}}
+  extend Dagger::Mod::Object
+  # core, and each client of this scope by its name, as private methods:
+  # core.container, or lib(...) for a client lib. dagger generate keeps them.
+  include Dagger::Clients::Roots
+
+  # Types are RBS in #: comments, after a field and above a def: dagger
+  # generate reads them, and bundle exec steep check checks the code.
+  field :source, private: true #: Dagger::Clients::Core::Directory
+  field :base_image_address #: String
+
+  constructor
+  #: (ws: Dagger::Clients::Core::Workspace, ?base_image_address: String) -> {{class}}
+  def self.create(ws:, base_image_address: "alpine:3.24")
+    exclude = ["**/.dagger", "**/.git", "**/.bundle", "**/vendor/bundle", "**/node_modules"]
+    new(source: ws.directory(path: "/", exclude:), base_image_address:)
+  end
+
+  function "A container with the workspace source, ready to build."
+  #: () -> Dagger::Clients::Core::Container
+  def container
+    core.container.from(address: base_image_address)
+        .with_directory(path: "/src", source:)
+        .with_workdir(path: "/src")
+  end
+end

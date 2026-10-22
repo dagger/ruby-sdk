@@ -1,0 +1,48 @@
+class RubySdk
+  TEMPLATES: Array[String]
+
+  @template: String
+  @ruby_version: String
+
+  attr_reader template: String
+  attr_reader ruby_version: String
+
+  def initialize: (template: String, ruby_version: String) -> void
+  def find_client_root: (ws: Dagger::Clients::Core::Workspace) -> String?
+  def steep: (ws: Dagger::Clients::Core::Workspace, ?path: String?) -> nil
+  def generate_scope: (ws: Dagger::Clients::Core::Workspace, is_module: bool, name: String,
+                       clients: Array[Dagger::Clients::Core::ModuleSource]) -> Dagger::Clients::Core::Workspace
+
+  private
+
+  def source: () -> Dagger::Clients::Core::Directory
+  def image: () -> String
+
+  class Error < Dagger::Mod::Error
+  end
+
+  module Call
+    Core: singleton(Dagger::Clients::Core)
+
+    def self?.run: (Hash[String, untyped] request) -> untyped
+    def self?.load: (singleton(Dagger::Type) type, String id) -> untyped
+  end
+
+  module Manifest
+    FILE: String
+    ENTRYPOINT: String
+
+    def self?.render: (String name) -> String
+    def self?.objections: (String toml) -> Array[String]
+    def self?.objection: (String key) -> String
+    def self?.entrypoint?: (String toml) -> bool
+    def self?.entrypoint_objections: (untyped entrypoint) -> Array[String]
+  end
+end
+
+module PerfectTOML
+  class ParseError < StandardError
+  end
+
+  def self.parse: (String toml) -> Hash[String, untyped]
+end

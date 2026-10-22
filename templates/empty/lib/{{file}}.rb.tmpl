@@ -1,0 +1,9 @@
+require "dagger"
+require "dagger/clients/roots"
+
+class {{class}}
+  extend Dagger::Mod::Object
+  # core, and each client of this scope by its name, as private methods:
+  # core.container, or lib(...) for a client lib. dagger generate keeps them.
+  include Dagger::Clients::Roots
+end

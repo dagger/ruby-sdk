@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+gem "minitest"
+gem "perfect_toml", "0.9.1"
+gem "rbs"
+gem "rubocop"
+gem "steep"

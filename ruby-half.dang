@@ -1,0 +1,59 @@
+"""
+The SDK module's Ruby half, lib/ruby_sdk.rb, run in an exec: the request on stdin, objects by ID, the module's own source by ID, the result in a file.
+"""
+type RubyHalf {
+  """
+  The starter of a new module, as the SDK's setting gives it.
+  """
+  pub template: String!
+
+  """
+  The Ruby of a new module, as the SDK's setting gives it.
+  """
+  pub rubyVersion: String!
+
+  """
+  Run one function of the Ruby half, its arguments as JSON with objects by ID; its result as JSON.
+  """
+  pub call(fnName: String!, fnArgs: String!): String! {
+    let request = JSON.encode({{
+      template: template,
+      rubyVersion: rubyVersion,
+      function: fnName,
+      args: fnArgs,
+      moduleSource: currentModule.source.id,
+    }})
+    runtime
+      .withExec(["ruby", "-rbundler/setup", "lib/ruby_sdk/call.rb", "/dagger/result.json"], stdin: request)
+      .file("/dagger/result.json")
+      .contents
+  }
+
+  # The gems install from the Gemfiles and gemspecs alone, by content, before
+  # the rest of the source arrives. Not frozen: after an edit to the Gemfile,
+  # this install relocks in the container, so that dagger generate still runs
+  # and relocks the scope for good.
+  let runtime: Container! {
+    let source = currentModule.source
+    let dependencies = [
+      "Gemfile",
+      "Gemfile.lock",
+      "dagger.gemfile",
+      "sdk/dagger-sdk.gemspec",
+      "clients/core/dagger-clients-core.gemspec",
+      "clients/roots/dagger-clients-roots.gemspec",
+    ].reduce(directory) { files, path => files.withNewFile(path, source.file(path).contents) }
+    source.directory("images/ruby").dockerBuild
+      .withEnvVariable("BUNDLE_GEMFILE", "/src/Gemfile")
+      .withEnvVariable("BUNDLE_PATH", "/usr/local/bundle")
+      .withEnvVariable("BUNDLE_USER_CACHE", "/cache/bundle/ruby-sdk")
+      .withEnvVariable("DAGGER_MODULE", "ruby-sdk")
+      .withEnvVariable("DAGGER_MAIN_OBJECT", "RubySdk")
+      .withEnvVariable("DAGGER_MODULE_FILE", "lib/ruby_sdk.rb")
+      .withMountedCache("/cache/bundle", cacheVolume("ruby-sdk-bundle"))
+      .withWorkdir("/src")
+      .withDirectory("/src", dependencies)
+      .withExec(["bundle", "install"])
+      .withDirectory("/src", source)
+  }
+}

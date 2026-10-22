@@ -1,0 +1,70 @@
+inherit_mode:
+  merge:
+    - Exclude
+    - Include
+
+AllCops:
+  TargetRubyVersion: 3.4
+  Include:
+    - ".dagger/modules/e2e/**/*.rb"
+  Exclude:
+    - "test/golden/**/*"
+    - "**/clients/**/*"
+    - "**/dagger.gemfile"
+    - ".dagger/**/sdk/**/*"
+  NewCops: enable
+  SuggestExtensions: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 120
+
+# A check is a list of assertions, read top to bottom.
+Metrics/MethodLength:
+  Max: 25
+  Exclude:
+    - ".dagger/modules/e2e/lib/**/*"
+  CountAsOne: ["heredoc"]
+
+Metrics/ModuleLength:
+  Max: 120
+  CountAsOne: ["heredoc"]
+
+Metrics/AbcSize:
+  Max: 30
+  Exclude:
+    - ".dagger/modules/e2e/lib/**/*"
+
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+
+Naming/MethodParameterName:
+  AllowedNames: [ws, at, by, db, id, in, io, ip, of, on, os, pp, to]
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+Metrics/ClassLength:
+  Max: 300
+  CountAsOne: ["heredoc"]
+
+Metrics/CyclomaticComplexity:
+  Max: 12
+
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Metrics/BlockLength:
+  Exclude:
+    - "test/**/*"

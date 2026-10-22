@@ -1,0 +1,92 @@
+class RubySdk
+  class Scope
+    type workspace = Dagger::Clients::Core::Workspace
+    type directory = Dagger::Clients::Core::Directory
+
+    Core: singleton(Dagger::Clients::Core)
+    MARKER: String
+    EVAL_LINE: String
+    SKIPPED: Array[String]
+    SDK_FILES: Array[String]
+    GEMFILE: String
+    SIGNATURES: String
+    DESCRIBE: Array[String]
+    SCOPE_BUNDLER: String
+
+    class Member < Data
+      attr_reader name: String
+      attr_reader dir: String
+      attr_reader ref: String
+      attr_reader pin: String?
+      attr_reader source: Dagger::Clients::Core::ModuleSource
+
+      def self.new: (String, String, String, String?, Dagger::Clients::Core::ModuleSource) -> Member
+    end
+
+    attr_reader path: String
+
+    @ws: workspace
+    @path: String
+    @is_module: bool
+    @name: String
+    @clients: Array[Dagger::Clients::Core::ModuleSource]
+    @sdk: directory
+    @image: String
+    @template: String?
+    @ruby_version: String
+    @resources: Resources
+
+    def self.kind: (directory existing, String dir) -> String
+    def self.find_root: (workspace ws) -> String?
+    def self.local_ref: (String subpath) -> String
+    def self.module_image: (directory directory, String image) -> String
+    def self.check_members: (String path, directory existing, Array[String] client_dirs) -> void
+    def self.check_manifest: (String path, directory existing) -> void
+    def self.path_gems: (Array[String] client_dirs) -> Array[Array[String]]
+    def self.build_for: (directory directory, String image, String name, Array[String] client_dirs,
+                         ?resources: Resources?, ?path: String) -> Dagger::Mod::Build
+    def self.resources: (workspace ws, String path) -> Resources
+    def self.check_resources_engine: (String path, Resources resources) -> void
+    def self.context: (workspace ws, String path, directory scope, Resources resources) -> directory
+    def self.bundler: (Dagger::Mod::Build build, directory scope, bool lock, Array[String] client_dirs,
+                       ?subpath: String?) -> Dagger::Clients::Core::Container
+    def self.bundler_dir: (String? subpath) -> String
+    def self.bundler_refusal: (String path, Dagger::Clients::Core::Container checked) -> String?
+    def self.lock_refusal: (String path, String lock, Resources resources) -> String?
+    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, ?subpath: String?)
+                     -> Dagger::Clients::Core::Container
+    def self.describe_refusal: (String path, Dagger::Clients::Core::Container described) -> String?
+
+    def initialize: (ws: workspace, is_module: bool, name: String, clients: Array[Dagger::Clients::Core::ModuleSource],
+                     sdk: directory, image: String, ?template: String?, ?ruby_version: String) -> void
+    def generated: () -> workspace
+    def client_members: () -> Array[Member]
+    def dagger_gemfile: (Array[Member] members) -> String
+
+    private
+
+    def local_ref: (String subpath) -> String
+    def git_pin: (Dagger::Clients::Core::ModuleSource client) -> String
+    def normalize: (String cwd) -> String
+    def root: () -> String
+    def at: (String relative) -> String
+    def stale_clients: (directory existing, Array[Member] members) -> Array[String]
+    def initialized: (directory existing, workspace target) -> workspace
+    def template_files: () -> Hash[String, String]
+    def walk: (directory directory, ?String prefix) -> Array[String]
+    def written: (workspace target, Array[Member] members) -> workspace
+    def stand_in: () -> Dagger::Clients::Core::ModuleSource
+    def core_member: () -> directory
+    def client_member: (Member member, String digest) -> directory
+    def codegen: (Dagger::Clients::Core::File schema, Array[String] args) -> directory
+    def roots_member: (Array[Member] members) -> directory
+    def client_schema: (Member member) -> Dagger::Clients::Core::File
+    def codegen_with: (Hash[String, Dagger::Clients::Core::File] schemas, Array[String] args) -> directory
+    def bundled: (directory existing, workspace target, Array[Member] members) -> workspace
+    def with_gemfile: (workspace target) -> workspace
+    def layout: (workspace target, Dagger::Mod::Build build) -> [directory, String?]
+    def build: (workspace target, Array[Member] members) -> Dagger::Mod::Build
+    def with_entrypoint: (workspace target, Array[Member] members) -> workspace
+    def rendered: (Dagger::Clients::Core::Container described, Dagger::Mod::Build build, String? subpath) -> directory
+  end
+end

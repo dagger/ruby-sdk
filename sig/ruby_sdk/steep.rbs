@@ -1,0 +1,44 @@
+class RubySdk
+  class Steep
+    Core: singleton(Dagger::Clients::Core)
+    COMMAND: Array[String]
+    PRUNED: Array[String]
+
+    class Outcome < Data
+      attr_reader root: String
+      attr_reader refusals: Array[String]
+      attr_reader steep: bool
+      attr_reader exit_code: Integer
+      attr_reader output: String
+
+      def self.new: (String, Array[String], bool, Integer, String) -> Outcome
+      def failed?: () -> bool
+    end
+
+    @ws: Dagger::Clients::Core::Workspace
+    @root_ws: Dagger::Clients::Core::Workspace
+    @image: String
+
+    def initialize: (ws: Dagger::Clients::Core::Workspace, image: String) -> void
+    def check: (?String? path) -> nil
+    def modules: () -> Array[String]
+    def module_at: (String path) -> String
+    def authored?: (String root) -> bool
+    def self.normalize: (String path) -> String
+    def self.failure: (Array[Outcome] failed, Integer count) -> String
+    def self.summary: (Array[Outcome] outcomes) -> String
+
+    private
+
+    def directory: (String root) -> Dagger::Clients::Core::Directory
+    def outcome: (String root) -> Outcome
+    def scope_refusal: (String root, Dagger::Clients::Core::Directory dir, Array[String] client_dirs) -> String?
+    def resources_of: (String root) -> [Resources?, String?]
+    def lock_refusal: (String root, Dagger::Clients::Core::Directory dir, Resources? resources) -> String?
+    def checked: (String root, Dagger::Clients::Core::Directory dir, Dagger::Mod::Build build, Array[String] refusals,
+                  [Dagger::Clients::Core::Directory, String?] layout) -> Outcome
+    def with_module_rbs: (Dagger::Clients::Core::Container installed, Dagger::Clients::Core::Container described,
+                          String? subpath) -> Dagger::Clients::Core::Container
+    def client_dirs: (Dagger::Clients::Core::Directory dir) -> Array[String]
+  end
+end

@@ -1,0 +1,63 @@
+class RubySdk
+  module Signatures
+    type json = Hash[String, untyped]
+    type declaration = RBS::AST::Ruby::Declarations::ClassDecl | RBS::AST::Ruby::Declarations::ModuleDecl
+
+    MISTAKES: Array[singleton(RBS::InlineParser::Diagnostic::Base)]
+
+    class Refused < StandardError
+    end
+
+    def self?.parse: (Hash[String, String] files) -> Hash[String, Array[json]]
+    def self?.json: (Dagger::Clients::Core::Directory directory) -> String
+    def self?.type: (RBS::Types::t rbs, ?result: bool) -> untyped
+    def self?.union: (RBS::Types::Union rbs) -> json
+    def self?.class_instance: (RBS::Types::ClassInstance rbs) -> untyped
+    def self?.refuse: (String message) -> bot
+    def self?.default: (Prism::node node) -> json
+    def self?.literal: (Prism::node? node) -> Array[untyped]?
+
+    class Source
+      @result: RBS::InlineParser::Result
+      @trailing: Hash[Integer, Array[Prism::Comment]]
+      @mistakes: Array[RBS::InlineParser::Diagnostic::Base]
+      @scopes: Array[json]
+
+      def initialize: (String path, String text) -> void
+      def scopes: () -> Array[json]
+
+      private
+
+      def declarations: (Array[untyped] decls, Array[String] nesting) -> void
+      def declaration: (declaration decl, RBS::TypeName written, Array[String] nesting) -> void
+      def defs: (declaration decl) -> Hash[String, Hash[String, json]]
+      def mistakes_between: (Integer first, Integer last) -> Array[String]
+      def fields: (Prism::ClassNode | Prism::ModuleNode node) -> Hash[String, json]
+      def field: (Prism::CallNode call) -> json
+      def field_type: (String text) -> json
+    end
+
+    class Def
+      @member: RBS::AST::Ruby::Members::DefMember
+      @mistakes: Array[String]
+      @keywords: Array[Prism::node]
+      @method_type: RBS::Types::Function?
+
+      def initialize: (RBS::AST::Ruby::Members::DefMember member, Array[String] mistakes) -> void
+      def record: () -> json?
+
+      private
+
+      def types: () -> json
+      def method_type: () -> RBS::Types::Function
+      def single_method_type: () -> RBS::Types::Function
+      def params: () -> Array[json]
+      def keywords: () -> Array[[Symbol, Prism::node?]]
+      def returns: () -> untyped
+      def typed: (String what) { () -> untyped } -> untyped
+      def check_keywords_only: (RBS::Types::Function function) -> void
+      def check_agreement: (RBS::Types::Function function) -> void
+      def check_no_descriptions: () -> void
+    end
+  end
+end

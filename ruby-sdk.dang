@@ -1,0 +1,49 @@
+"""
+The Ruby SDK: creates and regenerates Ruby modules and the clients they and plain programs use, and checks the modules with Steep.
+"""
+type RubySdk {
+  """
+  The starter of a new module: default or empty.
+  """
+  pub template: String! = "default"
+
+  """
+  Written to .ruby-version; the module then builds on the ruby:<version> image.
+  """
+  pub rubyVersion: String! = ""
+
+  """
+  The scope that contains the workspace cwd: the directory of the nearest Gemfile.
+  """
+  pub findClientRoot(ws: Workspace!): String {
+    (JSON.decode(ruby.call("findClientRoot", JSON.encode({{ws: ws.id}}))) :: String)
+  }
+
+  """
+  Generate one scope: its members, its dagger.gemfile, and for a module its manifest and entrypoint.
+  """
+  pub generateScope(ws: Workspace!, isModule: Boolean!, name: String!, clients: [ModuleSource!]!): Workspace! {
+    let args = JSON.encode({{ws: ws.id, isModule: isModule, name: name, clients: clients.map { client => client.id }}})
+    let id = (JSON.decode(ruby.call("generateScope", args)) :: String!)
+    node(id: (id :: ID!)).{{... on Workspace!}}
+  }
+
+  """
+  dagger generate accepts every Ruby module this SDK generated in the workspace, and Steep passes on each with a Steepfile: a module is a directory whose manifest names ./sdk/entrypoint, whose sdk/ carries the SDK's marker, and which has a Gemfile. The check runs generation's own refusals on each, then Steep in the module's image with its Gemfile's development group, which the module's container never installs.
+  """
+  pub steep(ws: Workspace!): Void @check {
+    ruby.call("steep", JSON.encode({{ws: ws.id}}))
+    null
+  }
+
+  """
+  The Ruby module at or above a path of the workspace, to act on alone: dagger call ruby-sdk mod --path <module> steep.
+  """
+  pub mod(ws: Workspace!, path: String! = "."): Mod! {
+    Mod(path: path, ws: ws, ruby: ruby)
+  }
+
+  let ruby: RubyHalf! {
+    RubyHalf(template: template, rubyVersion: rubyVersion)
+  }
+}

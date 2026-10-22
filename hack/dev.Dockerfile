@@ -1,0 +1,3 @@
+FROM ruby:4.0@sha256:342dd3092e25f9d16fc2a5c48c5bb2d9a93717d4f900d005d6e088e2c45d3d19
+COPY hack/tools/Gemfile hack/tools/Gemfile.lock /tools/
+RUN BUNDLE_GEMFILE=/tools/Gemfile bundle install

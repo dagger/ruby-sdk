@@ -1,0 +1,25 @@
+# The repository's checks on the released engine of the latest dagger CLI:
+# hack/engine.sh starts it, hack/e2e.sh runs the harness's dagger check in a
+# copy of the tree, the unit tests, RuboCop and Steep included. No secret is
+# needed.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the dagger CLI
+        run: |
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="$HOME/.local/bin" sh
+          echo "$HOME/.local/bin" >>"$GITHUB_PATH"
+      - run: hack/engine.sh start
+      - run: hack/e2e.sh
+      - if: always()
+        run: hack/engine.sh remove

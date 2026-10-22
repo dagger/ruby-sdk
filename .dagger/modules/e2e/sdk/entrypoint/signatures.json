@@ -1,0 +1,552 @@
+{
+  "lib/e2e/annotation_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "annotations_check": {
+          "line": 36,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "functions_listing_check": {
+          "line": 62,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "modules_steep_check": {
+          "line": 88,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/cli_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "cli_sdk_check": {
+          "line": 9,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "cli_module_name_check": {
+          "line": 50,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "settings_check": {
+          "line": 81,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/client_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "entrypoint_client_call_check": {
+          "line": 95,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "client_cache_check": {
+          "line": 132,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/collection_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "collections_check": {
+          "line": 8,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "collection_client_check": {
+          "line": 28,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "collection_checks_check": {
+          "line": 41,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "artifacts_check": {
+          "line": 55,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/install_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "sdk_installed_by_git_ref_check": {
+          "line": 18,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/module_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "types_load_check": {
+          "line": 46,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "edit_without_generate_check": {
+          "line": 56,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "missed_generation_check": {
+          "line": 72,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "module_build_check": {
+          "line": 101,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "naming_check": {
+          "line": 119,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generated_up_to_date_check": {
+          "line": 132,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/plain_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "plain_program_check": {
+          "line": 23,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/roots_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "client_method_clash_check": {
+          "line": 15,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/scope_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "find_client_root_check": {
+          "line": 25,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_init_check": {
+          "line": 45,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_existing_check": {
+          "line": 97,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_clients_check": {
+          "line": 114,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_pins_check": {
+          "line": 159,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_plain_check": {
+          "line": 182,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_scope_user_content_check": {
+          "line": 216,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "generate_skips_existing_files_check": {
+          "line": 235,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "vendoring_check": {
+          "line": 253,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "manifest_check": {
+          "line": 271,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "refusals_check": {
+          "line": 304,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/sdk_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "sdk_test_check": {
+          "line": 4,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sdk_lint_check": {
+          "line": 8,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sdk_types_check": {
+          "line": 12,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/sources_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "sources_generate_check": {
+          "line": 13,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sources_call_check": {
+          "line": 29,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sources_contract_check": {
+          "line": 46,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sources_scope_check": {
+          "line": 63,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sources_refusals_check": {
+          "line": 81,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "sources_git_check": {
+          "line": 99,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/types_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "types_round_trip_check": {
+          "line": 9,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
+        "error_check": {
+          "line": 90,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ]
+}

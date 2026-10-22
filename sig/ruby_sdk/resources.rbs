@@ -1,0 +1,38 @@
+class RubySdk
+  class Resources
+    class Found < Data
+      attr_reader path: String
+      attr_reader directory: bool
+      attr_reader at: String
+
+      def self.new: (String, bool, String) -> Found
+    end
+
+    EXCLUDED: Array[String]
+
+    @read: ^(String) -> String?
+    @depth: Integer
+    @found: Array[Found]?
+
+    def initialize: (^(String) -> String? read, Integer depth) -> void
+    def found: () -> Array[Found]
+    def directories: () -> Array[String]
+    def files: () -> Array[String]
+    def patterns: () -> Array[String]
+    def covers?: (String remote) -> bool
+    def self.clean: (String path) -> String
+    def self.outside?: (String path) -> bool
+
+    private
+
+    def visit: (String file, String dir, Hash[String, Found] found, Hash[String, bool] seen) -> void
+    def calls: (Prism::node node) { (Prism::CallNode) -> void } -> void
+    def declared: (Prism::CallNode call, String file, String dir, Hash[String, Found] found, Hash[String, bool] seen)
+                -> void
+    def keyword: (Prism::CallNode call, Symbol name, String at) { (String) -> void } -> void
+    def positional: (Prism::CallNode call, String what, String at) { (String) -> void } -> void
+    def literal: (Prism::node node, String what, String at) -> String
+    def add: (String dir, String path, bool directory, String at, Hash[String, Found] found) -> String
+    def check_outside: (String path, String at) -> void
+  end
+end

@@ -1,0 +1,25 @@
+require "json"
+require "dagger"
+require "dagger/clients/core"
+require "dagger/clients/ruby_sdk"
+require_relative "e2e/support"
+
+class E2E
+  extend Dagger::Mod::Object
+  include Support
+
+  description "End-to-end checks of the Ruby SDK, run on the engine under test by hack/e2e.sh."
+end
+
+require_relative "e2e/scope_checks"
+require_relative "e2e/module_checks"
+require_relative "e2e/cli_checks"
+require_relative "e2e/sdk_checks"
+require_relative "e2e/client_checks"
+require_relative "e2e/types_checks"
+require_relative "e2e/annotation_checks"
+require_relative "e2e/install_checks"
+require_relative "e2e/roots_checks"
+require_relative "e2e/collection_checks"
+require_relative "e2e/sources_checks"
+require_relative "e2e/plain_checks"

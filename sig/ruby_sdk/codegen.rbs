@@ -1,0 +1,191 @@
+class RubySdk
+  module Codegen
+    type json = Hash[String, untyped]
+
+    class Error < StandardError
+    end
+
+    class Schema
+      BUILTIN_SCALARS: Array[String]
+
+      attr_reader version: String
+      attr_reader types: Hash[String, json]
+
+      def self.load: (String path) -> Schema
+      def self.named: (json ref) -> String
+      def self.non_null?: (json ref) -> bool
+      def self.directive: (json node, String name) -> Hash[String, untyped]?
+      def self.source_module: (json node) -> String?
+      def self.expected_type: (json node) -> String?
+      def initialize: (json document) -> void
+      def []: (String name) -> json
+      def kind: (String name) -> String
+      def builtin_scalar?: (String name) -> bool
+    end
+
+    module Naming
+      KEYWORDS: Array[String]
+      RESERVED_METHODS: Array[String]
+
+      def self?.snake: (String name) -> String
+      def self?.method_name: (String graphql_name) -> String
+      def self?.argument_name: (String graphql_name) -> String
+      def self?.constant: (String name) -> String
+      def self?.file_name: (String type_name) -> String
+      def self?.client_file: (String name) -> String
+      def self?.client_constant: (String name) -> String
+      def self?.client_files: (Array[String] names) -> Hash[String, String]
+    end
+
+    module Partition
+      STAND_IN: String
+
+      def self?.core_only: (json document) -> json
+      def self?.without_stand_in: (json type, Array[String] gone) -> json
+      def self?.owner: (json type) -> String?
+      def self?.core_types: (Schema schema) -> Array[json]
+      def self?.own_fields: (json type) -> Array[json]
+      def self?.check_attribution: (Schema schema) -> void
+      def self?.members: (json type) -> Array[json]
+      def self?.attribution_message: (json type, json member, String module_name, String? type_owner) -> String
+      def self?.core_digest: (Schema schema) -> String
+      def self?.describe: (json type) -> json
+      def self?.describe_field: (json field) -> json
+    end
+
+    class Render
+      HEADER: String
+      CORE: String
+
+      @schema: Schema
+      @namespace: String
+      @owner: String?
+      @qualified: bool
+
+      def initialize: (Schema schema, String namespace, ?owner: String?, ?qualified: bool) -> void
+      def ref: (String name) -> String
+      def ruby: (json type) -> String
+      def rbs: (json type) -> String
+      def nest: (String body) -> String
+      def const: (json type) -> String
+      def own: (String name) -> String
+      def generated?: (String name) -> bool
+      def entry_function: (json field) -> String
+      def contributed_function: (json parent, json field) -> String
+      def entry_function_rbs: (json field) -> String
+      def root_function: (json field, String name) -> String
+      def contributed_function_rbs: (json parent, json field) -> String
+
+      private
+
+      def object: (json type) -> String
+      def interface: (json type) -> String
+      def enum: (json type) -> String
+      def input: (json type) -> String
+      def method: (json parent, json field) -> String?
+      def ordered_args: (json field) -> Array[json]
+      def ruby_argument: (json arg, ?session: bool) -> String
+      def param: (json arg, ?session: bool) -> String
+      def args_hash: (Array[json] args, ?session: bool) -> String
+      def optional?: (json arg) -> bool
+      def select_arg: (json arg) -> String
+      def body: (json parent, json field, String selection) -> String
+      def reevaluated: (json field, String selection) -> String
+      def leaf: (json ref, String named, String selection) -> String
+      def converter: (String named) -> String?
+      def convert_value: (json ref, String value, String convert) -> String
+      def list?: (json ref) -> bool
+      def object_like?: (String name) -> bool
+      def instance_const: (String name) -> String
+      def docs: (json node, ?Array[json] args) -> String
+      def indent: (String text) -> String
+      def object_rbs: (json type) -> String
+      def interface_rbs: (json type) -> String
+      def enum_rbs: (json type) -> String
+      def input_rbs: (json type) -> String
+      def method_rbs: (json field) -> String?
+      def param_rbs: (json arg, ?session: bool) -> String
+      def output_type: (json field) -> String
+      def output_leaf_rbs: (String name) -> String
+      def wrap_output: (json ref, String named, ?nullable: bool) -> String
+      def input_type: (json ref, json node) -> String
+      def named_input: (String name, json node) -> String
+      def argument_object: (String? expected) -> String
+      def instance_rbs: (String name) -> String
+      def leaf_rbs: (String name) -> String
+    end
+
+    module Package
+      CORE: String
+      VERSION: String
+
+      def self?.core: (Schema schema) -> Hash[String, String]
+      def self?.type_files: (Render render, Array[json] types, String path) -> Hash[String, String]
+      def self?.core_index: (Render render, Array[json] types, String digest) -> String
+      def self?.core_index_rbs: () -> String
+      def self?.nest: (String namespace, String body) -> String
+      def self?.gemspec: (String name, String summary, ?Array[String] dependencies) -> String
+      def self?.write: (Hash[String, String] files, String out) -> void
+    end
+
+    module ClientPackage
+      class Contributed < Data
+        attr_reader parent: json
+        attr_reader field: json
+
+        def self.new: (json parent, json field) -> Contributed
+      end
+
+      def self?.files: (Schema schema, name: String, ref: String, ?pin: String?, ?core_digest: String?)
+                     -> Hash[String, String]
+      def self?.find_module: (Schema schema, String file) -> String
+      def self?.entry_and_contributed: (Schema schema, String module_name, String file)
+                                     -> [Contributed, Array[Contributed]]
+      def self?.client_index: (Render render, String file, Array[json] types, Contributed entry,
+                               Array[Contributed] contributed) -> String
+      def self?.client_index_rbs: (Render render, Contributed entry, Array[Contributed] contributed) -> String
+      def self?.target: (Render render, name: String, ref: String, pin: String?, digest: String) -> String
+    end
+
+    module Roots
+      NAMESPACE: String
+      CORE: Root
+
+      class Root < Data
+        attr_reader client: String
+        attr_reader name: String
+        attr_reader ruby: String
+        attr_reader rbs: String
+        attr_reader file: String
+
+        def self.new: (String client, String name, String ruby, String rbs, String file) -> Root
+      end
+
+      def self?.files: (Array[[Schema, String]] clients) -> Hash[String, String]
+      def self?.method_name: (String field_name) -> String
+      def self?.root: (Schema schema, String name) -> Root
+      def self?.check: (Array[Root] roots) -> void
+      def self?.refusal: (String method) -> String?
+      def self?.ruby: (Array[Root] roots) -> String
+      def self?.rbs: (Array[Root] roots) -> String
+    end
+
+    module CLI
+      USAGE: String
+
+      def self?.run: (Array[String] argv) -> void
+      def self?.core: (Array[String] args) -> void
+      def self?.client: (Array[String] args) -> void
+      def self?.roots: (Array[String] args) -> void
+      def self?.read: (String path) -> untyped
+    end
+
+    module StandIn
+      NAME: String
+      MANIFEST: String
+      TYPES: String
+      MAIN: String
+      FILES: Hash[String, String]
+    end
+  end
+end

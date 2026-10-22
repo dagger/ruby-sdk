@@ -1,0 +1,25 @@
+# The SDK module, a Dang module as Python's and Java's are, since the engine
+# loads only the manifest of a manifest-v2 module at a git repository's root.
+# Its Ruby half runs in an exec (ruby-half.dang). "latest" serves the engine's
+# own API: an empty engineVersion would select the oldest view. The engine
+# adds include to "*", so "!*" first makes it the whole of the source.
+name = "ruby-sdk"
+engineVersion = "latest"
+include = [
+  "!*",
+  "dagger-module.toml",
+  "ruby-sdk.dang",
+  "ruby-half.dang",
+  "mod.dang",
+  "Gemfile",
+  "Gemfile.lock",
+  "dagger.gemfile",
+  "lib",
+  "sdk",
+  "clients",
+  "templates",
+  "images",
+]
+
+[runtime]
+source = "dang"

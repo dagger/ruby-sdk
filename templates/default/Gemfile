@@ -1,0 +1,8 @@
+source "https://rubygems.org"
+
+eval_gemfile "dagger.gemfile"
+
+# bundle exec steep check. The module's container installs without this group.
+group :development do
+  gem "steep", "~> 2.1", require: false
+end

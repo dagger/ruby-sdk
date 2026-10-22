@@ -1,0 +1,21 @@
+"""
+A Ruby module of the workspace: the nearest one at or above a path.
+"""
+type Mod {
+  """
+  The path the module was asked for, relative to the workspace cwd.
+  """
+  pub path: String!
+
+  let ws: Workspace!
+
+  let ruby: RubyHalf!
+
+  """
+  dagger generate accepts this module, and Steep passes on it if it has a Steepfile, in its own image with its Gemfile's development group.
+  """
+  pub steep: Void {
+    ruby.call("steep", JSON.encode({{ws: ws.id, path: path}}))
+    null
+  }
+}
