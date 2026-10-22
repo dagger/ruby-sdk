@@ -36,10 +36,10 @@ class SdkModuleTest < Minitest::Test
     Dagger::Mod.module_source_id = nil
   end
 
-  def test_the_manifest_is_a_dang_module_on_the_engines_own_api
+  def test_the_manifest_is_a_dang_module_on_a_pinned_api
     assert_match(/^\[runtime\]\nsource = "dang"\n/, manifest)
     refute_match(/^\[entrypoint\]/, manifest)
-    assert_match(/^engineVersion = "latest"$/, manifest)
+    assert_match(/^engineVersion = "v1\.0\.0-beta\.20"$/, manifest)
   end
 
   # Its source is what the Ruby half reads, and nothing else.
