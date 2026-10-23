@@ -8,6 +8,7 @@ require_relative "codegen/naming"
 require_relative "codegen/stand_in"
 require_relative "signatures"
 require_relative "resources"
+require_relative "git_workspace"
 
 class RubySdk
   # One directory the SDK manages, module or plain project. Its members are
@@ -96,7 +97,7 @@ class RubySdk
       members = @clients.map do |client|
         name = client.module_name
         next Member.new(name, Codegen::Naming.client_file(name), local_ref(client.source_root_subpath), nil, client) \
-          unless client.kind == Core::ModuleSourceKind::GIT_SOURCE
+          if client.kind != Core::ModuleSourceKind::GIT_SOURCE || GitWorkspace.includes?(@ws, client)
 
         Member.new(name, Codegen::Naming.client_file(name), client.as_string, git_pin(client), client)
       end
