@@ -3,7 +3,10 @@ require_relative "scope_helper"
 class ScopeTest < Minitest::Test
   LOCAL = Dagger::Clients::Core::ModuleSourceKind::LOCAL_SOURCE
   GIT = Dagger::Clients::Core::ModuleSourceKind::GIT_SOURCE
-  LIB = FakeClient.new("lib", LOCAL, "", "", ".dagger/modules/lib")
+  LIB = FakeClient.new("lib", LOCAL, "", "", ".dagger/modules/lib", "")
+  SHA = "419c4afea78603265c40e273c455623a0291922e".freeze
+  OTHER = ("0" * 40).freeze
+  CLONE = "http://h/r.git".freeze
 
   def generate(files, cwd: "/app", is_module: true, clients: [], name: "app", **)
     ws = FakeWorkspace.new(FakeTree.new(files), cwd)
@@ -53,7 +56,7 @@ class ScopeTest < Minitest::Test
   end
 
   def test_a_git_client_is_pinned_and_a_local_one_is_rooted
-    git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "abc123", "dep")
+    git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "abc123", "dep", "https://github.com/acme/dep")
     scope = OfflineScope.new(ws: FakeWorkspace.new(FakeTree.new({}), "/"), is_module: false, name: "",
                              clients: [git, LIB.with(source_root_subpath: "./lib/")], sdk: nil, image: "ruby")
 
@@ -62,8 +65,26 @@ class ScopeTest < Minitest::Test
     assert_equal "/", RubySdk::Scope.local_ref(".")
   end
 
+  def test_a_git_client_of_the_git_workspace_is_rooted_and_another_commit_pinned
+    ws = FakeWorkspace.new(FakeTree.new({}), "/", address: "#{CLONE}@main", commit: SHA)
+    clients = [FakeClient.new("dep", GIT, "#{CLONE}#main:dep", SHA, "dep", CLONE),
+               FakeClient.new("lib", GIT, "#{CLONE}#v1:lib", OTHER, "lib", CLONE)]
+    scope = OfflineScope.new(ws:, is_module: false, name: "", clients:, sdk: nil, image: "ruby")
+
+    assert_equal([["dep", "/dep", nil], ["lib", "#{CLONE}#v1:lib", OTHER]],
+                 scope.client_members.map { [it.dir, it.ref, it.pin] })
+  end
+
+  def test_a_git_fake_workspace_keeps_its_address_and_commit_through_each_copy
+    ws = FakeWorkspace.new(FakeTree.new("a/x" => ""), "/", address: "#{CLONE}@main", commit: SHA)
+
+    [ws.with_workdir(path: "a"), ws.without_directory(path: "a"), ws.write("b", "")].each do |copy|
+      assert_equal ["#{CLONE}@main", SHA], [copy.address, copy.git.head.commit]
+    end
+  end
+
   def test_a_git_client_without_a_pin_is_refused
-    git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "", "dep")
+    git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "", "dep", "https://github.com/acme/dep")
     scope = OfflineScope.new(ws: FakeWorkspace.new(FakeTree.new({}), "/"), is_module: false, name: "",
                              clients: [git], sdk: nil, image: "ruby")
 
