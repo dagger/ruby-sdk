@@ -159,6 +159,26 @@
       }
     }
   ],
+  "lib/e2e/git_workspace_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "git_workspace_generate_check": {
+          "line": 19,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
   "lib/e2e/install_checks.rb": [
     {
       "class": "E2E",

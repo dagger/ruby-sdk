@@ -393,8 +393,9 @@ dagger module client add ../lib
 ```
 
 This writes `clients/lib/`, a line of `dagger.gemfile` and the method `lib` of
-`clients/roots/`, and relocks. No client reaches the manifest. A plain program
-uses the long form, and a module the method:
+`clients/roots/`, and relocks. No client reaches the manifest. A client loads
+a module of the workspace by its path, also in a workspace opened from a git
+ref. A plain program uses the long form, and a module the method:
 
 ```ruby
 # main.rb, a plain program

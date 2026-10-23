@@ -32,11 +32,11 @@ class E2E
   # This repository, committed whole, as github.com/dagger/ruby-sdk would
   # serve it. The engine fetches by the service's own hostname: a binding's
   # alias, or a name set with withHostname, does not resolve for it here.
-  def git_server(ws)
+  def git_server(ws, source = tree(ws))
     commit = "git init --quiet --initial-branch main && git add --all && " \
              "git -c user.name=e2e -c user.email=e2e@dagger.io commit --quiet --no-gpg-sign --message sdk && " \
              "git clone --quiet --bare /repo /srv/ruby-sdk.git"
-    development_image(ws).with_directory(path: "/repo", source: tree(ws))
+    development_image(ws).with_directory(path: "/repo", source:)
                          .with_workdir(path: "/repo")
                          .with_exec(args: ["sh", "-c", commit])
                          .with_exposed_port(port: 9418)
