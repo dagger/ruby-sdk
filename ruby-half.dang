@@ -23,11 +23,18 @@ type RubyHalf {
       args: fnArgs,
       moduleSource: currentModule.source.id,
     }})
+    # A nested client in a plain exec is served the engine's own API view, not
+    # the module's: DAGGER_CLIENT_VERSION pins it to the view the committed
+    # clients/core was generated for.
     runtime
+      .withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)
       .withExec(["ruby", "-rbundler/setup", "lib/ruby_sdk/call.rb", "/dagger/result.json"], stdin: request)
       .file("/dagger/result.json")
       .contents
   }
+
+  # The manifest's engineVersion, which a unit test keeps it equal to.
+  let clientVersion: String! = "v1.0.0-beta.20"
 
   # The gems install from the Gemfiles and gemspecs alone, by content, before
   # the rest of the source arrives. Not frozen: after an edit to the Gemfile,

@@ -42,6 +42,16 @@ class SdkModuleTest < Minitest::Test
     assert_match(/^engineVersion = "v1\.0\.0-beta\.20"$/, manifest)
   end
 
+  # The Ruby half's nested client would otherwise see the engine's API, not the
+  # pinned one its committed core was generated for.
+  def test_the_ruby_half_declares_the_pinned_api
+    half = dang("ruby-half.dang")
+    pinned = manifest[/^engineVersion = "([^"]+)"$/, 1]
+
+    assert_includes half, %(  let clientVersion: String! = "#{pinned}"\n)
+    assert_match(/\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n\s*\.withExec/, half)
+  end
+
   # Its source is what the Ruby half reads, and nothing else.
   def test_the_module_source_holds_what_the_sdk_reads
     included = manifest[/^include = \[\n(.*?)^\]/m, 1].scan(/"([^"]+)"/).flatten
