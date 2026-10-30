@@ -3,8 +3,9 @@
 # Its Ruby half runs in an exec (ruby-half.dang). engineVersion pins the API
 # view the module and its Ruby half see, and the rules that name its schema:
 # an empty one would select the oldest view, and "latest" would follow every
-# engine, renaming RubySdk and the core API its committed clients call from
-# v1.0.0-beta.21 on. ruby-half.dang repeats it for the Ruby half's nested client,
+# engine, renaming RubySdk and the core API its committed clients call at the
+# identifier-casing cut, whose release is not decided. ruby-half.dang repeats it
+# for the Ruby half's nested client,
 # which would otherwise see the engine's view. The engine adds include to "*", so
 # "!*" first makes it the whole of the source.
 name = "ruby-sdk"
@@ -27,3 +28,9 @@ include = [
 
 [runtime]
 source = "dang"
+
+# sdk-helpers v1.0.8, by commit: a version query or a tag records its lookups in
+# the dagger.lock of whatever workspace loads this module.
+[[dependencies]]
+name = "sdk-helpers"
+source = "github.com/dagger/sdk-helpers@31dafd0c74d9a08faa00c09dce87a5af072e7a9d"
