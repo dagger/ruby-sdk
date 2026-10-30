@@ -4,6 +4,7 @@ require "dagger/mod"
 require "dagger/clients/core"
 require_relative "error"
 require_relative "manifest"
+require_relative "dang_config"
 require_relative "codegen/naming"
 require_relative "codegen/stand_in"
 require_relative "signatures"
@@ -62,7 +63,7 @@ class RubySdk
       File.write("Gemfile.lock", locked.sub(/^(BUNDLED WITH\n\s+)\S+/) { "#{$1}#{Bundler::VERSION}" })
     RUBY
 
-    def initialize(ws:, is_module:, name:, clients:, sdk:, image:, template: nil, ruby_version: "")
+    def initialize(ws:, is_module:, name:, clients:, sdk:, image:, target_version:, template: nil, ruby_version: "")
       @ws = ws
       @path = normalize(ws.cwd)
       @is_module = is_module
@@ -70,6 +71,7 @@ class RubySdk
       @clients = clients
       @sdk = sdk
       @image = image
+      @target_version = target_version
       @template = template
       @ruby_version = ruby_version
     end
@@ -81,6 +83,7 @@ class RubySdk
       members = client_members
       self.class.check_members(@path, existing, members.map(&:dir))
       self.class.check_manifest(@path, existing) if @is_module
+      self.class.check_dang_config(@path, existing, @target_version) if @is_module
       @resources = self.class.resources(@ws, @path)
       self.class.check_resources_engine(@path, @resources) if @is_module
       target = initialized(existing, @ws.with_workdir(path: "."))
@@ -159,6 +162,8 @@ class RubySdk
       raise Error, "#{path}/#{Manifest::FILE} has what a Ruby module on its generated entrypoint cannot " \
                    "carry: #{objections.join("; ")}"
     end
+
+    def self.check_dang_config(path, existing, target_version) = DangConfig.check(path, existing, target_version)
 
     # The gems dagger.gemfile names, and the directories that hold them.
     def self.path_gems(client_dirs)
@@ -355,10 +360,10 @@ class RubySdk
     def stand_in
       Codegen::StandIn::FILES.reduce(Core.core.directory) { |dir, (path, contents)| dir.with_new_file(path:, contents:) }
                              .as_module_source
+                             .with_engine_version(version: @target_version)
     end
 
-    # Every schema in one view, the stand-in's, which is the engine's own:
-    # two views would give two cores.
+    # Every schema in one view, the target's: two views would give two cores.
     def core_member = codegen(stand_in.client_schema_introspection_json, %w[core /schemas/schema.json /out])
 
     def client_member(member, digest)
@@ -373,7 +378,7 @@ class RubySdk
     end
 
     def client_schema(member)
-      member.source.with_engine_version(version: stand_in.engine_version).client_schema_introspection_json
+      member.source.with_engine_version(version: @target_version).client_schema_introspection_json
     end
 
     def codegen(schema, args) = codegen_with({ "/schemas/schema.json" => schema }, args)

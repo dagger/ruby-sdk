@@ -110,6 +110,11 @@ it was generated against (`CORE_DIGEST`), so a stale client fails to load.
   and on its current source; a call runs no code generation.
 - The SDK module stays a thin Dang wrapper at the root; the Ruby half runs in
   an exec and reads its own files from `currentModule.source`.
+- `RubySdk.targetVersion` in `ruby-sdk.dang` is the one Dagger version of what
+  generation writes: clients' API view and `sdk/entrypoint/dang.toml`. `RubyHalf`'s
+  `clientVersion` is a separate channel: the manifest's `engineVersion`, for
+  the Ruby half's own process. The Dang wrapper writes `dang.toml` through
+  `sdk-helpers`; `RubySdk::DangConfig` refuses what that write would lose.
 - Types come from `#:` RBS annotations, parsed at generation into
   `sdk/entrypoint/signatures.json`; the DSL carries what a type cannot say.
 - No engine version checks in code. A feature that needs a newer engine is

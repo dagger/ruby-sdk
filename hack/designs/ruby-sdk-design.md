@@ -62,9 +62,19 @@ sequenceDiagram
   S->>I: install, then dagger-mod entrypoint: describe the module
   I-->>S: types.dang, main.dang, module.rbs, signatures.json
   S->>S: render build.dang, write dagger-module.toml
+  S->>S: the Dang wrapper writes sdk/entrypoint/dang.toml through sdk-helpers
   S-->>E: the workspace with the scope's changes
 ```
 
+- `RubySdk.targetVersion` in `ruby-sdk.dang` is the Dagger version of what
+  generation writes. The request carries it to `Scope`, which selects the
+  clients' schema view with it. The Ruby half's own process keeps the
+  manifest's `engineVersion`.
+- The Dang wrapper writes `sdk/entrypoint/dang.toml` with `sdk-helpers`, from the
+  file in the workspace it received, because the Ruby half replaces `sdk/` whole.
+  A plain scope gets no file and keeps one it has. `RubySdk::DangConfig`
+  refuses what the helper would drop or what contradicts the target, and
+  `Scope.check_dang_config` is one of generation's refusals the Steep check runs.
 - Every generated member carries a `.dagger-generated` marker naming its kind.
   A directory where a member goes without the marker is the user's: generation
   refuses to write over it and never deletes it. The user's `Gemfile` gets one

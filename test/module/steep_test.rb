@@ -24,7 +24,9 @@ class SteepTest < Minitest::Test
     "bare/dagger-module.toml" => MANIFEST, "bare/sdk/.dagger-generated" => "sdk\n"
   }.freeze
 
-  def steep(files, cwd: "/") = RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby")
+  def steep(files, cwd: "/")
+    RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby", target_version: "v1.0.0-beta.21")
+  end
 
   def test_every_module_this_sdk_generated_is_found_and_nothing_else
     files = OTHERS.merge(authored(".dagger/modules/clean")).merge(authored("apps/nested/broken"))
@@ -64,7 +66,10 @@ class SteepTest < Minitest::Test
     RubySdk::Steep::Outcome.new(root, refusals, steep, code, output)
   end
 
-  def recorded(files, outcomes) = Recorded.new(outcomes, ws: FakeWorkspace.new(FakeTree.new(files), "/"), image: "ruby")
+  def recorded(files, outcomes)
+    Recorded.new(outcomes, ws: FakeWorkspace.new(FakeTree.new(files), "/"), image: "ruby",
+                           target_version: "v1.0.0-beta.21")
+  end
 
   def test_every_failing_module_is_reported_with_its_output_and_exit_code
     files = authored("a").merge(authored("b")).merge(authored("c")).merge(authored("d", steepfile: false))
@@ -139,6 +144,15 @@ class SteepTest < Minitest::Test
     refute RubySdk::Manifest.entrypoint?(OTHERS.fetch("dagger-module.toml"))
     refute RubySdk::Manifest.entrypoint?(%(name = "x"\n[entrypoint]\nkind = "dang"\nsource = "./elsewhere"\n))
     refute RubySdk::Manifest.entrypoint?("name = [\n")
+  end
+
+  # The check names what generation would refuse: a passing check means dagger generate accepts the module.
+  def test_the_generation_check_includes_the_dang_toml_refusals
+    files = authored(".").merge("sdk/entrypoint/dang.toml" => %([imports.Dagger]\npath = "./mine"\n))
+    check = steep(files)
+    dir = FakeTree.new(files)
+
+    assert_includes check.send(:scope_refusal, ".", dir, []), "imports.Dagger.path"
   end
 
   # The check installs the development group in its own container; the

@@ -3,11 +3,12 @@ class RubySdk
 
   @template: String
   @ruby_version: String
+  @target_version: String
 
   attr_reader template: String
   attr_reader ruby_version: String
 
-  def initialize: (template: String, ruby_version: String) -> void
+  def initialize: (template: String, ruby_version: String, target_version: String) -> void
   def find_client_root: (ws: Dagger::Clients::Core::Workspace) -> String?
   def steep: (ws: Dagger::Clients::Core::Workspace, ?path: String?) -> nil
   def generate_scope: (ws: Dagger::Clients::Core::Workspace, is_module: bool, name: String,
@@ -26,6 +27,21 @@ class RubySdk
 
     def self?.run: (Hash[String, untyped] request) -> untyped
     def self?.load: (singleton(Dagger::Type) type, String id) -> untyped
+  end
+
+  module DangConfig
+    FILE: String
+    LANGUAGE: String
+    IMPORT: String
+    ANCESTORS: Array[String]
+
+    def self?.check: (String path, Dagger::Clients::Core::Directory existing, String target_version) -> void
+    def self?.check_ancestor: (String path, Dagger::Clients::Core::Directory existing, String ancestor,
+                               String target_version) -> void
+    def self?.objections: (String toml, String target_version) -> Array[String]
+    def self?.hidden: (String toml, String target_version) -> Array[String]
+    def self?.import_objections: (String name, untyped import, String target_version) -> Array[String]
+    def self?.managed_import?: (untyped import, String target_version) -> bool
   end
 
   module Manifest

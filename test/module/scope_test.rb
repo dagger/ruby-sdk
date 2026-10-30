@@ -7,10 +7,11 @@ class ScopeTest < Minitest::Test
   SHA = "419c4afea78603265c40e273c455623a0291922e".freeze
   OTHER = ("0" * 40).freeze
   CLONE = "http://h/r.git".freeze
+  TARGET = "v1.0.0-beta.21".freeze
 
   def generate(files, cwd: "/app", is_module: true, clients: [], name: "app", **)
     ws = FakeWorkspace.new(FakeTree.new(files), cwd)
-    OfflineScope.new(ws:, is_module:, name:, clients:, sdk: nil, image: "ruby", **).generated
+    OfflineScope.new(ws:, is_module:, name:, clients:, sdk: nil, image: "ruby", target_version: TARGET, **).generated
   end
 
   def test_members_are_written_whole_and_the_cwd_kept
@@ -58,7 +59,8 @@ class ScopeTest < Minitest::Test
   def test_a_git_client_is_pinned_and_a_local_one_is_rooted
     git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "abc123", "dep", "https://github.com/acme/dep")
     scope = OfflineScope.new(ws: FakeWorkspace.new(FakeTree.new({}), "/"), is_module: false, name: "",
-                             clients: [git, LIB.with(source_root_subpath: "./lib/")], sdk: nil, image: "ruby")
+                             clients: [git, LIB.with(source_root_subpath: "./lib/")], sdk: nil, image: "ruby",
+                             target_version: TARGET)
 
     assert_equal([%w[dep github.com/acme/dep@v1 abc123], ["lib", "/lib", nil]],
                  scope.client_members.map { [it.dir, it.ref, it.pin] })
@@ -69,7 +71,7 @@ class ScopeTest < Minitest::Test
     ws = FakeWorkspace.new(FakeTree.new({}), "/", address: "#{CLONE}@main", commit: SHA)
     clients = [FakeClient.new("dep", GIT, "#{CLONE}#main:dep", SHA, "dep", CLONE),
                FakeClient.new("lib", GIT, "#{CLONE}#v1:lib", OTHER, "lib", CLONE)]
-    scope = OfflineScope.new(ws:, is_module: false, name: "", clients:, sdk: nil, image: "ruby")
+    scope = OfflineScope.new(ws:, is_module: false, name: "", clients:, sdk: nil, image: "ruby", target_version: TARGET)
 
     assert_equal([["dep", "/dep", nil], ["lib", "#{CLONE}#v1:lib", OTHER]],
                  scope.client_members.map { [it.dir, it.ref, it.pin] })
@@ -86,7 +88,7 @@ class ScopeTest < Minitest::Test
   def test_a_git_client_without_a_pin_is_refused
     git = FakeClient.new("dep", GIT, "github.com/acme/dep@v1", "", "dep", "https://github.com/acme/dep")
     scope = OfflineScope.new(ws: FakeWorkspace.new(FakeTree.new({}), "/"), is_module: false, name: "",
-                             clients: [git], sdk: nil, image: "ruby")
+                             clients: [git], sdk: nil, image: "ruby", target_version: TARGET)
 
     error = assert_raises(RubySdk::Error) { scope.client_members }
     assert_match(%r{github.com/acme/dep@v1 has no pinned commit}, error.message)
@@ -166,9 +168,49 @@ class ScopeTest < Minitest::Test
     sdk = FakeTree.new("templates/default/Gemfile" => "gem \"steep\"\n",
                        "templates/default/lib/{{file}}.rb.tmpl" => "class {{class}}; end\n")
     ws = FakeWorkspace.new(FakeTree.new({}), "/app")
-    files = OfflineScope.new(ws:, is_module: true, name: "app", clients: [], sdk:, image: "ruby", template: "default")
-                        .generated.tree.files
+    files = OfflineScope.new(ws:, is_module: true, name: "app", clients: [], sdk:, image: "ruby",
+                             target_version: TARGET, template: "default").generated.tree.files
 
     assert_equal ["gem \"steep\"\n", "class App; end\n"], files.values_at("app/Gemfile", "app/lib/app.rb")
+  end
+
+  def test_what_the_module_dang_toml_cannot_carry_is_refused_before_anything_is_written
+    files = { "app/Gemfile" => "", "app/sdk/.dagger-generated" => "sdk",
+              "app/sdk/entrypoint/dang.toml" => %(dang = "2.0"\n) }
+    error = assert_raises(RubySdk::Error) { generate(files) }
+
+    assert_match(%r{app/sdk/entrypoint/dang\.toml has what}, error.message)
+    assert_includes error.message, %(dang = "2.0")
+  end
+
+  def test_an_ancestor_a_new_dang_toml_would_hide_is_refused_and_one_it_would_not_stays
+    pinned = { "app/Gemfile" => "", "app/dang.toml" => %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n) }
+    error = assert_raises(RubySdk::Error) { generate(pinned) }
+
+    assert_includes error.message,
+                    "app/dang.toml has what generating sdk/entrypoint/dang.toml would hide: imports.Dagger"
+
+    plain = pinned.merge("app/dang.toml" => %(dang = "2.1"\n\n[imports.Dagger]\ndagger = true\n))
+
+    assert_equal plain["app/dang.toml"], generate(plain).tree.files["app/dang.toml"]
+  end
+
+  def test_with_the_module_dang_toml_in_place_no_ancestor_counts
+    files = { "app/Gemfile" => "", "app/sdk/.dagger-generated" => "sdk", "app/sdk/entrypoint/dang.toml" => "",
+              "app/dang.toml" => %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n), "dang.toml" => "pinned = true\n" }
+
+    assert_equal files["app/dang.toml"], generate(files).tree.files["app/dang.toml"]
+  end
+
+  def test_above_the_module_nothing_counts
+    files = { "app/Gemfile" => "", "dang.toml" => %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n) }
+
+    assert_equal files["dang.toml"], generate(files).tree.files["dang.toml"]
+  end
+
+  def test_a_plain_scope_has_no_dang_toml_to_answer_for
+    files = { "app/Gemfile" => "", "app/dang.toml" => %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n) }
+
+    assert_equal files["app/dang.toml"], generate(files, is_module: false).tree.files["app/dang.toml"]
   end
 end

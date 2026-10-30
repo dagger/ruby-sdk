@@ -32,6 +32,7 @@ class RubySdk
     @clients: Array[Dagger::Clients::Core::ModuleSource]
     @sdk: directory
     @image: String
+    @target_version: String
     @template: String?
     @ruby_version: String
     @resources: Resources
@@ -42,6 +43,7 @@ class RubySdk
     def self.module_image: (directory directory, String image) -> String
     def self.check_members: (String path, directory existing, Array[String] client_dirs) -> void
     def self.check_manifest: (String path, directory existing) -> void
+    def self.check_dang_config: (String path, directory existing, String target_version) -> void
     def self.path_gems: (Array[String] client_dirs) -> Array[Array[String]]
     def self.build_for: (directory directory, String image, String name, Array[String] client_dirs,
                          ?resources: Resources?, ?path: String) -> Dagger::Mod::Build
@@ -58,7 +60,7 @@ class RubySdk
     def self.describe_refusal: (String path, Dagger::Clients::Core::Container described) -> String?
 
     def initialize: (ws: workspace, is_module: bool, name: String, clients: Array[Dagger::Clients::Core::ModuleSource],
-                     sdk: directory, image: String, ?template: String?, ?ruby_version: String) -> void
+                     sdk: directory, image: String, target_version: String, ?template: String?, ?ruby_version: String) -> void
     def generated: () -> workspace
     def client_members: () -> Array[Member]
     def dagger_gemfile: (Array[Member] members) -> String

@@ -13,12 +13,18 @@ type RubyHalf {
   pub rubyVersion: String!
 
   """
+  The Dagger version of what generation writes.
+  """
+  pub targetVersion: String!
+
+  """
   Run one function of the Ruby half, its arguments as JSON with objects by ID; its result as JSON.
   """
   pub call(fnName: String!, fnArgs: String!): String! {
     let request = JSON.encode({{
       template: template,
       rubyVersion: rubyVersion,
+      targetVersion: targetVersion,
       function: fnName,
       args: fnArgs,
       moduleSource: currentModule.source.id,

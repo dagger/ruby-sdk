@@ -120,7 +120,8 @@ The module's name gives its main class by the engine's rule (`hello` gives
   Steepfile            yours, from the template
   lib/                 yours
   sdk/                 generated: the dagger-sdk gem, and a module's entrypoint,
-                       signatures read from its annotations and module.rbs
+                       signatures read from its annotations, module.rbs, and
+                       dang.toml, which you may add settings to
   clients/core/        generated: the core API
   clients/roots/       generated: core and each client as private methods
   clients/<name>/      generated: one per declared client
@@ -146,6 +147,49 @@ source = "./sdk/entrypoint"
 Generation refuses a manifest with `[runtime]`, `[[dependencies]]`,
 `engineVersion`, `include`, `exclude`, a `source` other than `.`, or another
 entrypoint, naming what it found, and refuses a `dagger.json`.
+
+### A module's `dang.toml`
+
+Generation writes `sdk/entrypoint/dang.toml`, which names the Dagger version
+the module was generated for and the Dang language its entrypoint is written
+in:
+
+```toml
+dang = "2.1"
+
+[imports]
+  [imports.Dagger]
+    dagger = "v1.0.0-beta.21"
+```
+
+The module's clients' API view uses the same version, which the SDK sets. A
+module gets the file, and a new version, at its next `dagger generate`. A plain
+scope gets none. v1.0.0-beta.21 is the last release before the identifier-casing
+cut, whose release is not decided, and it stays valid on v1.0.0-beta.22.
+
+The SDK manages `dang` and `imports.Dagger.dagger`, and replaces `true` or
+another version there. It keeps every other setting and import, and keeps the
+file when a scope stops being a module. It rewrites the file on each
+generation, so comments and formatting are lost.
+
+Generation refuses, naming what it found:
+
+- a `dang` other than `2.1`;
+- `path` or a non-empty `endpoint` in `imports.Dagger`;
+- another import with a `dagger` version other than the module's;
+- when the file does not exist yet, `sdk/dang.toml` or `dang.toml` in the module
+  with settings or pins the new file would hide. Generation does not copy them,
+  and changes neither file. Remove them, run `dagger generate`, then set what
+  the module needs in `sdk/entrypoint/dang.toml`.
+
+An engine that reads `dang.toml` serves the entrypoint the view it names, from
+the nearest file between the entrypoint and the module's directory, and treats
+a module without one as v1.0.0-beta.20. No released engine does yet: that is
+dagger/dagger#14902, which is still open. Released engines up to v1.0.0-beta.22
+load only the `.dang` files of an entrypoint, so they ignore the file and serve
+the module their own view. The language stays 2.1, but a versioned import needs
+Dang v2.2.0 or later to parse, so older standalone Dang tooling may reject the
+file.
 
 ## Declaring a module
 

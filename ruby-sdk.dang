@@ -25,7 +25,22 @@ type RubySdk {
   pub generateScope(ws: Workspace!, isModule: Boolean!, name: String!, clients: [ModuleSource!]!): Workspace! {
     let args = JSON.encode({{ws: ws.id, isModule: isModule, name: name, clients: clients.map { client => client.id }}})
     let id = (JSON.decode(ruby.call("generateScope", args)) :: String!)
-    node(id: (id :: ID!)).{{... on Workspace!}}
+    let generated = node(id: (id :: ID!)).{{... on Workspace!}}
+    # The Ruby half replaces sdk/ whole, so the configuration comes from ws, as the user left it.
+    let existing = ws.directory(".", include: [dangConfigPath])
+    let found = existing.exists(dangConfigPath)
+    if (isModule) {
+      let scope = normalizePath(ws.cwd)
+      sdkHelpers.dangConfig(loadToml: if (found) { existing.file(dangConfigPath) } else { null })
+        .withVersion("2.1")
+        .withDaggerImport(name: "Dagger", version: targetVersion)
+        .generate(generated.withWorkdir(scope + "/sdk/entrypoint"))
+        .withWorkdir(scope)
+    } else if (found) {
+      generated.withFile(dangConfigPath, existing.file(dangConfigPath))
+    } else {
+      generated
+    }
   }
 
   """
@@ -44,6 +59,17 @@ type RubySdk {
   }
 
   let ruby: RubyHalf! {
-    RubyHalf(template: template, rubyVersion: rubyVersion)
+    RubyHalf(template: template, rubyVersion: rubyVersion, targetVersion: targetVersion)
+  }
+
+  # The Dagger version of what generation writes: the view of a scope's clients,
+  # and a module's dang.toml. RubyHalf's clientVersion is the Ruby half's own.
+  let targetVersion: String! = "v1.0.0-beta.21"
+
+  let dangConfigPath: String! = "sdk/entrypoint/dang.toml"
+
+  let normalizePath(path: String!): String! {
+    let trimmed = path.trimPrefix("/").trimSuffix("/")
+    if (trimmed == "") { "." } else { trimmed }
   }
 }
