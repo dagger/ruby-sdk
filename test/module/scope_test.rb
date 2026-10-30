@@ -228,4 +228,16 @@ class ScopeTest < Minitest::Test
     assert_equal custom, generate(plain, is_module: false).tree.files["app/sdk/dang.toml"]
     refute generate(marked).tree.files.key?("app/sdk/dang.toml")
   end
+
+  def test_only_the_nearest_ancestor_can_be_hidden_by_a_new_dang_toml
+    pinned = %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n)
+    marked = { "app/Gemfile" => "", "app/sdk/.dagger-generated" => "sdk" }
+    files = marked.merge("app/sdk/dang.toml" => %(dang = "2.1"\n), "app/dang.toml" => pinned)
+
+    assert_equal pinned, generate(files).tree.files["app/dang.toml"]
+
+    error = assert_raises(RubySdk::Error) { generate(files.merge("app/sdk/dang.toml" => pinned)) }
+
+    assert_includes error.message, "app/sdk/dang.toml has what generating"
+  end
 end

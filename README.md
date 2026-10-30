@@ -178,10 +178,11 @@ Generation refuses, naming what it found:
 - a `dang` other than `2.1`;
 - `path` or a non-empty `endpoint` in `imports.Dagger`;
 - another import with a `dagger` version other than the module's;
-- when the file does not exist yet, `sdk/dang.toml` or `dang.toml` in the module
-  with settings or pins the new file would hide. Generation does not copy them,
-  and changes neither file. Remove them, run `dagger generate`, then set what
-  the module needs in `sdk/entrypoint/dang.toml`.
+- when the file does not exist yet, settings or pins the new file would hide in
+  the nearer of `sdk/dang.toml` and the module's `dang.toml`. Generation does not
+  copy them, and changes neither file, though it replaces the rest of `sdk/`.
+  Remove them, run `dagger generate`, then set what the module needs in
+  `sdk/entrypoint/dang.toml`.
 
 An engine that reads `dang.toml` serves the entrypoint the view it names, from
 the nearest file between the entrypoint and the module's directory, and treats

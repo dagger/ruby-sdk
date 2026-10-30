@@ -115,6 +115,12 @@ class E2E
     accepted = %(dang = "2.1"\n)
     first = generate(bare.with_new_file(path: ancestor, contents: accepted), APP, name: "app")
     check(first.file(path: ancestor).contents == accepted, "replacing sdk/ changed an accepted sdk/dang.toml")
+
+    root = "/#{APP}/dang.toml"
+    pinned = %([imports.Dagger]\ndagger = "v1.0.0-beta.19"\n)
+    farther = bare.with_new_file(path: ancestor, contents: accepted).with_new_file(path: root, contents: pinned)
+    check(generate(farther, APP, name: "app").file(path: root).contents == pinned,
+          "an ancestor the nearest one already hides was refused or changed")
   end
 
   def dang_config_plain(ws)

@@ -15,7 +15,7 @@ class RubySdk
 
     module_function
 
-    # With the file in place the engine reads no ancestor, so only a new file can hide one.
+    # The engine reads the nearest file alone: a new file hides only the nearest ancestor.
     def check(path, existing, target_version)
       if existing.exists(path: FILE)
         objections = objections(existing.file(path: FILE).contents, target_version)
@@ -23,12 +23,11 @@ class RubySdk
 
         raise Error, "#{path}/#{FILE} has what a module's generated entrypoint cannot carry: #{objections.join("; ")}"
       end
-      ANCESTORS.each { check_ancestor(path, existing, it, target_version) }
+      nearest = ANCESTORS.find { existing.exists(path: it) }
+      check_ancestor(path, existing, nearest, target_version) if nearest
     end
 
     def check_ancestor(path, existing, ancestor, target_version)
-      return unless existing.exists(path: ancestor)
-
       hidden = hidden(existing.file(path: ancestor).contents, target_version)
       return if hidden.empty?
 
