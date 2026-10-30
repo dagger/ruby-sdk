@@ -104,7 +104,7 @@ module Dagger
           Artifacts.new(@query.select("filterPath", path:))
         end
 
-        # Keep paths that match a glob pattern. A literal path matches exactly. Both module-qualified and entrypoint paths match.
+        # Keep paths that match a glob pattern. A literal path matches exactly. Both module-qualified and workspace main paths match.
         def filter_path_pattern(pattern:)
           Artifacts.new(@query.select("filterPathPattern", pattern:))
         end

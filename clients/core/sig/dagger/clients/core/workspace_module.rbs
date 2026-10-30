@@ -6,10 +6,11 @@ module Dagger
       class WorkspaceModule < ::Dagger::Type
         include Node
         def self.graphql_name: () -> ::String
+        def entrypoint: () -> bool
         def settings: () -> ::Array[WorkspaceModuleSetting]
         def functions: () -> ::Array[::String]
         def name: () -> ::String
-        def entrypoint: () -> bool
+        def main: () -> bool
         def source: () -> ::String
       end
     end
