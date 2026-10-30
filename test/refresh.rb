@@ -37,9 +37,10 @@ helper.declare(File.read(File.expand_path("fixtures/entrypoint/lib/main.rb", __d
 entrypoint = Dagger::Mod::Entrypoint
 write.call(File.join(golden, "mod/types.dang"), entrypoint.render_types(helper.describe("Main")))
 write.call(File.join(golden, "mod/module.rbs"), entrypoint.render_rbs(Dagger::Mod.registry))
-write.call(File.join(golden, "mod/main.dang"), entrypoint.render_main("main"))
+write.call(File.join(golden, "mod/main.dang"), entrypoint.render_main("main", client_version: target_version))
 write.call(File.join(golden, "mod/main-sources.dang"),
-           entrypoint.render_main("main", outside: ["../shared"], outside_files: ["../Gemfile.common"]))
+           entrypoint.render_main("main", client_version: target_version, outside: ["../shared"],
+                                          outside_files: ["../Gemfile.common"]))
 build = Dagger::Mod::Build.new(image: "ruby:4.0@sha256:#{"0" * 64}", module_name: "my-module",
                                gemspecs: %w[sdk/dagger-sdk.gemspec clients/core/dagger-clients-core.gemspec])
 write.call(File.join(golden, "mod/build.dang"), build.to_dang)

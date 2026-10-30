@@ -162,10 +162,11 @@ dang = "2.1"
     dagger = "v1.0.0-beta.21"
 ```
 
-The module's clients' API view uses the same version, which the SDK sets. A
-module gets the file, and a new version, at its next `dagger generate`. A plain
-scope gets none. v1.0.0-beta.21 is the last release before the identifier-casing
-cut, whose release is not decided, and it stays valid on v1.0.0-beta.22.
+The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
+clients' API view use the same version, which the SDK sets. A module gets the
+file, and a new version, at its next `dagger generate`. A plain scope gets none.
+v1.0.0-beta.21 is the last release before the identifier-casing cut, whose
+release is not decided, and it stays valid on v1.0.0-beta.22.
 
 The SDK manages `dang` and `imports.Dagger.dagger`, and replaces `true` or
 another version there. It keeps every other setting and import, and keeps the
@@ -186,10 +187,11 @@ An engine that reads `dang.toml` serves the entrypoint the view it names, from
 the nearest file between the entrypoint and the module's directory, and treats
 a module without one as v1.0.0-beta.20. No released engine does yet: that is
 dagger/dagger#14902, which is still open. Released engines up to v1.0.0-beta.22
-load only the `.dang` files of an entrypoint, so they ignore the file and serve
-the module their own view. The language stays 2.1, but a versioned import needs
-Dang v2.2.0 or later to parse, so older standalone Dang tooling may reject the
-file.
+load only the `.dang` files of an entrypoint, so they ignore the file.
+v1.0.0-beta.22 serves the module's process the view `DAGGER_CLIENT_VERSION`
+names; earlier releases do not read it and serve their own view. The language
+stays 2.1, but a versioned import needs Dang v2.2.0 or later to parse, so older
+standalone Dang tooling may reject the file.
 
 ## Declaring a module
 

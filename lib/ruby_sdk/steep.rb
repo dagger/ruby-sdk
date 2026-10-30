@@ -147,7 +147,7 @@ class RubySdk
     def checked(root, dir, build, refusals, layout)
       source, subpath = layout
       installed = Core::Container.new(build.installed(Core.core.query, source, development: true, subpath:))
-      described = Scope.describe(installed, dir, subpath:)
+      described = Scope.describe(installed, dir, @target_version, subpath:)
       refused = Scope.describe_refusal(root, described)
       all = refusals + [refused].compact
       return Outcome.new(root, all, false, 0, "") unless dir.exists(path: "Steepfile")

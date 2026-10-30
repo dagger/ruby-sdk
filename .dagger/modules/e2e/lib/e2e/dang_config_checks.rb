@@ -11,7 +11,7 @@ class E2E
     path = "./lib"
   TOML
 
-  function "A module's dang.toml names the SDK's target version, in Dang 2.1: generation keeps " \
+  function "A module's dang.toml names the target version its entrypoint declares, in Dang 2.1: generation keeps " \
            "other settings, replaces the Dagger version, refuses what contradicts them, leaves ancestors alone, " \
            "keeps the cwd, and changes nothing the second time.", check: true
   #: (ws: Core::Workspace) -> void
@@ -39,6 +39,12 @@ class E2E
     [[APP, "app"], ["#{FIXTURES}/include/app", "include-app"]].each do |scope, name|
       entrypoint = ws.directory(path: "/#{scope}/sdk/entrypoint")
       check_versioned(entrypoint.file(path: "dang.toml").contents, target_version(ws), "#{name}'s dang.toml")
+      check_includes(entrypoint.file(path: "main.dang").contents,
+                     %(let clientVersion: String! = "#{target_version(ws)}"\n),
+                     "#{name}'s entrypoint does not declare the target version dang.toml names")
+      check_includes(entrypoint.file(path: "main.dang").contents,
+                     %(.withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)),
+                     "#{name}'s entrypoint does not set the client version")
       again = changed(generate(ws, scope, name:), ws)
       check(again.is_empty, "regenerating #{name} changed it: #{paths(again)}")
     end

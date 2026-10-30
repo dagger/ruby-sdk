@@ -258,10 +258,11 @@ class RubySdk
 
     # dagger-mod entrypoint on the module's annotations as they are now, in
     # its installed container: the registry's every rule.
-    def self.describe(installed, scope, subpath: nil)
+    def self.describe(installed, scope, target_version, subpath: nil)
       signatures = "#{subpath ? "/src/#{subpath}" : "/src"}/#{SIGNATURES}"
       installed.with_new_file(path: signatures, contents: Signatures.json(scope))
-               .with_exec(args: DESCRIBE, disable_dagger_in_dagger: true, expect: Core::ReturnType::ANY)
+               .with_exec(args: [*DESCRIBE, "--client-version", target_version], disable_dagger_in_dagger: true,
+                          expect: Core::ReturnType::ANY)
     end
 
     def self.describe_refusal(path, described)
@@ -442,7 +443,7 @@ class RubySdk
       build = build(target, members)
       source, subpath = layout(target, build)
       installed = Core::Container.new(build.installed(Core.core.query, source, subpath:))
-      described = self.class.describe(installed, scope, subpath:)
+      described = self.class.describe(installed, scope, @target_version, subpath:)
       refused = self.class.describe_refusal(@path, described)
       raise Error, refused if refused
 
@@ -459,7 +460,8 @@ class RubySdk
                           .with_file(path: ::File.basename(SIGNATURES), source: signatures)
       return rendered unless build.context?
 
-      main = Dagger::Mod::Entrypoint.render_main(@name, outside: build.outside, outside_files: build.outside_files)
+      main = Dagger::Mod::Entrypoint.render_main(@name, client_version: @target_version, outside: build.outside,
+                                                        outside_files: build.outside_files)
       rendered.with_new_file(path: "main.dang", contents: main)
     end
   end

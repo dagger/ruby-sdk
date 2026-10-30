@@ -55,7 +55,8 @@ class RubySdk
     def self.bundler_dir: (String? subpath) -> String
     def self.bundler_refusal: (String path, Dagger::Clients::Core::Container checked) -> String?
     def self.lock_refusal: (String path, String lock, Resources resources) -> String?
-    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, ?subpath: String?)
+    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, String target_version,
+                         ?subpath: String?)
                      -> Dagger::Clients::Core::Container
     def self.describe_refusal: (String path, Dagger::Clients::Core::Container described) -> String?
 

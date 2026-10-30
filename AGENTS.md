@@ -111,7 +111,8 @@ it was generated against (`CORE_DIGEST`), so a stale client fails to load.
 - The SDK module stays a thin Dang wrapper at the root; the Ruby half runs in
   an exec and reads its own files from `currentModule.source`.
 - `RubySdk.targetVersion` in `ruby-sdk.dang` is the one Dagger version of what
-  generation writes: clients' API view and `sdk/entrypoint/dang.toml`. `RubyHalf`'s
+  generation writes: clients' API view, the entrypoint's
+  `DAGGER_CLIENT_VERSION`, and `sdk/entrypoint/dang.toml`. `RubyHalf`'s
   `clientVersion` is a separate channel: the manifest's `engineVersion`, for
   the Ruby half's own process. The Dang wrapper writes `dang.toml` through
   `sdk-helpers`; `RubySdk::DangConfig` refuses what that write would lose.

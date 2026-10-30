@@ -68,8 +68,9 @@ sequenceDiagram
 
 - `RubySdk.targetVersion` in `ruby-sdk.dang` is the Dagger version of what
   generation writes. The request carries it to `Scope`, which selects the
-  clients' schema view with it. The Ruby half's own process keeps the
-  manifest's `engineVersion`.
+  clients' schema view with it and passes it to `dagger-mod entrypoint`, whose
+  `main.dang` sets `DAGGER_CLIENT_VERSION` before the module's exec. The Ruby
+  half's own process keeps the manifest's `engineVersion`.
 - The Dang wrapper writes `sdk/entrypoint/dang.toml` with `sdk-helpers`, from the
   file in the workspace it received, because the Ruby half replaces `sdk/` whole.
   A plain scope gets no file and keeps one it has. `RubySdk::DangConfig`
