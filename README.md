@@ -185,15 +185,18 @@ Generation refuses, naming what it found:
   Remove them, run `dagger generate`, then set what the module needs in
   `sdk/entrypoint/dang.toml`.
 
-An engine that reads `dang.toml` serves the entrypoint the view it names, from
-the nearest file between the entrypoint and the module's directory, and treats
-a module without one as v1.0.0-beta.20. No released engine does yet: that is
-dagger/dagger#14902, which is still open. Released engines up to v1.0.0-beta.22
-load only the `.dang` files of an entrypoint, so they ignore the file.
-v1.0.0-beta.22 serves the module's process the view `DAGGER_CLIENT_VERSION`
-names; earlier releases do not read it and serve their own view. The language
-stays 2.1, but a versioned import needs Dang v2.2.0 or later to parse, so older
-standalone Dang tooling may reject the file.
+Released engines up to v1.0.0-beta.22 load only the `.dang` files of an
+entrypoint, so they ignore the file. dagger/dagger#14902, still open, proposes
+that an engine read it: the nearest file between the entrypoint and the module's
+directory would set the entrypoint's view, and a module without one would get
+v1.0.0-beta.20. That proposal has not been tested with this SDK.
+
+`DAGGER_CLIENT_VERSION` declares the version on the exec that starts the module's
+process. v1.0.0-beta.22 reads it (dagger/dagger#14881), and earlier releases do
+not. Its effect on a running engine has not been tested with this SDK either.
+
+The language stays 2.1, but a versioned import needs Dang v2.2.0 or later to
+parse, so older standalone Dang tooling may reject the file.
 
 ## Declaring a module
 

@@ -5,9 +5,9 @@
 # an empty one would select the oldest view, and "latest" would follow every
 # engine, renaming RubySdk and the core API its committed clients call at the
 # identifier-casing cut, whose release is not decided. ruby-half.dang repeats it
-# for the Ruby half's nested client,
-# which would otherwise see the engine's view. The engine adds include to "*", so
-# "!*" first makes it the whole of the source.
+# for the Ruby half's nested client, which would otherwise get the view the engine
+# decides. The engine adds include to "*", so "!*" first makes it the whole of the
+# source.
 name = "ruby-sdk"
 engineVersion = "v1.0.0-beta.20"
 include = [
