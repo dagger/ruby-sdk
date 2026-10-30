@@ -3,6 +3,10 @@
 type Entrypoint implements ModuleEntrypoint {
   let moduleName: String! = "e2e"
 
+  # The version the module's generated clients were generated for: a nested
+  # client that declares none gets the module's view, which the engine decides.
+  let clientVersion: String! = "v1.0.0-beta.21"
+
   pub types(workspace: Workspace!): [TypeDef!]! {
     ModuleTypes().all
   }
@@ -24,6 +28,7 @@ type Entrypoint implements ModuleEntrypoint {
       moduleSource: currentModule.source.id,
     }})
     let result = runtime
+      .withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)
       .withExec(["ruby", "-rbundler/setup", "sdk/exe/dagger-mod", "call", "--output", "/dagger/result.json"], stdin: request)
       .file("/dagger/result.json")
       .contents

@@ -8,6 +8,7 @@ module Dagger
         def self.graphql_name: () -> ::String
         def template: () -> ::String
         def ruby_version: () -> ::String
+        def target_version: () -> ::String
         def call: (fn_name: ::String, fn_args: ::String) -> ::String
       end
     end
