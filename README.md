@@ -165,8 +165,9 @@ dang = "2.1"
 The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
 clients' API view use the same version, which the SDK sets. A module gets the
 file, and a new version, at its next `dagger generate`. A plain scope gets none.
-v1.0.0-beta.21 is the last release before the identifier-casing cut, whose
-release is not decided, and it stays valid on v1.0.0-beta.22.
+v1.0.0-beta.21 shares one API view with v1.0.0-beta.20 and stays valid on
+v1.0.0-beta.22, the first release with prerelease-granular views. The
+identifier-casing cut has not shipped, and its release is not decided.
 
 The SDK manages `dang` and `imports.Dagger.dagger`, and replaces `true` or
 another version there. It keeps every other setting and import, and keeps the
