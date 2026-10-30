@@ -118,6 +118,9 @@ sequenceDiagram
 - The gems install from `Gemfile`, `Gemfile.lock`, `dagger.gemfile` and the
   members' gemspecs, by their contents, before the rest of the source: an edit
   to `lib/` reuses the installed gems.
+- The install exec sets `disableDaggerInDagger`. The engine adds the module to
+  the identity of a nested exec of an entrypoint since v1.0.0-beta.20, and that
+  identity changes with the module's source.
 - Bundler's cache sits in one shared cache volume, in a directory per
   module and one for its development install: Bundler names its temporary
   files by process ID, which repeats across containers, so two builds that

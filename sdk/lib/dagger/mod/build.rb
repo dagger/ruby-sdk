@@ -75,6 +75,9 @@ module Dagger
 
       def to_dang = context? ? format(CONTEXT, **dang_parts) : format(ALONE, **dang_parts)
 
+      # The install opts out of Dagger in Dagger: the engine keys a nested exec
+      # of an entrypoint on its module, source included, so an edit to lib/
+      # would reinstall the gems.
       ALONE = <<~DANG.freeze
         %<header>s
         type RubyModuleBuild {
@@ -101,7 +104,7 @@ module Dagger
         %<env>s      .withMountedCache(%<cache_path>s, cacheVolume(%<cache_volume>s))
               .withWorkdir("/src")
               .withDirectory("/src", dependencies)
-              .withExec(["sh", "-c", %<install>s])
+              .withExec(["sh", "-c", %<install>s], disableDaggerInDagger: true)
               .withDirectory("/src", source, exclude: %<excludes>s)
           }
         }
@@ -138,7 +141,7 @@ module Dagger
         %<env>s      .withMountedCache(%<cache_path>s, cacheVolume(%<cache_volume>s))
               .withWorkdir("/src/" + subpath)
               .withDirectory("/src", %<layer>s)
-              .withExec(["sh", "-c", %<install>s])
+              .withExec(["sh", "-c", %<install>s], disableDaggerInDagger: true)
               .withDirectory("/src", source, exclude: %<context_excludes>s)
           }
         }

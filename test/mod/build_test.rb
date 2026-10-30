@@ -52,6 +52,12 @@ class BuildTest < Minitest::Test
     assert_includes build.to_dang, "files.withNewFile(path, source.file(path).contents)"
   end
 
+  def test_the_install_opts_out_of_dagger_in_dagger
+    [build, context_build].each do |described|
+      assert_match(/\.withExec\(\["sh", "-c", "bundle install .*\], disableDaggerInDagger: true\)$/, described.to_dang)
+    end
+  end
+
   def test_a_missing_dependency_file_is_left_for_bundler_to_name
     assert_includes build.to_dang, "if (source.exists(path)) {"
   end

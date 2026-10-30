@@ -456,6 +456,8 @@ A call builds the module's container from its current source. The gems
 install from `Gemfile`, `Gemfile.lock`, `dagger.gemfile` and the path gems'
 gemspecs alone, and the engine caches that step by their contents: an edit to
 `lib/` reuses the installed gems.
+That step has no access to the Dagger API, so a Gemfile or a gem's build cannot
+call Dagger while the call installs it.
 
 ## Gems outside the module
 
