@@ -193,7 +193,7 @@ module Dagger
 
         # The TypeDef representations of the objects currently being served in the session.
         # @param return_all_types Return the full referenced typedef closure instead of only top-level served typedefs.
-        # @param hide_core Strip core API functions from the Query type, leaving only module-sourced functions (constructors, entrypoint proxies, etc.).  Core types (Container, Directory, etc.) are kept so return types and method chaining still work.
+        # @param hide_core Strip core API functions from the Query type, leaving only module-sourced functions (constructors, workspace main proxies, etc.).  Core types (Container, Directory, etc.) are kept so return types and method chaining still work.
         def current_type_defs(return_all_types: nil, hide_core: nil)
           @query.select("currentTypeDefs", returnAllTypes: return_all_types, hideCore: hide_core).execute_object_list(TypeDef)
         end

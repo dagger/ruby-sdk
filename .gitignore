@@ -1,5 +1,3 @@
 /.bundle/
 /vendor/bundle/
 /tmp/
-/.dagger/modules/e2e/cli/
-/.dagger/modules/e2e/out/

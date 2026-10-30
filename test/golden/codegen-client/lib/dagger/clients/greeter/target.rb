@@ -6,7 +6,7 @@ module Dagger
       NAME = "greeter".freeze
       REF = "/.dagger/modules/greeter".freeze
       PIN = nil
-      CORE_DIGEST = "sha256:91b5ba12777f14ed12cc3d021ad64af4384f366745f58234193a7b59eef633ed".freeze
+      CORE_DIGEST = "sha256:ac1f71a039002440e968ab40d27d00434f4cea9445a6ad6501856ed3353f8ab5".freeze
     end
   end
 end

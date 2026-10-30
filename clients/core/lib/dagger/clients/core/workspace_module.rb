@@ -9,6 +9,12 @@ module Dagger
 
         def self.graphql_name = "WorkspaceModule"
 
+        # Compatibility alias for main.
+        # @deprecated Use main.
+        def entrypoint
+          @query.select("entrypoint").execute
+        end
+
         # List constructor-backed settings for this module.
         def settings
           @query.select("settings").execute_object_list(WorkspaceModuleSetting)
@@ -24,9 +30,9 @@ module Dagger
           @query.select("name").execute
         end
 
-        # Whether the module is the workspace entrypoint (functions aliased to Query root).
-        def entrypoint
-          @query.select("entrypoint").execute
+        # Whether the module is the workspace main (functions aliased to Query root).
+        def main
+          @query.select("main").execute
         end
 
         # The module source path.

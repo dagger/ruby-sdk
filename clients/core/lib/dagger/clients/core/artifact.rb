@@ -42,7 +42,7 @@ module Dagger
           @query.select("moduleName").execute
         end
 
-        # Ordered, literal fields to follow. Entrypoint targets use their shorthand.
+        # Ordered, literal fields to follow. Workspace main targets use their shorthand.
         def path
           @query.select("path").execute
         end

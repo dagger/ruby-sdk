@@ -118,6 +118,9 @@ sequenceDiagram
 - The gems install from `Gemfile`, `Gemfile.lock`, `dagger.gemfile` and the
   members' gemspecs, by their contents, before the rest of the source: an edit
   to `lib/` reuses the installed gems.
+- The install exec sets `disableDaggerInDagger`. The engine adds the module to
+  the identity of a nested exec of an entrypoint since v1.0.0-beta.20, and that
+  identity changes with the module's source.
 - Bundler's cache sits in one shared cache volume, in a directory per
   module and one for its development install: Bundler names its temporary
   files by process ID, which repeats across containers, so two builds that
@@ -249,8 +252,9 @@ version: it runs on whatever engine it is given. A feature is checked by its
 schema where generation can see it: a module with gems outside its directory
 builds from `CurrentModule.contextDirectory` and `sourceSubpath`. Whether the
 engine evaluates the entrypoint's `sources`, which loads those gems, no schema
-field shows, so nothing checks it. The tests run on the released engine of the
-`dagger` CLI's own version. The README lists the known engine limitations.
+field shows, so nothing checks it. The checks run in Dagger Cloud, on its
+engine, and a nested `dagger` in them is that engine's own CLI. The README
+lists the known engine limitations.
 
 ## Decisions
 
@@ -263,4 +267,5 @@ field shows, so nothing checks it. The tests run on the released engine of the
 | No engine version gate | a custom engine must run the SDK; features are checked by schema | a version floor |
 | The SDK module in Dang | it needs no generated entrypoint, so the SDK never generates itself | a manifest-v2 Ruby SDK module |
 | Gems outside a module from the Gemfile | Bundler already names them; the entrypoint's `sources` returns them | an `include` list in the manifest |
+| No workspace restriction in the SDK | an installed module may read its caller's workspace; the SDK keeps a module's source and files its own, and the check covers that | a sandbox in the SDK, or a check that a module cannot read the workspace |
 | `sources` only in a module with gems outside | a module without them keeps the same files, with no member to evaluate at every load | `sources` in every entrypoint, returning the manifest alone without gems outside |

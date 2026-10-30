@@ -18,7 +18,7 @@ module Dagger
         def with_interface: (iface: TypeDef) -> Module
         def with_enum: (enum: TypeDef) -> Module
         def runtime: () -> Container?
-        def serve: (?include_dependencies: bool?, ?entrypoint: bool?) -> nil
+        def serve: (?include_dependencies: bool?, ?main: bool?, ?entrypoint: bool?) -> nil
         def source: () -> ModuleSource?
         def name: () -> ::String
         def sdk: () -> SDKConfig?

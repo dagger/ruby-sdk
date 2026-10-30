@@ -6,6 +6,7 @@ class E2E
            "subset and after a change of keys, with marked members and with the engine's member names.", check: true
   #: (ws: Core::Workspace) -> void
   def collections_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     call = ->(*args) { JSON.parse(cli(ground, "-m", COLLECTIONS, "call", "--json", *args).stdout) }
     {
@@ -19,13 +20,14 @@ class E2E
       got = call.call(*args)
       check(got == want, "#{args.join(" ")}: got #{got.inspect}, want #{want.inspect}")
     end
-    collection_queries
+    collection_queries(ws)
   end
 
   function "A Ruby module calls a collection module through its generated client: subset, batch, get and list.",
            check: true
   #: (ws: Core::Workspace) -> void
   def collection_client_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     {
       "subset-keys" => %w[b c], "removed" => %w[b c], "item" => "item:a", "names" => %w[item:b item:a item:c]
@@ -39,11 +41,14 @@ class E2E
            "collection's own check.", check: true
   #: (ws: Core::Workspace) -> void
   def collection_checks_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     links = cli(ground, "-m", COLLECTIONS, "check", "--module", "collections", "-l", "--all", "-f=link").stdout.split
-    want = %w[items/verify&collections-item=a items/verify&collections-item=b items/verify&collections-item=c
-              suites/complete&collections-suite=lint suites/complete&collections-suite=unit]
-    check(links.sort == want.map { "dag+check://?check=#{it}" }, "dagger check -l --all listed #{links.inspect}")
+    want = %w[complete&collections-suite=lint complete&collections-suite=unit verify&collections-item=a
+              verify&collections-item=b verify&collections-item=c]
+    # v1.0.0-beta.19 also names the collection's field: check=items/verify.
+    named = links.map { it.sub(%r{check=\w+/}, "check=") }
+    check(named.sort == want.map { "dag+check://?check=#{it}" }, "dagger check -l --all listed #{links.inspect}")
     item_c = links.find { it.end_with?("item=c") }
     cli(ground, "-m", COLLECTIONS, "check", *(links - [item_c])).sync
     check_includes(cli_failure(ground, "-m", COLLECTIONS, "check", item_c), "item c fails its check",
@@ -53,6 +58,7 @@ class E2E
   function "A function returns core artifacts, which the CLI selects on, and reads them in the module.", check: true
   #: (ws: Core::Workspace) -> void
   def artifacts_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     call = ->(*args) { JSON.parse(cli(ground, "-m", COLLECTIONS, "call", "--json", *args).stdout) }
     selected = call.call("artifacts", "--ws", ".", "dimensions")
@@ -62,9 +68,10 @@ class E2E
 
   private
 
-  # The projected API, as the engine's own collection test queries it.
-  def collection_queries
-    Dagger::QueryBuilder.new.select("serveModule", address: "/#{COLLECTIONS}").execute(allow_nil: true)
+  # The projected API, as the engine's own collection test queries it, of
+  # the module served from the workspace with the generated fixtures.
+  def collection_queries(ws)
+    ws.module_source(path: "/#{COLLECTIONS}").as_module.serve
     root = Dagger::QueryBuilder.new.select("collections")
     items = root.select("items")
     subset = items.select("subset", keys: %w[c b])

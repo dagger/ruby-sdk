@@ -1,6 +1,5 @@
 class E2E
-  SECRET = "review-secret.txt".freeze
-  RUN_PATH = ".dagger/modules/e2e/cli/run".freeze
+  CALLER_FILE = "only-in-the-caller.txt".freeze
 
   EP_TARGET = <<~RUBY.freeze
     require "dagger"
@@ -15,9 +14,9 @@ class E2E
   RUBY
 
   EP_CALLER = <<~RUBY.freeze
+    require "json"
     require "dagger"
     require "dagger/clients/roots"
-    require_relative "reach"
 
     class EpCaller
       extend Dagger::Mod::Object
@@ -31,16 +30,18 @@ class E2E
       #: (build: String) -> String
       def short_greeting(build:) = "\#{build}: \#{ep_target.greeting} on \#{core.version}"
 
-      function "What this module's code can read of its caller's files."
+      function "What the module runs from, after a client call: the entries of its source, and its files on disk."
       #: (build: String) -> String
-      def reach(build:)
+      def own_files(build:)
         Dagger::Clients::EpTarget.ep_target.greeting
-        "\#{build}: \#{Reach.new(#{SECRET.dump}).report}"
+        pattern = "**/{ep_caller.rb,#{CALLER_FILE}}"
+        files = Dir.glob(pattern, base: File.expand_path("..", __dir__), flags: File::FNM_DOTMATCH)
+        JSON.generate(build:, source: Dagger::Mod.module_source.entries, files:)
       end
 
       function "A file of the caller's workspace, through a declared Workspace argument."
       #: (ws: Dagger::Clients::Core::Workspace, build: String) -> String
-      def declared(ws:, build:) = "\#{build}: \#{ws.file(path: #{"/#{SECRET}".dump}).contents}"
+      def declared(ws:, build:) = "\#{build}: \#{ws.file(path: #{"/#{CALLER_FILE}".dump}).contents}"
     end
   RUBY
 
@@ -89,18 +90,17 @@ class E2E
   }.freeze
 
   function "A module on its generated entrypoint calls a local client whose module is on one too, from " \
-           "dagger module init to dagger call; its code reads nothing of the caller's workspace, and a " \
-           "declared Workspace argument still reaches the caller's file.", check: true
+           "dagger module init to dagger call; it runs from its own source, which holds none of the caller's " \
+           "files, and a declared Workspace argument reaches them.", check: true
   #: (ws: Core::Workspace) -> void
   def entrypoint_client_call_check(ws:)
+    ws = fixtures(ws)
     target = ".dagger/modules/ep-target"
     caller = ".dagger/modules/ep-caller"
     ground = playground(ws).with_new_file(path: "#{PLAYGROUND}/#{target}/lib/ep_target.rb", contents: EP_TARGET)
     ground = cli(ground, "module", "init", "ruby", "-y", "--name", "ep-target", "--path", target)
     ground = cli(ground, "module", "init", "ruby", "-y", "--name", "ep-caller", "--path", caller)
              .with_new_file(path: "#{PLAYGROUND}/#{caller}/lib/ep_caller.rb", contents: EP_CALLER)
-             .with_file(path: "#{PLAYGROUND}/#{caller}/lib/reach.rb",
-                        source: ws.file(path: "/#{FIXTURES}/reach/reach.rb"))
     ground = cli(ground, "module", "client", "add", "../ep-target", "--sdk", "ruby", "-y", workdir: caller)
     check(file_in(ground, "#{caller}/dagger-module.toml") == manifest("ep-caller"),
           "the caller is not on its entrypoint")
@@ -111,26 +111,27 @@ class E2E
     short = cli(ground, "-m", caller, "call", "short-greeting", *build).stdout
     check_includes(short, "hello from the target on #{core.version}", "the module did not call its client's method")
 
-    secret = "only in the caller's workspace"
-    ground = ground.with_new_file(path: "#{PLAYGROUND}/#{SECRET}", contents: secret)
-    reached = cli(ground, "-m", caller, "call", "reach", *build).stdout
-    check_includes(reached, "reads=[]", "module code read a caller file")
-    check_excludes(reached, secret, "module code read a caller file")
-    # The probe proves something only if it held an ID to try, ran its
-    # routes, and hit no unknown field (fixtures/reach/reach.rb).
-    check_excludes(reached, "held=0 ", "the module held nothing to try, so this proves nothing")
-    check_includes(reached, "absent=0 ", "a probe route hit an unknown field, so it proves nothing")
-    check_excludes(reached, "routes=0 ", "the probe ran no routes")
+    contents = "only in the caller's workspace"
+    ground = ground.with_new_file(path: "#{PLAYGROUND}/#{CALLER_FILE}", contents:)
+    own = JSON.parse(cli(ground, "-m", caller, "call", "own-files", *build).stdout)
+    # Each list must also name the module's own files, or its lack of the
+    # caller's file would prove nothing.
+    check_includes(own["source"], "dagger-module.toml", "Dagger::Mod.module_source is not the module's own directory")
+    check_includes(own["source"], "lib/", "Dagger::Mod.module_source is not the module's own directory")
+    check_excludes(own["source"], CALLER_FILE, "Dagger::Mod.module_source holds the caller's file")
+    check(own["files"] == ["lib/ep_caller.rb"], "the module's files on disk are #{own["files"]}")
     declared = cli(ground, "-m", caller, "call", "declared", *build).stdout
-    check_includes(declared, secret, "a declared Workspace argument did not reach the caller's workspace")
+    check_includes(declared, contents, "a declared Workspace argument did not reach the caller's workspace")
   end
 
   function "With the same arguments, an unchanged target hits the cache, and a changed local target returns " \
-           "its new value, one hop and two. One line per assertion; hack/e2e.sh runs it " \
-           "alone.", check: true
+           "its new value, one hop and two. One line per assertion.", check: true
   #: (ws: Core::Workspace) -> void
   def client_cache_check(ws:)
-    nonce = run_nonce(ws)
+    ws = fixtures(ws)
+    # The check runs only on a cache miss: a fresh nonce keeps the cache
+    # modules of an earlier run from answering.
+    nonce = SecureRandom.hex(8)
     ground = cache_modules(playground(ws), nonce)
     # Each call is its own exec, so that only the engine's function cache can
     # answer a repeated one.
@@ -150,14 +151,6 @@ class E2E
   end
 
   private
-
-  def run_nonce(ws)
-    unless ws.directory(path: "/").exists(path: RUN_PATH)
-      raise Failure, "clientCacheCheck needs a fresh nonce at #{RUN_PATH}, which hack/e2e.sh writes"
-    end
-
-    ws.file(path: "/#{RUN_PATH}").contents.strip
-  end
 
   def cache_modules(ground, nonce)
     CACHE_MODULES.each_with_index.reduce(ground) do |built, ((name, source), index)|

@@ -225,6 +225,11 @@ end
   No argument is filled with a directory of the context: the engine resolves
   one against the caller's workspace, which holds the module only when the
   module sits in it.
+- A function reads the caller's workspace through the API, with a declared
+  `Dagger::Clients::Core::Workspace` argument, which the engine fills in when
+  the caller omits it. An installed module may read that workspace: the SDK
+  adds no restriction of its own, and keeps the workspace out of the module's
+  source and files.
 - A method name ending in `?` or `!` needs `name:`. `snake_case` names become
   `camelCase` in the API.
 - Top-level code of a module file must not call the API: generation loads the
@@ -393,8 +398,9 @@ dagger module client add ../lib
 ```
 
 This writes `clients/lib/`, a line of `dagger.gemfile` and the method `lib` of
-`clients/roots/`, and relocks. No client reaches the manifest. A plain program
-uses the long form, and a module the method:
+`clients/roots/`, and relocks. No client reaches the manifest. A client loads
+a module of the workspace by its path, also in a workspace opened from a git
+ref. A plain program uses the long form, and a module the method:
 
 ```ruby
 # main.rb, a plain program
@@ -455,6 +461,8 @@ A call builds the module's container from its current source. The gems
 install from `Gemfile`, `Gemfile.lock`, `dagger.gemfile` and the path gems'
 gemspecs alone, and the engine caches that step by their contents: an edit to
 `lib/` reuses the installed gems.
+That step has no access to the Dagger API, so a Gemfile or a gem's build cannot
+call Dagger while the call installs it.
 
 ## Gems outside the module
 

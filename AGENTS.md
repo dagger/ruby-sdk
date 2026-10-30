@@ -20,9 +20,9 @@ or a plain project.
 | `templates/` | What `dagger module init ruby` writes: `default` and `empty` |
 | `images/ruby/Dockerfile` | The pinned Ruby image that modules build on |
 | `sig/` | RBS for `lib/` |
-| `test/` | Minitest: `test/fixtures/core-schema.json` is the schema the generator's tests read, `test/golden/` the expected output |
-| `.dagger/modules/e2e/` | The end-to-end harness, itself a generated Ruby module; its fixture scopes are sources only (`fixtures/scopes.toml`) |
-| `hack/` | The scripts below, the development image (`dev.Dockerfile`, `tools/`), `unit.rb` and the design note |
+| `test/` | Minitest: `test/fixtures/core-schema.json` is the schema the generator's tests read, `test/golden/` the expected output, which `test/refresh.rb` rewrites |
+| `.dagger/modules/e2e/` | The end-to-end harness, itself a generated Ruby module, and the generators of the schema fixture, the goldens and the root's plain scope; its fixture scopes are sources only |
+| `hack/` | The development image (`dev.Dockerfile`, `tools/`) and the design note |
 
 The SDK module's `include` (`dagger-module.toml`) lists what its exec reads:
 the Dang files, the Gemfiles, `lib/`, `sdk/`, `clients/`, `templates/` and
@@ -35,45 +35,37 @@ the pinned image, relocks the scope.
 
 ## Checks
 
-Every check runs on a dedicated engine container, `dagger-engine.ruby-sdk`.
-The host needs Docker and the `dagger` CLI; it needs no Ruby.
+Dagger Cloud runs `dagger check` on every push: the `e2e` harness's checks,
+the SDK module's `ruby-sdk:steep`, and a staleness check for each generator
+of `dagger generate`. Locally, the same checks run on any engine; the host
+needs the `dagger` CLI and no Ruby:
 
 ```sh
-hack/engine.sh start          # the released engine of the CLI's own version
-hack/e2e.sh                   # everything; must pass before a change lands
-hack/e2e.sh sdk-test-check    # named checks only (clientCacheCheck still runs)
-hack/engine.sh remove         # the container and its volume
+dagger check -m .dagger/modules/e2e sdk-test-check sdk-lint-check sdk-types-check
+dagger check --generated      # everything Dagger Cloud runs
 ```
 
-`hack/e2e.sh` copies the tree to a scratch directory (`E2E_SCRATCH`, by
-default `~/.cache/ruby-sdk/e2e`), checks that generation leaves the committed
-files unchanged, registers and generates the fixture scopes one per pass, then
-runs `dagger check -m .dagger/modules/e2e` and `clientCacheCheck` alone. The
-harness's checks include:
+Each check that needs them registers and generates the fixture scopes in its
+own copy of the workspace, so the repository keeps their sources only. A
+nested `dagger` is the engine's own CLI, which the engine puts on the `PATH`
+of a nested exec. The harness's checks include:
 
 | Check | What it runs |
 | --- | --- |
-| `sdk-test-check` | Minitest over `test/` (`ruby hack/unit.rb test` in the development image) |
+| `sdk-test-check` | Minitest over `test/`, in the development image |
 | `sdk-lint-check` | RuboCop |
 | `sdk-types-check` | Steep over `lib/`, `sdk/` and a generated core |
 | `modules-steep-check` | `ruby-sdk:steep` over the fixture modules |
 | `plain-program-check` | a plain Ruby program with a client, under `dagger run` and with a session it provisions |
-
-`. hack/engine.env`, from anywhere in the repository, points a shell at the
-same engine. Unit tests, RuboCop and Steep then run straight from the tree, without
-the scratch copy:
-
-```sh
-. hack/engine.env && dagger check -m .dagger/modules/e2e sdk-test-check sdk-lint-check sdk-types-check
-```
+| `generated-up-to-date-check` | `dagger generate` over the fixture scopes and every generator, which changes nothing |
 
 The README's quickstart is the user path: run it as written in an empty git
 directory, with the SDK installed by path:
 
 ```sh
-. hack/engine.env
 ws=$(mktemp -d) && git -C "$ws" init -q
-rsync -a --relative $(ruby_sdk_module_files) "$ws/ruby-sdk/"
+rsync -a --relative dagger-module.toml ruby-sdk.dang ruby-half.dang mod.dang Gemfile Gemfile.lock \
+  dagger.gemfile lib sdk clients templates images "$ws/ruby-sdk/"
 cd "$ws" && dagger module install ./ruby-sdk
 # then each command of the README's Quickstart; a second dagger generate changes nothing
 ```
@@ -83,21 +75,8 @@ cd "$ws" && dagger module install ./ruby-sdk
 The SDK requires Dagger v1.0.0-beta.19 or later. That is documentation only:
 nothing checks the version.
 
-`hack/engine.env` points `DAGGER_ENGINE` at the dedicated container, hides any
-Dagger Cloud login (`XDG_CONFIG_HOME`), and leaves other engines alone
-(`DAGGER_LEAVE_OLD_ENGINE`). `hack/engine.sh start` runs
-`registry.dagger.io/engine:<version>` for the CLI's own version, so CLI and
-engine always match, on an empty volume whenever that version changes.
-
-- A custom engine: start it, then set `DAGGER_ENGINE` to it and `RUBY_SDK_CLI`
-  to its CLI, and run `hack/e2e.sh`.
-- Slow Docker Hub pulls: `RUBY_SDK_ENGINE_REGISTRY_MIRROR=mirror.gcr.io
-  hack/engine.sh start` gives the engine a mirror for `docker.io`. One slow
-  connection stalls a whole pull; restarting the engine resumes it.
-- The first run pulls the Ruby image and builds the development image. Warm
-  the engine first, after `. hack/engine.env`, from a directory that is not a
-  workspace:
-  `img=$(sed -n 's/^FROM //p' images/ruby/Dockerfile); (cd /tmp && dagger -c "container | from $img | sync")`.
+- A custom engine: set `DAGGER_ENGINE` to it and run the checks. Its nested
+  CLI is its own.
 - No `dagger.lock` is committed, and nothing here writes one. An ad-hoc
   `container | from` at a workspace's root does: delete it.
 - Bundler's cache is the `ruby-sdk-bundle` cache volume, with a directory per
@@ -112,21 +91,17 @@ engine always match, on an empty volume whenever that version changes.
 
 Generated files are committed and never edited by hand; every generated
 member directory carries a `.dagger-generated` marker. After a change to the
-generator, `sdk/`, `templates/` or the engine's schema:
+generator, `sdk/`, `templates/`, a harness file or the engine's schema:
 
 ```sh
-hack/refresh.sh
+dagger generate -y
 ```
 
-It rewrites the schema fixture and the goldens in the development image, runs
-`dagger generate -y`, then generates the root's plain scope, which
-`dagger generate` skips:
-`dagger -c 'ruby-sdk | generate-scope false "" "" | export'`. Commit what it
-writes. Each client records the core it was generated against
-(`CORE_DIGEST`), so a stale client fails to load. `hack/e2e.sh` fails on any
-file that generation would change, the root's core included. An edit to a
-harness file shifts the line numbers in its `signatures.json`, which
-`hack/refresh.sh` rewrites.
+Commit what it writes. Besides each registered scope, it runs the harness's
+generators: `goldens` rewrites the schema fixture and the goldens in the
+development image (`test/refresh.rb`), and `root-scope` generates the root's
+plain scope, which the SDK's generation skips. Each client records the core
+it was generated against (`CORE_DIGEST`), so a stale client fails to load.
 
 ## Rules
 
@@ -160,7 +135,7 @@ only.
 
 ## Commits
 
-One logical change per commit, each passing `hack/e2e.sh`. Subjects follow
+One logical change per commit, each passing the checks. Subjects follow
 the repository's history: a type and an optional scope, then an imperative,
 lowercase summary (`feat(sdk): …`, `fix(mod): …`, `test: …`, `docs: …`,
 `chore: …`, `ci: …`). The body says why in one to three lines. Commits are

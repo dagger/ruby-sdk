@@ -7,6 +7,7 @@ class E2E
            "objects and scalars in and out, void, defaults and ignore.", check: true
   #: (ws: Core::Workspace) -> void
   def types_round_trip_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws).with_new_file(path: "#{PLAYGROUND}/five.txt", contents: "12345")
     build = core.version
     # Void prints nothing, even as JSON.
@@ -50,7 +51,7 @@ class E2E
     check(read == "#{build}/noted", "a module object as an argument gave #{read.inspect}")
     through = cli(ground, "-m", TYPES, "-c", "greet-with $(greeter) --name #{build}").stdout.strip
     check(through == "through the interface: hello, #{build}", "an interface as an argument gave #{through.inspect}")
-    lists(build)
+    lists(ws, build)
     nullable_object
   end
 
@@ -58,8 +59,9 @@ class E2E
 
   # The CLI cannot pass a nested list and prints a list of objects as
   # references, so these rows go through GraphQL, to the module served into
-  # this session. A nested list as a result comes back from the engine as
-  # IDs, so only the argument direction is checked.
+  # this session from the workspace with the generated fixtures: serveModule
+  # would load it from the caller's. A nested list as a result comes back
+  # from the engine as IDs, so only the argument direction is checked.
   # A nullable object field of a generated client is nil when the API
   # answers null, and an object to chain on otherwise.
   def nullable_object
@@ -70,8 +72,8 @@ class E2E
           "an object result came back as #{object.inspect}")
   end
 
-  def lists(build)
-    Dagger::QueryBuilder.new.select("serveModule", address: "/#{TYPES}").execute(allow_nil: true)
+  def lists(ws, build)
+    ws.module_source(path: "/#{TYPES}").as_module.serve
     types = Dagger::QueryBuilder.new.select("types", build:)
     flat = types.select("flatten", rows: [[1, 2], [], [3]]).execute
     check(flat == [1, 2, 3], "a nested list argument arrived as #{flat.inspect}")
@@ -88,6 +90,7 @@ class E2E
            "keeps its exit code and stderr.", check: true
   #: (ws: Core::Workspace) -> void
   def error_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     build = core.version
     failed = cli_failure(ground, "-m", TYPES, "call", "--build", build, "explode", "--message", "boom #{build}")

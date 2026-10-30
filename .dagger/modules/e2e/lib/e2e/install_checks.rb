@@ -16,6 +16,7 @@ class E2E
            "from its own files, and never from files of the workspace at the same paths.", check: true
   #: (ws: Core::Workspace) -> void
   def sdk_installed_by_git_ref_check(ws:)
+    ws = fixtures(ws)
     server = git_server(ws)
     DECOYS.each do |what, decoys|
       made = installed_by_git_ref(ws, server, decoys).directory(path: INSTALLED)
@@ -32,11 +33,11 @@ class E2E
   # This repository, committed whole, as github.com/dagger/ruby-sdk would
   # serve it. The engine fetches by the service's own hostname: a binding's
   # alias, or a name set with withHostname, does not resolve for it here.
-  def git_server(ws)
+  def git_server(ws, source = tree(ws))
     commit = "git init --quiet --initial-branch main && git add --all && " \
              "git -c user.name=e2e -c user.email=e2e@dagger.io commit --quiet --no-gpg-sign --message sdk && " \
              "git clone --quiet --bare /repo /srv/ruby-sdk.git"
-    development_image(ws).with_directory(path: "/repo", source: tree(ws))
+    development_image(ws).with_directory(path: "/repo", source:)
                          .with_workdir(path: "/repo")
                          .with_exec(args: ["sh", "-c", commit])
                          .with_exposed_port(port: 9418)
@@ -55,8 +56,7 @@ class E2E
       [sdks.ruby]
       module = "ruby-sdk"
     TOML
-    ground = development_image(ws).with_file(path: "/usr/local/bin/dagger", source: ws.file(path: "/#{CLI_PATH}"))
-                                  .with_service_binding(alias_: "git-server", service: server)
+    ground = development_image(ws).with_service_binding(alias_: "git-server", service: server)
                                   .with_new_file(path: "#{INSTALLED}/dagger.toml", contents: config)
     ground = decoys.reduce(ground) { |g, (path, contents)| g.with_new_file(path: "#{INSTALLED}/#{path}", contents:) }
     ground = ground.with_workdir(path: INSTALLED).with_exec(args: %w[git init --quiet])

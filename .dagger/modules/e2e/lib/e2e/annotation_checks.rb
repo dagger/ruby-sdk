@@ -34,6 +34,7 @@ class E2E
            "its file and line.", check: true
   #: (ws: Core::Workspace) -> void
   def annotations_check(ws:)
+    ws = fixtures(ws)
     scope = "#{OUT}/typed"
     generated = generate(ws.with_new_directory(path: "/#{scope}", source: core.directory), scope, name: "typed")
     root = generated.directory(path: "/#{scope}")
@@ -60,6 +61,7 @@ class E2E
            "default and requiredness, as the annotations and defs of the types fixture give them.", check: true
   #: (ws: Core::Workspace) -> void
   def functions_listing_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     listed = squeezed(cli(ground, "-m", TYPES, "functions").stdout)
     DESCRIPTIONS.each { |name, doc| check_includes(listed, "#{name} #{doc}", "dagger functions") }
@@ -86,6 +88,7 @@ class E2E
            "development group.", check: true
   #: (ws: Core::Workspace) -> void
   def modules_steep_check(ws:)
+    ws = fixtures(ws)
     generated = steep_modules(ws)
     lib = "/steep-broken/lib/steep_broken.rb"
     wrong = generated.file(path: lib).contents.sub(CONTAINER_ANNOTATION, "#: () -> String")

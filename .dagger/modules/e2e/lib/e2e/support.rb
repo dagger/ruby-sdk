@@ -5,7 +5,6 @@ class E2E
     Core = Dagger::Clients::Core
     FIXTURES = ".dagger/modules/e2e/fixtures".freeze
     OUT = ".dagger/modules/e2e/out".freeze
-    CLI_PATH = ".dagger/modules/e2e/cli/dagger".freeze
     PLAYGROUND = "/work/ruby-sdk".freeze
     APP = "#{FIXTURES}/app".freeze
     DEP = "#{FIXTURES}/clients/dep".freeze
@@ -13,7 +12,22 @@ class E2E
     LOOKUP = "#{FIXTURES}/lookup/app".freeze
     CONFIG_APP = "#{FIXTURES}/config/app".freeze
     CONFIGURED = "#{FIXTURES}/config/configured".freeze
-    EXCLUDED = [".git", "**/vendor/bundle", "**/.bundle", OUT, ".dagger/modules/e2e/cli"].freeze
+    # The fixture scopes, which the repository keeps as sources: path => what
+    # dagger.toml would record. A client comes before the scopes that use it.
+    SCOPES = {
+      APP => { name: "app" },
+      DEP => { name: "dep" },
+      LOOKUP => { name: "lookup-app" },
+      "#{FIXTURES}/types" => { name: "types", clients: [DEP] },
+      PLAIN => { clients: [DEP] },
+      CONFIG_APP => { name: "config-app" },
+      CONFIGURED => { name: "config-configured", ruby_version: "3.4" },
+      "#{FIXTURES}/collections/app" => { name: "collections" },
+      "#{FIXTURES}/collections/caller" => { name: "collections-caller", clients: ["#{FIXTURES}/collections/app"] },
+      "#{FIXTURES}/include/app" => { name: "include-app" },
+      "#{FIXTURES}/include/caller" => { name: "include-caller", clients: ["#{FIXTURES}/include/app"] }
+    }.freeze
+    EXCLUDED = [".git", "**/vendor/bundle", "**/.bundle", OUT].freeze
     EVAL_LINE = %(eval_gemfile "dagger.gemfile").freeze
 
     class Failure < StandardError; end
@@ -67,21 +81,42 @@ class E2E
 
     def tree(ws) = ws.directory(path: "/", exclude: EXCLUDED)
 
+    # The workspace with the fixture scopes registered in dagger.toml and
+    # generated, as dagger generate would leave them. A workspace of a
+    # directory, so that a client among the fixtures loads what was generated
+    # here: a workspace of a git ref resolves one at its commit, which holds
+    # the fixtures' sources only.
+    def fixtures(ws)
+      config = "#{ws.file(path: "/dagger.toml").contents}\n#{scopes_config}"
+      registered = tree(ws).with_new_file(path: "dagger.toml", contents: config).as_workspace
+      SCOPES.reduce(registered) do |generated, (path, scope)|
+        clients = scope.fetch(:clients, []).map { generated.module_source(path: "/#{it}") }
+        generate(generated, path, is_module: scope.key?(:name), name: scope.fetch(:name, ""), clients:,
+                                  with: sdk(ruby_version: scope[:ruby_version]))
+      end.with_workdir(path: ".")
+    end
+
+    def scopes_config
+      SCOPES.map do |path, scope|
+        lines = [%([sdks.ruby.scopes."#{path}"])]
+        lines.push("is-module = true", %(name = "#{scope[:name]}")) if scope[:name]
+        lines << "clients = [#{scope[:clients].map { %("./#{it}") }.join(", ")}]" if scope[:clients]
+        lines.push("", %([sdks.ruby.scopes."#{path}".settings]), %(rubyVersion = "#{scope[:ruby_version]}")) \
+          if scope[:ruby_version]
+        "#{lines.join("\n")}\n"
+      end.join("\n")
+    end
+
     def development_image(ws)
       ws.directory(path: "/", include: ["hack/dev.Dockerfile", "hack/tools/**"])
         .docker_build(dockerfile: "hack/dev.Dockerfile")
     end
 
-    # The CLI built with the engine under test, as a nested client of it, in
-    # a git checkout of this tree, so that addresses resolve as on a
-    # developer's machine.
+    # The engine's own CLI, which a nested exec finds on its PATH, as a
+    # nested client of the engine under test, in a git checkout of this tree,
+    # so that addresses resolve as on a developer's machine.
     def playground(ws, files = tree(ws))
-      unless ws.directory(path: "/").exists(path: CLI_PATH)
-        raise Failure, "the playground needs the dev CLI at #{CLI_PATH}, which hack/e2e.sh copies"
-      end
-
-      development_image(ws).with_file(path: "/usr/local/bin/dagger", source: ws.file(path: "/#{CLI_PATH}"))
-                           .with_directory(path: PLAYGROUND, source: files)
+      development_image(ws).with_directory(path: PLAYGROUND, source: files)
                            .with_workdir(path: PLAYGROUND)
                            .with_exec(args: %w[git init --quiet])
     end

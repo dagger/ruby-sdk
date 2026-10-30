@@ -1426,7 +1426,7 @@
           },
           {
             "name": "path",
-            "description": "Ordered, literal fields to follow. Entrypoint targets use their shorthand.",
+            "description": "Ordered, literal fields to follow. Workspace main targets use their shorthand.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2573,7 +2573,7 @@
           },
           {
             "name": "filterPathPattern",
-            "description": "Keep paths that match a glob pattern. A literal path matches exactly. Both module-qualified and entrypoint paths match.",
+            "description": "Keep paths that match a glob pattern. A literal path matches exactly. Both module-qualified and workspace main paths match.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -21239,8 +21239,8 @@
                 "deprecationReason": null
               },
               {
-                "name": "entrypoint",
-                "description": "Install the module as the entrypoint, promoting its main-object methods onto the Query root",
+                "name": "main",
+                "description": "Install the module as the workspace main, promoting its main-object methods onto the Query root",
                 "defaultValue": null,
                 "type": {
                   "kind": "SCALAR",
@@ -21249,6 +21249,28 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "entrypoint",
+                "description": "Compatibility alias for main.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [
+                  {
+                    "name": "deprecated",
+                    "args": [
+                      {
+                        "name": "reason",
+                        "value": "\"Use main.\""
+                      }
+                    ]
+                  }
+                ],
+                "isDeprecated": true,
+                "deprecationReason": "Use main."
               }
             ],
             "isDeprecated": false,
@@ -25315,7 +25337,7 @@
               },
               {
                 "name": "hideCore",
-                "description": "Strip core API functions from the Query type, leaving only module-sourced functions (constructors, entrypoint proxies, etc.).\n\nCore types (Container, Directory, etc.) are kept so return types and method chaining still work.",
+                "description": "Strip core API functions from the Query type, leaving only module-sourced functions (constructors, workspace main proxies, etc.).\n\nCore types (Container, Directory, etc.) are kept so return types and method chaining still work.",
                 "defaultValue": null,
                 "type": {
                   "kind": "SCALAR",
@@ -30353,8 +30375,8 @@
             "directives": []
           },
           {
-            "name": "withEntrypoint",
-            "description": "Return this workspace with an installed module selected as its entrypoint.\n\nEvery other entrypoint selection is cleared. Entrypoints live in the base workspace config.",
+            "name": "withMain",
+            "description": "Return this workspace with an installed module selected as its main.\n\nEvery other main selection is cleared. The main module lives in the base workspace config.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -30384,8 +30406,49 @@
             "directives": []
           },
           {
-            "name": "withoutEntrypoint",
-            "description": "Return this workspace with no module selected as its entrypoint.",
+            "name": "withEntrypoint",
+            "description": "Compatibility alias for withMain.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Workspace"
+              }
+            },
+            "args": [
+              {
+                "name": "name",
+                "description": "Exact installed module name.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": true,
+            "deprecationReason": "Use withMain.",
+            "directives": [
+              {
+                "name": "deprecated",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Use withMain.\""
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "withoutMain",
+            "description": "Return this workspace with no module selected as its main.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -30397,6 +30460,31 @@
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
+          },
+          {
+            "name": "withoutEntrypoint",
+            "description": "Compatibility alias for withoutMain.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Workspace"
+              }
+            },
+            "args": [],
+            "isDeprecated": true,
+            "deprecationReason": "Use withoutMain.",
+            "directives": [
+              {
+                "name": "deprecated",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Use withoutMain.\""
+                  }
+                ]
+              }
+            ]
           },
           {
             "name": "withInitModule",
@@ -30461,8 +30549,8 @@
                 "deprecationReason": null
               },
               {
-                "name": "entrypoint",
-                "description": "Select this module as the entrypoint and install it. False prevents automatic selection. When omitted, select only if both path and name are omitted and the module is installed.",
+                "name": "main",
+                "description": "Select this module as the workspace main and install it. False prevents automatic selection. When omitted, select only if both path and name are omitted and the module is installed.",
                 "defaultValue": null,
                 "type": {
                   "kind": "SCALAR",
@@ -30471,6 +30559,28 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "entrypoint",
+                "description": "Compatibility alias for main.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [
+                  {
+                    "name": "deprecated",
+                    "args": [
+                      {
+                        "name": "reason",
+                        "value": "\"Use main.\""
+                      }
+                    ]
+                  }
+                ],
+                "isDeprecated": true,
+                "deprecationReason": "Use main."
               },
               {
                 "name": "settings",
@@ -31148,8 +31258,8 @@
             "directives": []
           },
           {
-            "name": "entrypoint",
-            "description": "Installed name of the module selected as the workspace entrypoint, or an empty string when none is selected.\n\nReflects the selected env's effective view. Fails if several modules are selected.",
+            "name": "main",
+            "description": "Installed name of the module selected as the workspace main, or an empty string when none is selected.\n\nReflects the selected env's effective view. Fails if several modules are selected.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -31161,6 +31271,31 @@
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
+          },
+          {
+            "name": "entrypoint",
+            "description": "Compatibility alias for main.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            "args": [],
+            "isDeprecated": true,
+            "deprecationReason": "Use main.",
+            "directives": [
+              {
+                "name": "deprecated",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Use main.\""
+                  }
+                ]
+              }
+            ]
           },
           {
             "name": "envList",
@@ -31288,7 +31423,7 @@
           },
           {
             "name": "artifacts",
-            "description": "Discover static object artifacts from workspace modules without evaluating their values.",
+            "description": "Discover static object artifacts from workspace modules without evaluating their values.\n\nOmits the paths that the workspace's check.skip, generate.skip, and up.skip settings skip.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -31858,6 +31993,31 @@
             "directives": []
           },
           {
+            "name": "entrypoint",
+            "description": "Compatibility alias for main.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            "args": [],
+            "isDeprecated": true,
+            "deprecationReason": "Use main.",
+            "directives": [
+              {
+                "name": "deprecated",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Use main.\""
+                  }
+                ]
+              }
+            ]
+          },
+          {
             "name": "settings",
             "description": "List constructor-backed settings for this module.",
             "type": {
@@ -31915,8 +32075,8 @@
             "directives": []
           },
           {
-            "name": "entrypoint",
-            "description": "Whether the module is the workspace entrypoint (functions aliased to Query root).",
+            "name": "main",
+            "description": "Whether the module is the workspace main (functions aliased to Query root).",
             "type": {
               "kind": "NON_NULL",
               "ofType": {

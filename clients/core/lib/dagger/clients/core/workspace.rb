@@ -345,15 +345,28 @@ module Dagger
           Workspace.new(@query.select("withoutSDK", name:, here:))
         end
 
-        # Return this workspace with an installed module selected as its entrypoint.
+        # Return this workspace with an installed module selected as its main.
         #
-        # Every other entrypoint selection is cleared. Entrypoints live in the base workspace config.
+        # Every other main selection is cleared. The main module lives in the base workspace config.
         # @param name Exact installed module name.
+        def with_main(name:)
+          Workspace.new(@query.select("withMain", name:))
+        end
+
+        # Compatibility alias for withMain.
+        # @param name Exact installed module name.
+        # @deprecated Use withMain.
         def with_entrypoint(name:)
           Workspace.new(@query.select("withEntrypoint", name:))
         end
 
-        # Return this workspace with no module selected as its entrypoint.
+        # Return this workspace with no module selected as its main.
+        def without_main
+          Workspace.new(@query.select("withoutMain"))
+        end
+
+        # Compatibility alias for withoutMain.
+        # @deprecated Use withoutMain.
         def without_entrypoint
           Workspace.new(@query.select("withoutEntrypoint"))
         end
@@ -365,10 +378,11 @@ module Dagger
         # @param name Module name. The engine infers it from path, the active config file, or the workspace root when omitted.
         # @param path Module path relative to the workspace cwd, or an absolute workspace path. Defaults to .dagger/modules/<name> beside the active workspace config.
         # @param install Install the module. When omitted, install only if path is omitted.
-        # @param entrypoint Select this module as the entrypoint and install it. False prevents automatic selection. When omitted, select only if both path and name are omitted and the module is installed.
+        # @param main Select this module as the workspace main and install it. False prevents automatic selection. When omitted, select only if both path and name are omitted and the module is installed.
+        # @param entrypoint Compatibility alias for main.
         # @param settings Explicit SDK-module constructor setting overrides for this scope.
-        def with_init_module(sdk:, name: nil, path: nil, install: nil, entrypoint: nil, settings: nil)
-          Workspace.new(@query.select("withInitModule", sdk:, name:, path:, install:, entrypoint:, settings:))
+        def with_init_module(sdk:, name: nil, path: nil, install: nil, main: nil, entrypoint: nil, settings: nil)
+          Workspace.new(@query.select("withInitModule", sdk:, name:, path:, install:, main:, entrypoint:, settings:))
         end
 
         # Return the selected SDK module's current scope at this workspace location.
@@ -510,9 +524,15 @@ module Dagger
           @query.select("configRead", key:, effective:).execute
         end
 
-        # Installed name of the module selected as the workspace entrypoint, or an empty string when none is selected.
+        # Installed name of the module selected as the workspace main, or an empty string when none is selected.
         #
         # Reflects the selected env's effective view. Fails if several modules are selected.
+        def main
+          @query.select("main").execute
+        end
+
+        # Compatibility alias for main.
+        # @deprecated Use main.
         def entrypoint
           @query.select("entrypoint").execute
         end
@@ -557,6 +577,8 @@ module Dagger
         end
 
         # Discover static object artifacts from workspace modules without evaluating their values.
+        #
+        # Omits the paths that the workspace's check.skip, generate.skip, and up.skip settings skip.
         # @param include Only include artifacts matching these path patterns, as with checks and services. A path selects that path and its children.
         def artifacts(include: nil)
           Artifacts.new(@query.select("artifacts", include:))

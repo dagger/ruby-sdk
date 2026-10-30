@@ -1,0 +1,8 @@
+class RubySdk
+  module GitWorkspace
+    def self?.includes?: (Dagger::Clients::Core::Workspace ws, Dagger::Clients::Core::ModuleSource client) -> bool
+    def self?.commit: (Dagger::Clients::Core::Workspace ws) -> String
+    def self?.matches?: (address: String, commit: String, clone_ref: String, ref: String, pin: String) -> bool
+    def self?.selector: (String ref, String clone_ref) -> String?
+  end
+end

@@ -36,10 +36,20 @@ class SdkModuleTest < Minitest::Test
     Dagger::Mod.module_source_id = nil
   end
 
-  def test_the_manifest_is_a_dang_module_on_the_engines_own_api
+  def test_the_manifest_is_a_dang_module_on_a_pinned_api
     assert_match(/^\[runtime\]\nsource = "dang"\n/, manifest)
     refute_match(/^\[entrypoint\]/, manifest)
-    assert_match(/^engineVersion = "latest"$/, manifest)
+    assert_match(/^engineVersion = "v1\.0\.0-beta\.20"$/, manifest)
+  end
+
+  # The Ruby half's nested client would otherwise see the engine's API, not the
+  # pinned one its committed core was generated for.
+  def test_the_ruby_half_declares_the_pinned_api
+    half = dang("ruby-half.dang")
+    pinned = manifest[/^engineVersion = "([^"]+)"$/, 1]
+
+    assert_includes half, %(  let clientVersion: String! = "#{pinned}"\n)
+    assert_match(/\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n\s*\.withExec/, half)
   end
 
   # Its source is what the Ruby half reads, and nothing else.

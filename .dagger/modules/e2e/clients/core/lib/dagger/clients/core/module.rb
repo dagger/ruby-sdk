@@ -74,9 +74,10 @@ module Dagger
         #
         # Note: this can only be called once per session. In the future, it could return a stream or service to remove the side effect.
         # @param include_dependencies Expose the dependencies of this module to the client
-        # @param entrypoint Install the module as the entrypoint, promoting its main-object methods onto the Query root
-        def serve(include_dependencies: nil, entrypoint: nil)
-          @query.select("serve", includeDependencies: include_dependencies, entrypoint:).execute(allow_nil: true)
+        # @param main Install the module as the workspace main, promoting its main-object methods onto the Query root
+        # @param entrypoint Compatibility alias for main.
+        def serve(include_dependencies: nil, main: nil, entrypoint: nil)
+          @query.select("serve", includeDependencies: include_dependencies, main:, entrypoint:).execute(allow_nil: true)
           nil
         end
 

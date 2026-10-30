@@ -1,7 +1,6 @@
 # This repository as the workspace's ruby SDK, and the scopes it generates.
-# hack/e2e.sh runs the checks on the dedicated engine that hack/engine.sh starts,
-# in a copy of this tree whose dagger.toml also registers the fixture scopes of
-# .dagger/modules/e2e/fixtures/scopes.toml.
+# The e2e module's checks register and generate the fixture scopes of
+# .dagger/modules/e2e/fixtures in their own copy of the workspace.
 
 [modules.ruby-sdk]
 source = "."

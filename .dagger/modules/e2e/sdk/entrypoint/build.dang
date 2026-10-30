@@ -39,7 +39,7 @@ type RubyModuleBuild {
       .withMountedCache("/cache/bundle", cacheVolume("ruby-sdk-bundle"))
       .withWorkdir("/src")
       .withDirectory("/src", dependencies)
-      .withExec(["sh", "-c", "bundle install || { status=$?; echo 'ruby-sdk: if you changed declarations, clients or gems, run `dagger generate`' >&2; exit $status; }"])
+      .withExec(["sh", "-c", "bundle install || { status=$?; echo 'ruby-sdk: if you changed declarations, clients or gems, run `dagger generate`' >&2; exit $status; }"], disableDaggerInDagger: true)
       .withDirectory("/src", source, exclude: [".bundle", "vendor/bundle"])
   }
 }

@@ -1,3 +1,4 @@
+require "securerandom"
 require "json"
 require "dagger"
 require "dagger/clients/core"
@@ -8,7 +9,7 @@ class E2E
   extend Dagger::Mod::Object
   include Support
 
-  description "End-to-end checks of the Ruby SDK, run on the engine under test by hack/e2e.sh."
+  description "End-to-end checks of the Ruby SDK, run by dagger check on the engine under test."
 end
 
 require_relative "e2e/scope_checks"
@@ -23,3 +24,5 @@ require_relative "e2e/roots_checks"
 require_relative "e2e/collection_checks"
 require_relative "e2e/sources_checks"
 require_relative "e2e/plain_checks"
+require_relative "e2e/git_workspace_checks"
+require_relative "e2e/generators"

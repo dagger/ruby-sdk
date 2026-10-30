@@ -17,7 +17,7 @@
           "returns": "void"
         },
         "functions_listing_check": {
-          "line": 62,
+          "line": 63,
           "params": [
             {
               "name": "ws",
@@ -27,7 +27,7 @@
           "returns": "void"
         },
         "modules_steep_check": {
-          "line": 88,
+          "line": 90,
           "params": [
             {
               "name": "ws",
@@ -57,7 +57,7 @@
           "returns": "void"
         },
         "cli_module_name_check": {
-          "line": 50,
+          "line": 51,
           "params": [
             {
               "name": "ws",
@@ -67,7 +67,7 @@
           "returns": "void"
         },
         "settings_check": {
-          "line": 81,
+          "line": 83,
           "params": [
             {
               "name": "ws",
@@ -87,7 +87,7 @@
       ],
       "methods": {
         "entrypoint_client_call_check": {
-          "line": 95,
+          "line": 96,
           "params": [
             {
               "name": "ws",
@@ -97,7 +97,7 @@
           "returns": "void"
         },
         "client_cache_check": {
-          "line": 132,
+          "line": 130,
           "params": [
             {
               "name": "ws",
@@ -127,7 +127,7 @@
           "returns": "void"
         },
         "collection_client_check": {
-          "line": 28,
+          "line": 29,
           "params": [
             {
               "name": "ws",
@@ -137,7 +137,7 @@
           "returns": "void"
         },
         "collection_checks_check": {
-          "line": 41,
+          "line": 43,
           "params": [
             {
               "name": "ws",
@@ -147,7 +147,57 @@
           "returns": "void"
         },
         "artifacts_check": {
-          "line": 55,
+          "line": 60,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/generators.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "goldens": {
+          "line": 5,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "Core::Changeset"
+        },
+        "root_scope": {
+          "line": 17,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "Core::Changeset"
+        }
+      }
+    }
+  ],
+  "lib/e2e/git_workspace_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "git_workspace_generate_check": {
+          "line": 19,
           "params": [
             {
               "name": "ws",
@@ -197,7 +247,7 @@
           "returns": "void"
         },
         "edit_without_generate_check": {
-          "line": 56,
+          "line": 57,
           "params": [
             {
               "name": "ws",
@@ -207,7 +257,7 @@
           "returns": "void"
         },
         "missed_generation_check": {
-          "line": 72,
+          "line": 74,
           "params": [
             {
               "name": "ws",
@@ -217,7 +267,7 @@
           "returns": "void"
         },
         "module_build_check": {
-          "line": 101,
+          "line": 104,
           "params": [
             {
               "name": "ws",
@@ -227,7 +277,7 @@
           "returns": "void"
         },
         "naming_check": {
-          "line": 119,
+          "line": 123,
           "params": [
             {
               "name": "ws",
@@ -237,7 +287,7 @@
           "returns": "void"
         },
         "generated_up_to_date_check": {
-          "line": 132,
+          "line": 136,
           "params": [
             {
               "name": "ws",
@@ -307,7 +357,7 @@
           "returns": "void"
         },
         "generate_scope_init_check": {
-          "line": 45,
+          "line": 46,
           "params": [
             {
               "name": "ws",
@@ -317,7 +367,7 @@
           "returns": "void"
         },
         "generate_scope_existing_check": {
-          "line": 97,
+          "line": 98,
           "params": [
             {
               "name": "ws",
@@ -327,7 +377,7 @@
           "returns": "void"
         },
         "generate_scope_clients_check": {
-          "line": 114,
+          "line": 116,
           "params": [
             {
               "name": "ws",
@@ -337,7 +387,7 @@
           "returns": "void"
         },
         "generate_scope_pins_check": {
-          "line": 159,
+          "line": 162,
           "params": [
             {
               "name": "ws",
@@ -347,7 +397,7 @@
           "returns": "void"
         },
         "generate_scope_plain_check": {
-          "line": 182,
+          "line": 186,
           "params": [
             {
               "name": "ws",
@@ -357,7 +407,7 @@
           "returns": "void"
         },
         "generate_scope_user_content_check": {
-          "line": 216,
+          "line": 221,
           "params": [
             {
               "name": "ws",
@@ -367,7 +417,7 @@
           "returns": "void"
         },
         "generate_skips_existing_files_check": {
-          "line": 235,
+          "line": 241,
           "params": [
             {
               "name": "ws",
@@ -377,7 +427,7 @@
           "returns": "void"
         },
         "vendoring_check": {
-          "line": 253,
+          "line": 260,
           "params": [
             {
               "name": "ws",
@@ -387,7 +437,7 @@
           "returns": "void"
         },
         "manifest_check": {
-          "line": 271,
+          "line": 279,
           "params": [
             {
               "name": "ws",
@@ -397,7 +447,7 @@
           "returns": "void"
         },
         "refusals_check": {
-          "line": 304,
+          "line": 313,
           "params": [
             {
               "name": "ws",
@@ -417,7 +467,7 @@
       ],
       "methods": {
         "sdk_test_check": {
-          "line": 4,
+          "line": 11,
           "params": [
             {
               "name": "ws",
@@ -427,7 +477,7 @@
           "returns": "void"
         },
         "sdk_lint_check": {
-          "line": 8,
+          "line": 15,
           "params": [
             {
               "name": "ws",
@@ -437,7 +487,7 @@
           "returns": "void"
         },
         "sdk_types_check": {
-          "line": 12,
+          "line": 19,
           "params": [
             {
               "name": "ws",
@@ -467,7 +517,7 @@
           "returns": "void"
         },
         "sources_call_check": {
-          "line": 29,
+          "line": 30,
           "params": [
             {
               "name": "ws",
@@ -477,7 +527,7 @@
           "returns": "void"
         },
         "sources_contract_check": {
-          "line": 46,
+          "line": 48,
           "params": [
             {
               "name": "ws",
@@ -487,7 +537,7 @@
           "returns": "void"
         },
         "sources_scope_check": {
-          "line": 63,
+          "line": 66,
           "params": [
             {
               "name": "ws",
@@ -497,7 +547,7 @@
           "returns": "void"
         },
         "sources_refusals_check": {
-          "line": 81,
+          "line": 85,
           "params": [
             {
               "name": "ws",
@@ -507,7 +557,7 @@
           "returns": "void"
         },
         "sources_git_check": {
-          "line": 99,
+          "line": 104,
           "params": [
             {
               "name": "ws",
@@ -537,7 +587,7 @@
           "returns": "void"
         },
         "error_check": {
-          "line": 90,
+          "line": 92,
           "params": [
             {
               "name": "ws",

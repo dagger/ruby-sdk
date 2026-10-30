@@ -1,10 +1,14 @@
 # The SDK module, a Dang module as Python's and Java's are, since the engine
 # loads only the manifest of a manifest-v2 module at a git repository's root.
-# Its Ruby half runs in an exec (ruby-half.dang). "latest" serves the engine's
-# own API: an empty engineVersion would select the oldest view. The engine
-# adds include to "*", so "!*" first makes it the whole of the source.
+# Its Ruby half runs in an exec (ruby-half.dang). engineVersion pins the API
+# view the module and its Ruby half see, and the rules that name its schema:
+# an empty one would select the oldest view, and "latest" would follow every
+# engine, renaming RubySdk and the core API its committed clients call from
+# v1.0.0-beta.21 on. ruby-half.dang repeats it for the Ruby half's nested client,
+# which would otherwise see the engine's view. The engine adds include to "*", so
+# "!*" first makes it the whole of the source.
 name = "ruby-sdk"
-engineVersion = "latest"
+engineVersion = "v1.0.0-beta.20"
 include = [
   "!*",
   "dagger-module.toml",
