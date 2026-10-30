@@ -18,6 +18,7 @@ class E2E
   def dang_config_check(ws:)
     ws = fixtures(ws)
     dang_config_default(ws)
+    dang_config_root_module(ws)
     dang_config_settings(ws)
     dang_config_conflicts(ws)
     dang_config_ancestors(ws)
@@ -50,6 +51,16 @@ class E2E
     end
     made = generate(ws, APP, name: "app")
     check(made.cwd == ws.with_workdir(path: APP).cwd, "generateScope changed the workspace cwd: #{made.cwd}")
+  end
+
+  # The root's cwd is "/", from which the wrapper builds a relative workdir.
+  def dang_config_root_module(ws)
+    root = core.directory.with_new_file(path: "README.md", contents: "a module at the root\n").as_workspace
+    made = generate(root, ".", name: "root-app")
+    check(made.cwd == root.with_workdir(path: ".").cwd, "generateScope changed the root's cwd: #{made.cwd}")
+    check_versioned(made.file(path: "/sdk/entrypoint/dang.toml").contents, target_version(ws), "the root's dang.toml")
+    again = changed(generate(made, ".", name: "root-app"), made)
+    check(again.is_empty, "regenerating the root module changed it: #{paths(again)}")
   end
 
   def dang_config_settings(ws)
