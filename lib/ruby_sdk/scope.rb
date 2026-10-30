@@ -90,7 +90,7 @@ class RubySdk
       target = stale_clients(existing, members).reduce(target) do |ws, dir|
         ws.without_directory(path: at("clients/#{dir}"))
       end
-      target = written(target, members)
+      target = with_sdk_dang_config(existing, written(target, members))
       target = bundled(existing, with_gemfile(target), members)
       target = with_entrypoint(target, members) if @is_module
       target.with_workdir(path: @path)
@@ -356,6 +356,12 @@ class RubySdk
       end
       target.with_new_directory(path: at("clients/roots"), source: roots_member(members))
             .with_new_file(path: at("dagger.gemfile"), contents: dagger_gemfile(members))
+    end
+
+    # sdk/ is replaced whole, but a dang.toml there is the user's.
+    def with_sdk_dang_config(existing, target)
+      file = DangConfig::SDK_ANCESTOR
+      existing.exists(path: file) ? target.with_file(path: at(file), source: existing.file(path: file)) : target
     end
 
     def stand_in

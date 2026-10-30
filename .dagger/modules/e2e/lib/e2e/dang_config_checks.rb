@@ -102,6 +102,19 @@ class E2E
     kept = generate(seeded, APP, name: "app")
     check(kept.file(path: ancestor).contents == pinned, "generation wrote to an ancestor already hidden")
     check(kept.file(path: above).contents == pinned, "generation wrote above the module")
+
+    dang_config_sdk_ancestor(ws, bare)
+  end
+
+  def dang_config_sdk_ancestor(ws, bare)
+    ancestor = "/#{APP}/sdk/dang.toml"
+    custom = %([imports.Lib]\npath = "./lib"\n)
+    hidden = generate(ws.with_new_file(path: ancestor, contents: custom), APP, name: "app")
+    check(hidden.file(path: ancestor).contents == custom, "replacing sdk/ changed a hidden sdk/dang.toml")
+
+    accepted = %(dang = "2.1"\n)
+    first = generate(bare.with_new_file(path: ancestor, contents: accepted), APP, name: "app")
+    check(first.file(path: ancestor).contents == accepted, "replacing sdk/ changed an accepted sdk/dang.toml")
   end
 
   def dang_config_plain(ws)

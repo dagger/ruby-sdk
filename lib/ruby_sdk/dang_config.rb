@@ -10,7 +10,8 @@ class RubySdk
     LANGUAGE = "2.1".freeze
     IMPORT = "Dagger".freeze
     # Between the entrypoint and the module's directory, where the engine stops looking.
-    ANCESTORS = %w[sdk/dang.toml dang.toml].freeze
+    SDK_ANCESTOR = "sdk/dang.toml".freeze
+    ANCESTORS = [SDK_ANCESTOR, "dang.toml"].freeze
 
     module_function
 

@@ -33,6 +33,7 @@ class RubySdk
     FILE: String
     LANGUAGE: String
     IMPORT: String
+    SDK_ANCESTOR: String
     ANCESTORS: Array[String]
 
     def self?.check: (String path, Dagger::Clients::Core::Directory existing, String target_version) -> void

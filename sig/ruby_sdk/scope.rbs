@@ -78,6 +78,7 @@ class RubySdk
     def template_files: () -> Hash[String, String]
     def walk: (directory directory, ?String prefix) -> Array[String]
     def written: (workspace target, Array[Member] members) -> workspace
+    def with_sdk_dang_config: (directory existing, workspace target) -> workspace
     def stand_in: () -> Dagger::Clients::Core::ModuleSource
     def core_member: () -> directory
     def client_member: (Member member, String digest) -> directory

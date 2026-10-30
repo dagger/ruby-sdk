@@ -213,4 +213,19 @@ class ScopeTest < Minitest::Test
 
     assert_equal files["app/dang.toml"], generate(files, is_module: false).tree.files["app/dang.toml"]
   end
+
+  def test_a_dang_toml_in_sdk_survives_its_replacement
+    custom = %([imports.Lib]\npath = "./lib"\n)
+    marked = { "app/Gemfile" => "", "app/sdk/.dagger-generated" => "sdk" }
+    {
+      "a hidden one" => marked.merge("app/sdk/dang.toml" => custom, "app/sdk/entrypoint/dang.toml" => ""),
+      "an accepted one" => marked.merge("app/sdk/dang.toml" => %(dang = "2.1"\n))
+    }.each do |what, files|
+      assert_equal files["app/sdk/dang.toml"], generate(files).tree.files["app/sdk/dang.toml"], what
+    end
+    plain = marked.merge("app/sdk/dang.toml" => custom)
+
+    assert_equal custom, generate(plain, is_module: false).tree.files["app/sdk/dang.toml"]
+    refute generate(marked).tree.files.key?("app/sdk/dang.toml")
+  end
 end
