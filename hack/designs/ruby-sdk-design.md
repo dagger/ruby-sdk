@@ -73,7 +73,8 @@ sequenceDiagram
   half's own process keeps the manifest's `engineVersion`.
 - The Dang wrapper writes `sdk/entrypoint/dang.toml` with `sdk-helpers`, from the
   file in the workspace it received, because the Ruby half replaces `sdk/` whole.
-  A plain scope gets no file and keeps one it has. `RubySdk::DangConfig`
+  A plain scope gets no file and keeps one it has, and `Scope` carries an
+  `sdk/dang.toml` through the replacement. `RubySdk::DangConfig`
   refuses what the helper would drop or what contradicts the target, and
   `Scope.check_dang_config` is one of generation's refusals the Steep check runs.
 - Every generated member carries a `.dagger-generated` marker naming its kind.

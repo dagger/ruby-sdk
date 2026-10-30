@@ -55,6 +55,7 @@ Naming/MethodParameterName:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+# Scope holds generation's refusals as class methods, which the Steep check shares.
 Metrics/ClassLength:
   Max: 310
   CountAsOne: ["heredoc"]

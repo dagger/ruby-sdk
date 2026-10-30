@@ -97,6 +97,10 @@ generator, `sdk/`, `templates/`, a harness file or the engine's schema:
 dagger generate -y
 ```
 
+Two files under a module's `sdk/` are the user's despite its marker:
+`sdk/entrypoint/dang.toml`, whose other settings generation keeps, and
+`sdk/dang.toml`, which it leaves as it is.
+
 Commit what it writes. Besides each registered scope, it runs the harness's
 generators: `goldens` rewrites the schema fixture and the goldens in the
 development image (`test/refresh.rb`), and `root-scope` generates the root's
