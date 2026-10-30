@@ -225,6 +225,11 @@ end
   No argument is filled with a directory of the context: the engine resolves
   one against the caller's workspace, which holds the module only when the
   module sits in it.
+- A function reads the caller's workspace through the API, with a declared
+  `Dagger::Clients::Core::Workspace` argument, which the engine fills in when
+  the caller omits it. An installed module may read that workspace: the SDK
+  adds no restriction of its own, and keeps the workspace out of the module's
+  source and files.
 - A method name ending in `?` or `!` needs `name:`. `snake_case` names become
   `camelCase` in the API.
 - Top-level code of a module file must not call the API: generation loads the

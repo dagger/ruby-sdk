@@ -87,7 +87,7 @@
       ],
       "methods": {
         "entrypoint_client_call_check": {
-          "line": 94,
+          "line": 96,
           "params": [
             {
               "name": "ws",
@@ -97,7 +97,7 @@
           "returns": "void"
         },
         "client_cache_check": {
-          "line": 131,
+          "line": 130,
           "params": [
             {
               "name": "ws",

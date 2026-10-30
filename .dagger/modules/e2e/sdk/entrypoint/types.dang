@@ -144,7 +144,7 @@ type ModuleTypes {
         )
         .withFunction(
           function("entrypointClientCallCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("A module on its generated entrypoint calls a local client whose module is on one too, from dagger module init to dagger call; its code reads nothing of the caller's workspace, and a declared Workspace argument still reaches the caller's file.")
+            .withDescription("A module on its generated entrypoint calls a local client whose module is on one too, from dagger module init to dagger call; it runs from its own source, which holds none of the caller's files, and a declared Workspace argument reaches them.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )

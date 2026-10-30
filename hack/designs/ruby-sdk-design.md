@@ -267,4 +267,5 @@ lists the known engine limitations.
 | No engine version gate | a custom engine must run the SDK; features are checked by schema | a version floor |
 | The SDK module in Dang | it needs no generated entrypoint, so the SDK never generates itself | a manifest-v2 Ruby SDK module |
 | Gems outside a module from the Gemfile | Bundler already names them; the entrypoint's `sources` returns them | an `include` list in the manifest |
+| No workspace restriction in the SDK | an installed module may read its caller's workspace; the SDK keeps a module's source and files its own, and the check covers that | a sandbox in the SDK, or a check that a module cannot read the workspace |
 | `sources` only in a module with gems outside | a module without them keeps the same files, with no member to evaluate at every load | `sources` in every entrypoint, returning the manifest alone without gems outside |
