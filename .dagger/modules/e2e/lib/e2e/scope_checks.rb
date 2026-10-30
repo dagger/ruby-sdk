@@ -23,6 +23,7 @@ class E2E
            "and answers null where there is none.", check: true
   #: (ws: Core::Workspace) -> void
   def find_client_root_check(ws:)
+    ws = fixtures(ws)
     {
       "#{LOOKUP}/nested" => LOOKUP,
       LOOKUP => LOOKUP,
@@ -95,6 +96,7 @@ class E2E
            "not migrated.", check: true
   #: (ws: Core::Workspace) -> void
   def generate_scope_existing_check(ws:)
+    ws = fixtures(ws)
     regenerated = changed(generate(ws, APP, name: "app"), ws)
     check(regenerated.is_empty, "regenerating the generated app changed it: #{paths(regenerated)}")
 
@@ -112,6 +114,7 @@ class E2E
            "relocks; removing it undoes all three; a manifest with [[dependencies]] is refused.", check: true
   #: (ws: Core::Workspace) -> void
   def generate_scope_clients_check(ws:)
+    ws = fixtures(ws)
     client = ws.module_source(path: "/#{DEP}")
     manifest_path = "/#{APP}/dagger-module.toml"
     seeded = ws.with_new_file(path: manifest_path, contents: "#{ws.file(path: manifest_path).contents}\n" \
@@ -157,6 +160,7 @@ class E2E
            check: true
   #: (ws: Core::Workspace) -> void
   def generate_scope_pins_check(ws:)
+    ws = fixtures(ws)
     target = core.module_source(ref_string: HELPERS, ref_pin: PINNED)
     descriptor = "/#{APP}/clients/sdk_helpers/lib/dagger/clients/sdk_helpers/target.rb"
     input = ws.with_new_file(path: "/#{APP}/keep.txt", contents: "keep")
@@ -180,6 +184,7 @@ class E2E
            "whichever scope holds it.", check: true
   #: (ws: Core::Workspace) -> void
   def generate_scope_plain_check(ws:)
+    ws = fixtures(ws)
     scope = "#{OUT}/plain-scope"
     client = ws.module_source(path: "/#{DEP}")
     bare = ws.with_new_directory(path: "/#{scope}", source: core.directory)
@@ -214,6 +219,7 @@ class E2E
            "clients/ without the marker, survive and are never written over.", check: true
   #: (ws: Core::Workspace) -> void
   def generate_scope_user_content_check(ws:)
+    ws = fixtures(ws)
     scope = "#{OUT}/user-content"
     client = ws.module_source(path: "/#{DEP}")
     files = USER_FILES.merge("Gemfile" => USER_GEMFILE, "clients/stale/.dagger-generated" => "client\n",
@@ -233,6 +239,7 @@ class E2E
   function "Generation reports only what it produced: files a scope already has are not added.", check: true
   #: (ws: Core::Workspace) -> void
   def generate_skips_existing_files_check(ws:)
+    ws = fixtures(ws)
     scope = "#{OUT}/skips"
     existing = {
       "Gemfile" => "source \"https://rubygems.org\"\n",
@@ -251,6 +258,7 @@ class E2E
            "entrypoint; never tests, the generator or development files.", check: true
   #: (ws: Core::Workspace) -> void
   def vendoring_check(ws:)
+    ws = fixtures(ws)
     vendored = generate(ws, APP, name: "app").directory(path: "/#{APP}/sdk")
     entries = vendored.entries.sort
     want = %w[.dagger-generated LICENSE dagger-sdk.gemspec entrypoint/ exe/ lib/ sig/]
@@ -269,6 +277,7 @@ class E2E
            "cannot carry is refused, naming it.", check: true
   #: (ws: Core::Workspace) -> void
   def manifest_check(ws:)
+    ws = fixtures(ws)
     path = "/#{APP}/dagger-module.toml"
     {
       "the manifest generation wrote" => manifest("app"),
@@ -302,6 +311,7 @@ class E2E
            check: true
   #: (ws: Core::Workspace) -> void
   def refusals_check(ws:)
+    ws = fixtures(ws)
     source = ws.file(path: "/#{APP}/lib/app.rb").contents
     cached = with_function(source, %(function "Cached.", cache: "never"\n#: () -> String\ndef cached = "x"\n))
     error = refusal { generate(ws.with_new_file(path: "/#{APP}/lib/app.rb", contents: cached), APP, name: "app") }

@@ -1,5 +1,6 @@
 # Records core's client-facing schema through the stand-in, then rewrites the
-# goldens from it. hack/refresh.sh runs it in the development image.
+# goldens from it. The e2e module's goldens generator runs it in the
+# development image.
 require "json"
 $LOAD_PATH.unshift File.expand_path("../sdk/lib", __dir__), File.expand_path("../lib", __dir__)
 require "dagger"
@@ -10,14 +11,14 @@ directory = RubySdk::Codegen::StandIn::FILES.reduce(root) do |query, (path, cont
   query.select("withNewFile", path:, contents:)
 end
 schema = directory.select("asModuleSource").select("clientSchemaIntrospectionJSON").select("contents").execute
-File.write(File.expand_path("../test/fixtures/core-schema.json", __dir__),
+File.write(File.expand_path("fixtures/core-schema.json", __dir__),
            "#{JSON.pretty_generate(JSON.parse(schema))}\n")
 
-require_relative "../test/codegen/codegen_helper"
-require_relative "../test/mod/mod_helper"
+require_relative "codegen/codegen_helper"
+require_relative "mod/mod_helper"
 require "dagger/mod"
 
-golden = File.expand_path("../test/golden", __dir__)
+golden = File.expand_path("golden", __dir__)
 write = lambda do |path, contents|
   FileUtils.mkdir_p(File.dirname(path))
   File.write(path, contents)
@@ -30,7 +31,7 @@ end
 
 helper = Object.new.extend(ModHelper)
 helper.setup
-helper.declare(File.read(File.expand_path("../test/fixtures/entrypoint/lib/main.rb", __dir__)))
+helper.declare(File.read(File.expand_path("fixtures/entrypoint/lib/main.rb", __dir__)))
 entrypoint = Dagger::Mod::Entrypoint
 write.call(File.join(golden, "mod/types.dang"), entrypoint.render_types(helper.describe("Main")))
 write.call(File.join(golden, "mod/module.rbs"), entrypoint.render_rbs(Dagger::Mod.registry))

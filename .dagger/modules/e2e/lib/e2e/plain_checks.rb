@@ -21,6 +21,7 @@ class E2E
            "class. It runs in an exec with a session of its own, whose CLI serves dagger run's child.", check: true
   #: (ws: Core::Workspace) -> void
   def plain_program_check(ws:)
+    ws = fixtures(ws)
     ran = playground(ws).with_workdir(path: "#{PLAYGROUND}/#{PLAIN}")
                         .with_exec(args: ["sh", "-c", PLAIN_PROGRAM], dagger_in_dagger_new_session: true,
                                    expect: Core::ReturnType::ANY)

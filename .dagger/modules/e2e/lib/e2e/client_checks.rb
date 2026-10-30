@@ -1,6 +1,5 @@
 class E2E
   SECRET = "review-secret.txt".freeze
-  RUN_PATH = ".dagger/modules/e2e/cli/run".freeze
 
   EP_TARGET = <<~RUBY.freeze
     require "dagger"
@@ -93,6 +92,7 @@ class E2E
            "declared Workspace argument still reaches the caller's file.", check: true
   #: (ws: Core::Workspace) -> void
   def entrypoint_client_call_check(ws:)
+    ws = fixtures(ws)
     target = ".dagger/modules/ep-target"
     caller = ".dagger/modules/ep-caller"
     ground = playground(ws).with_new_file(path: "#{PLAYGROUND}/#{target}/lib/ep_target.rb", contents: EP_TARGET)
@@ -126,11 +126,13 @@ class E2E
   end
 
   function "With the same arguments, an unchanged target hits the cache, and a changed local target returns " \
-           "its new value, one hop and two. One line per assertion; hack/e2e.sh runs it " \
-           "alone.", check: true
+           "its new value, one hop and two. One line per assertion.", check: true
   #: (ws: Core::Workspace) -> void
   def client_cache_check(ws:)
-    nonce = run_nonce(ws)
+    ws = fixtures(ws)
+    # The check runs only on a cache miss: a fresh nonce keeps the cache
+    # modules of an earlier run from answering.
+    nonce = SecureRandom.hex(8)
     ground = cache_modules(playground(ws), nonce)
     # Each call is its own exec, so that only the engine's function cache can
     # answer a repeated one.
@@ -150,14 +152,6 @@ class E2E
   end
 
   private
-
-  def run_nonce(ws)
-    unless ws.directory(path: "/").exists(path: RUN_PATH)
-      raise Failure, "clientCacheCheck needs a fresh nonce at #{RUN_PATH}, which hack/e2e.sh writes"
-    end
-
-    ws.file(path: "/#{RUN_PATH}").contents.strip
-  end
 
   def cache_modules(ground, nonce)
     CACHE_MODULES.each_with_index.reduce(ground) do |built, ((name, source), index)|

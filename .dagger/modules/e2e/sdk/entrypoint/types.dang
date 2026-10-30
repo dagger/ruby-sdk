@@ -3,7 +3,7 @@
 type ModuleTypes {
   pub all: [TypeDef!]! {
     [
-      typeDef.withObject("E2E", description: "End-to-end checks of the Ruby SDK, run on the engine under test by hack/e2e.sh.")
+      typeDef.withObject("E2E", description: "End-to-end checks of the Ruby SDK, run by dagger check on the engine under test.")
         .withFunction(
           function("findClientRootCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("findClientRoot answers with the directory of the nearest Gemfile, lifts a member to its scope, and answers null where there is none.")
@@ -150,7 +150,7 @@ type ModuleTypes {
         )
         .withFunction(
           function("clientCacheCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("With the same arguments, an unchanged target hits the cache, and a changed local target returns its new value, one hop and two. One line per assertion; hack/e2e.sh runs it alone.")
+            .withDescription("With the same arguments, an unchanged target hits the cache, and a changed local target returns its new value, one hop and two. One line per assertion.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
@@ -266,6 +266,18 @@ type ModuleTypes {
           function("gitWorkspaceGenerateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A workspace opened from a git ref generates what its checkout generates. There a client of a module of the same repository resolves as a git source at the workspace's commit; generation still binds it by path, with the ref's selector and without one.")
             .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
+          function("goldens", typeDef.withObject("Changeset"))
+            .withDescription("test/fixtures/core-schema.json is the engine's client-facing schema, and the goldens are rendered from it.")
+            .withGenerator
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
+          function("rootScope", typeDef.withObject("Changeset"))
+            .withDescription("The root's plain scope, which holds the SDK module's own core client: the SDK's generation skips it.")
+            .withGenerator
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withConstructor(

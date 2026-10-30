@@ -249,8 +249,9 @@ version: it runs on whatever engine it is given. A feature is checked by its
 schema where generation can see it: a module with gems outside its directory
 builds from `CurrentModule.contextDirectory` and `sourceSubpath`. Whether the
 engine evaluates the entrypoint's `sources`, which loads those gems, no schema
-field shows, so nothing checks it. The tests run on the released engine of the
-`dagger` CLI's own version. The README lists the known engine limitations.
+field shows, so nothing checks it. The checks run in Dagger Cloud, on its
+engine, and a nested `dagger` in them is that engine's own CLI. The README
+lists the known engine limitations.
 
 ## Decisions
 

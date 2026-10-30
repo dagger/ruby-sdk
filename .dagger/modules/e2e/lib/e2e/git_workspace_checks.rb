@@ -17,6 +17,7 @@ class E2E
            "by path, with the ref's selector and without one.", check: true
   #: (ws: Core::Workspace) -> void
   def git_workspace_generate_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws).with_new_file(path: "#{PLAYGROUND}/dagger.toml", contents: GIT_WORKSPACE)
     generates_nothing(ground, "", "generating from the checkout")
 

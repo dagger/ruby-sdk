@@ -44,6 +44,7 @@ class E2E
            check: true
   #: (ws: Core::Workspace) -> void
   def types_load_check(ws:)
+    ws = fixtures(ws)
     source = with_function(ws.file(path: "/#{APP}/lib/app.rb").contents, SHOUT)
     generated = generate(ws.with_new_file(path: "/#{APP}/lib/app.rb", contents: source), APP, name: "app")
     listed = cli(playground(ws, tree(generated)), "-m", APP, "functions").stdout
@@ -54,6 +55,7 @@ class E2E
            "permission-only change.", check: true
   #: (ws: Core::Workspace) -> void
   def edit_without_generate_check(ws:)
+    ws = fixtures(ws)
     files = tree(ws)
     helper = "#{APP}/lib/app/greeting.rb"
     call = ["-m", APP, "call", "greet", "--name", core.version]
@@ -70,6 +72,7 @@ class E2E
            "to run dagger generate.", check: true
   #: (ws: Core::Workspace) -> void
   def missed_generation_check(ws:)
+    ws = fixtures(ws)
     files = tree(ws)
     main = "#{APP}/lib/app.rb"
     source = files.file(path: main).contents
@@ -99,6 +102,7 @@ class E2E
            "edit to lib/, and with .ruby-version builds and locks on that Ruby.", check: true
   #: (ws: Core::Workspace) -> void
   def module_build_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     greeting = cli(ground, "-m", APP, "call", "greet", "--name", core.version).stdout.strip
     check(greeting == "hello, #{core.version}!", "the module answered #{greeting.inspect}")
@@ -130,6 +134,7 @@ class E2E
            "changes nothing.", check: true
   #: (ws: Core::Workspace) -> void
   def generated_up_to_date_check(ws:)
+    ws = fixtures(ws)
     before = tree(ws)
     after = cli(playground(ws, before), "generate", "-y").directory(path: PLAYGROUND).filter(exclude: [".git"])
     changes = after.changes(from: before)

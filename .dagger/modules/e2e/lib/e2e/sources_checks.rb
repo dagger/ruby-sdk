@@ -11,6 +11,7 @@ class E2E
            "and writes nothing outside the module.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_generate_check(ws:)
+    ws = fixtures(ws)
     entrypoint = "#{INCLUDE_APP}/sdk/entrypoint"
     check_includes(ws.file(path: "/#{entrypoint}/main.dang").contents, SOURCES, "the include app's main.dang")
     check_includes(ws.file(path: "/#{entrypoint}/build.dang").contents, 'let anchor = subpath.trimSuffix("app")',
@@ -27,6 +28,7 @@ class E2E
            "the gem gives a new one, through the module and through a caller's client.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_call_check(ws:)
+    ws = fixtures(ws)
     ground = playground(ws)
     call = ->(container, mod, function) { cli(container, "-m", mod, "call", function).stdout.strip }
     check(call.call(ground, INCLUDE_APP, "word") == "one", "the include app's word is not the gem's")
@@ -44,6 +46,7 @@ class E2E
            check: true
   #: (ws: Core::Workspace) -> void
   def sources_contract_check(ws:)
+    ws = fixtures(ws)
     included = ws.file(path: "/#{INCLUDE_APP}/sdk/entrypoint/main.dang").contents
     check_includes(included, "  pub types: [TypeDef!]! {\n", "the include app's types")
     check_includes(included, "  pub call(\n    receiverType: String!,\n", "the include app's call")
@@ -61,6 +64,7 @@ class E2E
            "the gem, or an edit in the gem's Bundler directories, leaves the result as it was.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_scope_check(ws:)
+    ws = fixtures(ws)
     shared = "#{PLAYGROUND}/#{INCLUDE}/shared"
     bundler = lambda do |ground, contents|
       ground.with_new_file(path: "#{shared}/.bundle/config", contents:)
@@ -79,6 +83,7 @@ class E2E
            "hint to run it.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_refusals_check(ws:)
+    ws = fixtures(ws)
     gemfile = "/#{INCLUDE_APP}/Gemfile"
     base = ws.file(path: gemfile).contents
     {
@@ -97,9 +102,9 @@ class E2E
            "commit.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_git_check(ws:)
+    ws = fixtures(ws)
     server = include_server(ws)
-    ground = development_image(ws).with_file(path: "/usr/local/bin/dagger", source: ws.file(path: "/#{CLI_PATH}"))
-                                  .with_service_binding(alias_: "git-server", service: server)
+    ground = development_image(ws).with_service_binding(alias_: "git-server", service: server)
                                   .with_workdir(path: "/tmp")
     word = ground.with_exec(args: ["dagger", "-m", "git://#{server.hostname}/include.git#main:app", "call", "word"],
                             experimental_privileged_nesting: true).stdout.strip

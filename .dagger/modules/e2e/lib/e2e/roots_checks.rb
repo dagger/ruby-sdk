@@ -13,6 +13,7 @@ class E2E
            "object has, naming both.", check: true
   #: (ws: Core::Workspace) -> void
   def client_method_clash_check(ws:)
+    ws = fixtures(ws)
     client = ws.module_source(path: "/#{DEP}")
     source = ws.file(path: "/#{APP}/lib/app.rb").contents
     CLASHES.each do |clash, declaration|

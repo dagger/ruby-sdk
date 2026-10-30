@@ -7,6 +7,7 @@ class E2E
            "them, and dagger functions lists no client method.", check: true
   #: (ws: Core::Workspace) -> void
   def cli_sdk_check(ws:)
+    ws = fixtures(ws)
     listed = cli(playground(ws), "sdk", "list")
     check_includes(listed.stdout, "ruby", "dagger sdk list did not list the Ruby SDK")
 
@@ -48,6 +49,7 @@ class E2E
            "constructor fields in snake case.", check: true
   #: (ws: Core::Workspace) -> void
   def cli_module_name_check(ws:)
+    ws = fixtures(ws)
     initialized = MODULE_NAMES.reduce(playground(ws)) do |ground, (name, file)|
       cli(ground, "module", "init", "ruby", "-y", "--name", name, "--path", ".dagger/modules/named-#{file}")
     end
@@ -79,6 +81,7 @@ class E2E
   function "dagger module init ruby --ruby-version writes .ruby-version, and regeneration keeps it.", check: true
   #: (ws: Core::Workspace) -> void
   def settings_check(ws:)
+    ws = fixtures(ws)
     path = ".dagger/modules/settings"
     initialized = cli(playground(ws), "module", "init", "ruby", "-y", "--name", "settings", "--path", path,
                       "--ruby-version", "3.4")
