@@ -1,5 +1,5 @@
-# Records core's client-facing schema through the stand-in, then rewrites the
-# goldens from it. The e2e module's goldens generator runs it in the
+# Records core's client-facing schema through the stand-in, in the SDK's target
+# version, then rewrites the goldens from it. The e2e module's goldens generator runs it in the
 # development image.
 require "json"
 $LOAD_PATH.unshift File.expand_path("../sdk/lib", __dir__), File.expand_path("../lib", __dir__)
@@ -10,7 +10,9 @@ root = Dagger::QueryBuilder.new.select("directory")
 directory = RubySdk::Codegen::StandIn::FILES.reduce(root) do |query, (path, contents)|
   query.select("withNewFile", path:, contents:)
 end
-schema = directory.select("asModuleSource").select("clientSchemaIntrospectionJSON").select("contents").execute
+target_version = File.read(File.expand_path("../ruby-sdk.dang", __dir__))[/let targetVersion: String! = "([^"]+)"/, 1]
+schema = directory.select("asModuleSource").select("withEngineVersion", version: target_version)
+                  .select("clientSchemaIntrospectionJSON").select("contents").execute
 File.write(File.expand_path("fixtures/core-schema.json", __dir__),
            "#{JSON.pretty_generate(JSON.parse(schema))}\n")
 
@@ -35,9 +37,10 @@ helper.declare(File.read(File.expand_path("fixtures/entrypoint/lib/main.rb", __d
 entrypoint = Dagger::Mod::Entrypoint
 write.call(File.join(golden, "mod/types.dang"), entrypoint.render_types(helper.describe("Main")))
 write.call(File.join(golden, "mod/module.rbs"), entrypoint.render_rbs(Dagger::Mod.registry))
-write.call(File.join(golden, "mod/main.dang"), entrypoint.render_main("main"))
+write.call(File.join(golden, "mod/main.dang"), entrypoint.render_main("main", client_version: target_version))
 write.call(File.join(golden, "mod/main-sources.dang"),
-           entrypoint.render_main("main", outside: ["../shared"], outside_files: ["../Gemfile.common"]))
+           entrypoint.render_main("main", client_version: target_version, outside: ["../shared"],
+                                          outside_files: ["../Gemfile.common"]))
 build = Dagger::Mod::Build.new(image: "ruby:4.0@sha256:#{"0" * 64}", module_name: "my-module",
                                gemspecs: %w[sdk/dagger-sdk.gemspec clients/core/dagger-clients-core.gemspec])
 write.call(File.join(golden, "mod/build.dang"), build.to_dang)

@@ -8,7 +8,8 @@ module Dagger
     # container. The module comes from --name and --file, or from the
     # DAGGER_MODULE and DAGGER_MODULE_FILE the module's container sets.
     module CLI
-      USAGE = "usage: dagger-mod describe|call|entrypoint [--name <module>] [--file <path>] [--output <path>]".freeze
+      USAGE = "usage: dagger-mod describe|call|entrypoint [--name <module>] [--file <path>] [--output <path>] " \
+              "[--client-version <version>]".freeze
 
       module_function
 
@@ -38,8 +39,9 @@ module Dagger
 
       def entrypoint(options)
         output = options.fetch(:output) { raise Error, USAGE }
+        client_version = options.fetch(:client_version) { raise Error, USAGE }
         name = ::Dagger::Client.registering { load_module(options) }
-        Entrypoint.write(Mod.registry.describe(Naming.to_camel(name)), name:, output:)
+        Entrypoint.write(Mod.registry.describe(Naming.to_camel(name)), name:, output:, client_version:)
         ::File.write(::File.join(output, "module.rbs"), Entrypoint.render_rbs(Mod.registry))
       end
 

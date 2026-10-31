@@ -19,6 +19,11 @@ module Dagger
           @query.select("rubyVersion").execute
         end
 
+        # The Dagger version of what generation writes.
+        def target_version
+          @query.select("targetVersion").execute
+        end
+
         # Run one function of the Ruby half, its arguments as JSON with objects by ID; its result as JSON.
         def call(fn_name:, fn_args:)
           @query.select("call", fnName: fn_name, fnArgs: fn_args).execute

@@ -19,7 +19,10 @@ other modules from Ruby: from a module, or from a plain Ruby program.
 ## Requirements
 
 - Dagger v1.0.0-beta.19 or later, its CLI and engine. The SDK checks no
-  version: on an older engine, what it lacks fails where it is used.
+  version: on an older engine, what it lacks fails where it is used. Generation
+  asks every engine for the v1.0.0-beta.21 API view. The source of v1.0.0-beta.19
+  and v1.0.0-beta.20 accepts that request, but generation with this target has
+  run only on v1.0.0-beta.21.
 - No Ruby on the host for modules: they build in containers, on the SDK's
   pinned Ruby 4.0 image, or on `ruby:<version>` with a `.ruby-version`. A
   plain Ruby program needs Ruby 3.4 or later and Bundler.
@@ -120,7 +123,8 @@ The module's name gives its main class by the engine's rule (`hello` gives
   Steepfile            yours, from the template
   lib/                 yours
   sdk/                 generated: the dagger-sdk gem, and a module's entrypoint,
-                       signatures read from its annotations and module.rbs
+                       signatures read from its annotations, module.rbs, and
+                       dang.toml, which you may add settings to
   clients/core/        generated: the core API
   clients/roots/       generated: core and each client as private methods
   clients/<name>/      generated: one per declared client
@@ -146,6 +150,56 @@ source = "./sdk/entrypoint"
 Generation refuses a manifest with `[runtime]`, `[[dependencies]]`,
 `engineVersion`, `include`, `exclude`, a `source` other than `.`, or another
 entrypoint, naming what it found, and refuses a `dagger.json`.
+
+### A module's `dang.toml`
+
+Generation writes `sdk/entrypoint/dang.toml`, which names the Dagger version
+the module was generated for and the Dang language its entrypoint is written
+in:
+
+```toml
+dang = "2.1"
+
+[imports]
+  [imports.Dagger]
+    dagger = "v1.0.0-beta.21"
+```
+
+The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
+clients' API view use the same version, which the SDK sets. A module gets the
+file, and a new version, at its next `dagger generate`. A plain scope gets none.
+v1.0.0-beta.21 shares one API view with v1.0.0-beta.20 and stays valid on
+v1.0.0-beta.22, the first release with prerelease-granular views. The
+identifier-casing cut has not shipped, and its release is not decided.
+
+The SDK manages `dang` and `imports.Dagger.dagger`, and replaces `true` or
+another version there. It keeps every other setting and import, and keeps the
+file when a scope stops being a module. It rewrites the file on each
+generation, so comments and formatting are lost.
+
+Generation refuses, naming what it found:
+
+- a `dang` other than `2.1`;
+- `path` or a non-empty `endpoint` in `imports.Dagger`;
+- another import with a `dagger` version other than the module's;
+- when the file does not exist yet, settings or pins the new file would hide in
+  the nearer of `sdk/dang.toml` and the module's `dang.toml`. Generation does not
+  copy them, and changes neither file, though it replaces the rest of `sdk/`.
+  Remove them, run `dagger generate`, then set what the module needs in
+  `sdk/entrypoint/dang.toml`.
+
+Released engines up to v1.0.0-beta.22 load only the `.dang` files of an
+entrypoint, so they ignore the file. dagger/dagger#14902, still open, proposes
+that an engine read it: the nearest file between the entrypoint and the module's
+directory would set the entrypoint's view, and a module without one would get
+v1.0.0-beta.20. That proposal has not been tested with this SDK.
+
+`DAGGER_CLIENT_VERSION` declares the version on the exec that starts the module's
+process. v1.0.0-beta.22 reads it (dagger/dagger#14881), and earlier releases do
+not. Its effect on a running engine has not been tested with this SDK either.
+
+The language stays 2.1, but a versioned import needs Dang v2.2.0 or later to
+parse, so older standalone Dang tooling may reject the file.
 
 ## Declaring a module
 

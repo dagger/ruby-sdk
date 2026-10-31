@@ -12,10 +12,10 @@ module Dagger
 
       module_function
 
-      def write(description, name:, output:)
+      def write(description, name:, output:, client_version:)
         ::FileUtils.mkdir_p(output)
         ::File.write(::File.join(output, "types.dang"), render_types(description))
-        ::File.write(::File.join(output, "main.dang"), render_main(name))
+        ::File.write(::File.join(output, "main.dang"), render_main(name, client_version:))
       end
 
       def render_types(description)
@@ -30,10 +30,11 @@ module Dagger
       # call get no workspace; the module then builds from its context
       # directory. Without them, the entrypoint keeps the contract that
       # engines without sources run too.
-      def render_main(name, outside: [], outside_files: [])
+      def render_main(name, client_version:, outside: [], outside_files: [])
         alone = (outside + outside_files).empty?
         contract = alone ? WORKSPACE_CONTRACT : { sources: sources(outside, outside_files), types: "", workspace: "" }
-        format(MAIN, header: HEADER, name: quote(name), command: JSON.generate(COMMAND).gsub(",", ", "),
+        format(MAIN, header: HEADER, name: quote(name), client_version: quote(client_version),
+                     command: JSON.generate(COMMAND).gsub(",", ", "),
                      runtime: alone ? ALONE_RUNTIME : CONTEXT_RUNTIME, **contract)
       end
 
@@ -146,6 +147,10 @@ module Dagger
         %<header>s
         type Entrypoint implements ModuleEntrypoint {
           let moduleName: String! = %<name>s
+
+          # The version the module's generated clients were generated for: a nested
+          # client that declares none gets the module's view, which the engine decides.
+          let clientVersion: String! = %<client_version>s
         %<sources>s
           pub types%<types>s: [TypeDef!]! {
             ModuleTypes().all
@@ -167,6 +172,7 @@ module Dagger
               moduleSource: currentModule.source.id,
             }})
             let result = runtime
+              .withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)
               .withExec(%<command>s, stdin: request)
               .file("/dagger/result.json")
               .contents

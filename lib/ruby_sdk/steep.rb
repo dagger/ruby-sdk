@@ -31,10 +31,11 @@ class RubySdk
       def failed? = !refusals.empty? || !exit_code.zero?
     end
 
-    def initialize(ws:, image:)
+    def initialize(ws:, image:, target_version:)
       @ws = ws
       @root_ws = ws.with_workdir(path: ".")
       @image = image
+      @target_version = target_version
     end
 
     # Every module, or the one at or above path. Passing, it says that
@@ -114,10 +115,11 @@ class RubySdk
       checked(root, dir, build, refusals, [source, subpath])
     end
 
-    # The members and manifest checks of generation, which read files only.
+    # The members, manifest and dang.toml checks of generation, which read files only.
     def scope_refusal(root, dir, client_dirs)
       Scope.check_members(root, dir, client_dirs)
       Scope.check_manifest(root, dir)
+      Scope.check_dang_config(root, dir, @target_version)
       nil
     rescue Error => e
       e.message
@@ -145,7 +147,7 @@ class RubySdk
     def checked(root, dir, build, refusals, layout)
       source, subpath = layout
       installed = Core::Container.new(build.installed(Core.core.query, source, development: true, subpath:))
-      described = Scope.describe(installed, dir, subpath:)
+      described = Scope.describe(installed, dir, @target_version, subpath:)
       refused = Scope.describe_refusal(root, described)
       all = refusals + [refused].compact
       return Outcome.new(root, all, false, 0, "") unless dir.exists(path: "Steepfile")

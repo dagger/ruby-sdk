@@ -13,19 +13,25 @@ type RubyHalf {
   pub rubyVersion: String!
 
   """
+  The Dagger version of what generation writes.
+  """
+  pub targetVersion: String!
+
+  """
   Run one function of the Ruby half, its arguments as JSON with objects by ID; its result as JSON.
   """
   pub call(fnName: String!, fnArgs: String!): String! {
     let request = JSON.encode({{
       template: template,
       rubyVersion: rubyVersion,
+      targetVersion: targetVersion,
       function: fnName,
       args: fnArgs,
       moduleSource: currentModule.source.id,
     }})
-    # A nested client in a plain exec is served the engine's own API view, not
-    # the module's: DAGGER_CLIENT_VERSION pins it to the view the committed
-    # clients/core was generated for.
+    # A nested client in a plain exec gets the API view the engine decides:
+    # DAGGER_CLIENT_VERSION asks for the one the committed clients/core was
+    # generated for, on an engine that reads it (dagger/dagger#14881).
     runtime
       .withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)
       .withExec(["ruby", "-rbundler/setup", "lib/ruby_sdk/call.rb", "/dagger/result.json"], stdin: request)

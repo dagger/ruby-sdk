@@ -18,8 +18,9 @@ class RubySdk
     @ws: Dagger::Clients::Core::Workspace
     @root_ws: Dagger::Clients::Core::Workspace
     @image: String
+    @target_version: String
 
-    def initialize: (ws: Dagger::Clients::Core::Workspace, image: String) -> void
+    def initialize: (ws: Dagger::Clients::Core::Workspace, image: String, target_version: String) -> void
     def check: (?String? path) -> nil
     def modules: () -> Array[String]
     def module_at: (String path) -> String
