@@ -19,7 +19,10 @@ other modules from Ruby: from a module, or from a plain Ruby program.
 ## Requirements
 
 - Dagger v1.0.0-beta.19 or later, its CLI and engine. The SDK checks no
-  version: on an older engine, what it lacks fails where it is used.
+  version: on an older engine, what it lacks fails where it is used. Generation
+  asks every engine for the v1.0.0-beta.21 API view. The source of v1.0.0-beta.19
+  and v1.0.0-beta.20 accepts that request, but generation with this target has
+  run only on v1.0.0-beta.21.
 - No Ruby on the host for modules: they build in containers, on the SDK's
   pinned Ruby 4.0 image, or on `ruby:<version>` with a `.ruby-version`. A
   plain Ruby program needs Ruby 3.4 or later and Bundler.
