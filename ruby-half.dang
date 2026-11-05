@@ -31,7 +31,7 @@ type RubyHalf {
     }})
     # A nested client in a plain exec gets the API view the engine decides:
     # DAGGER_CLIENT_VERSION asks for the one the committed clients/core was
-    # generated for, on an engine that reads it (dagger/dagger#14881).
+    # generated for, on an engine that reads it.
     runtime
       .withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)
       .withExec(["ruby", "-rbundler/setup", "lib/ruby_sdk/call.rb", "/dagger/result.json"], stdin: request)

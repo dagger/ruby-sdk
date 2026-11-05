@@ -3,11 +3,10 @@
 # Its Ruby half runs in an exec (ruby-half.dang). engineVersion pins the API
 # view the module and its Ruby half see, and the rules that name its schema:
 # an empty one would select the oldest view, and "latest" would follow every
-# engine, renaming RubySdk and the core API its committed clients call at the
-# identifier-casing cut, whose release is not decided. ruby-half.dang repeats it
-# for the Ruby half's nested client, which would otherwise get the view the engine
-# decides. The engine adds include to "*", so "!*" first makes it the whole of the
-# source.
+# engine, renaming RubySdk and the core API its committed clients call whenever
+# an engine renames them. ruby-half.dang repeats it for the Ruby half's nested
+# client, which would otherwise get the view the engine decides. The engine adds
+# include to "*", so "!*" first makes it the whole of the source.
 name = "ruby-sdk"
 engineVersion = "v1.0.0-beta.20"
 include = [
