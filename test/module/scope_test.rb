@@ -7,7 +7,7 @@ class ScopeTest < Minitest::Test
   SHA = "419c4afea78603265c40e273c455623a0291922e".freeze
   OTHER = ("0" * 40).freeze
   CLONE = "http://h/r.git".freeze
-  TARGET = "v1.0.0-beta.21".freeze
+  TARGET = "v1.2.3".freeze
 
   def generate(files, cwd: "/app", is_module: true, clients: [], name: "app", **)
     ws = FakeWorkspace.new(FakeTree.new(files), cwd)

@@ -5,19 +5,19 @@ require "json"
 $LOAD_PATH.unshift File.expand_path("../sdk/lib", __dir__), File.expand_path("../lib", __dir__)
 require "dagger"
 require "ruby_sdk/codegen/stand_in"
+require_relative "mod/mod_helper"
 
 root = Dagger::QueryBuilder.new.select("directory")
 directory = RubySdk::Codegen::StandIn::FILES.reduce(root) do |query, (path, contents)|
   query.select("withNewFile", path:, contents:)
 end
-target_version = File.read(File.expand_path("../ruby-sdk.dang", __dir__))[/let targetVersion: String! = "([^"]+)"/, 1]
+target_version = ModHelper::TARGET_VERSION
 schema = directory.select("asModuleSource").select("withEngineVersion", version: target_version)
                   .select("clientSchemaIntrospectionJSON").select("contents").execute
 File.write(File.expand_path("fixtures/core-schema.json", __dir__),
            "#{JSON.pretty_generate(JSON.parse(schema))}\n")
 
 require_relative "codegen/codegen_helper"
-require_relative "mod/mod_helper"
 require "dagger/mod"
 
 golden = File.expand_path("golden", __dir__)

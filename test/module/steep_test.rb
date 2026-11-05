@@ -25,7 +25,7 @@ class SteepTest < Minitest::Test
   }.freeze
 
   def steep(files, cwd: "/")
-    RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby", target_version: "v1.0.0-beta.21")
+    RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby", target_version: "v1.2.3")
   end
 
   def test_every_module_this_sdk_generated_is_found_and_nothing_else
@@ -68,7 +68,7 @@ class SteepTest < Minitest::Test
 
   def recorded(files, outcomes)
     Recorded.new(outcomes, ws: FakeWorkspace.new(FakeTree.new(files), "/"), image: "ruby",
-                           target_version: "v1.0.0-beta.21")
+                           target_version: "v1.2.3")
   end
 
   def test_every_failing_module_is_reported_with_its_output_and_exit_code

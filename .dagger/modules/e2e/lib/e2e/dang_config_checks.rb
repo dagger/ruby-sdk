@@ -53,7 +53,6 @@ class E2E
     check(made.cwd == ws.with_workdir(path: APP).cwd, "generateScope changed the workspace cwd: #{made.cwd}")
   end
 
-  # The root's cwd is "/", from which the wrapper builds a relative workdir.
   def dang_config_root_module(ws)
     root = core.directory.with_new_file(path: "README.md", contents: "a module at the root\n").as_workspace
     made = generate(root, ".", name: "root-app")
@@ -81,7 +80,6 @@ class E2E
     check_versioned(older.file(path: app_config).contents, target_version(ws), "the replaced older version")
   end
 
-  # sdk-helpers drops a path from the Dagger import and refuses an endpoint with a version.
   def dang_config_helper_rules(ws)
     pathed = generate(ws.with_new_file(path: app_config, contents: %([imports.Dagger]\npath = "./mine"\n)), APP,
                       name: "app")

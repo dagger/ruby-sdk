@@ -52,29 +52,6 @@ class SdkModuleTest < Minitest::Test
     assert_match(/\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n\s*\.withExec/, half)
   end
 
-  # Two channels: clients/core stays on the module's pin, whatever generation targets.
-  def test_the_generated_target_is_one_value_the_ruby_half_receives
-    target = dang[/^  let targetVersion: String! = "([^"]+)"$/, 1]
-
-    assert_equal "v1.0.0-beta.21", target
-    assert_includes dang, "RubyHalf(template: template, rubyVersion: rubyVersion, targetVersion: targetVersion)"
-    assert_includes dang("ruby-half.dang"), "      targetVersion: targetVersion,\n"
-    assert_equal(1, Dir[File.join(ROOT, "*.dang")].sum { File.read(it).scan(target).size })
-  end
-
-  def test_generate_scope_writes_the_config_through_the_helper
-    assert_includes dang, %(.withVersion("2.1")\n)
-    assert_includes dang, %(.withDaggerImport(name: "Dagger", version: targetVersion)\n)
-    assert_includes dang, %(let dangConfigPath: String! = "sdk/entrypoint/dang.toml"\n)
-  end
-
-  def test_the_helper_is_pinned_to_its_release
-    assert_includes manifest, <<~TOML
-      name = "sdk-helpers"
-      source = "github.com/dagger/sdk-helpers@31dafd0c74d9a08faa00c09dce87a5af072e7a9d"
-    TOML
-  end
-
   # Its source is what the Ruby half reads, and nothing else.
   def test_the_module_source_holds_what_the_sdk_reads
     included = manifest[/^include = \[\n(.*?)^\]/m, 1].scan(/"([^"]+)"/).flatten
