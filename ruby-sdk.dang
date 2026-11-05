@@ -30,7 +30,8 @@ type RubySdk {
     let existing = ws.directory(".", include: [dangConfigPath])
     let found = existing.exists(dangConfigPath)
     if (isModule) {
-      let scope = normalizePath(ws.cwd)
+      # withWorkdir takes a path from the workspace root and refuses an absolute one.
+      let scope = "." + ws.cwd
       sdkHelpers.dangConfig(loadToml: if (found) { existing.file(dangConfigPath) } else { null })
         .withVersion("2.1")
         .withDaggerImport(name: "Dagger", version: targetVersion)
@@ -68,9 +69,4 @@ type RubySdk {
   let targetVersion: String! = "v1.0.0-beta.21"
 
   let dangConfigPath: String! = "sdk/entrypoint/dang.toml"
-
-  let normalizePath(path: String!): String! {
-    let trimmed = path.trimPrefix("/").trimSuffix("/")
-    if (trimmed == "") { "." } else { trimmed }
-  }
 }
