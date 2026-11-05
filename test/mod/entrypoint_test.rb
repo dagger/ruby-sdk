@@ -18,7 +18,7 @@ class EntrypointTest < Minitest::Test
   def test_golden_types_and_main
     assert_equal File.read(File.join(GOLDEN, "types.dang")), Entrypoint.render_types(describe)
     assert_equal File.read(File.join(GOLDEN, "main.dang")),
-                 Entrypoint.render_main("main", client_version: TARGET_VERSION)
+                 Entrypoint.render_main("main", client_version: CLIENT_VERSION)
   end
 
   # What Steep needs beside the annotations: the readers and initializer of
@@ -33,14 +33,14 @@ class EntrypointTest < Minitest::Test
   # engine to load with the module, which builds from its context directory;
   # types and call then get no workspace.
   def test_sources_make_the_module_build_from_its_context
-    main = Entrypoint.render_main("main", client_version: TARGET_VERSION, outside: ["../shared"],
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION, outside: ["../shared"],
                                           outside_files: ["../Gemfile.common"])
 
     assert_equal File.read(File.join(GOLDEN, "main-sources.dang")), main
   end
 
   def test_a_module_without_anything_outside_keeps_the_workspace_contract
-    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
 
     refute_includes main, "sources"
     assert_includes main, "  pub types(workspace: Workspace!): [TypeDef!]! {\n"
@@ -48,7 +48,7 @@ class EntrypointTest < Minitest::Test
   end
 
   def test_the_call_runs_on_the_current_source_and_records_none_of_it
-    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
 
     assert_includes main, "RubyModuleBuild(source: currentModule.source, moduleName: moduleName).installed"
     refute_match(/digest\(|sha256:|dagger generate/, main)
@@ -94,7 +94,7 @@ class EntrypointTest < Minitest::Test
   end
 
   def test_the_call_declares_the_call_digest_and_sends_it
-    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
 
     assert_includes main, "    callDigest: String,\n  ): JSON! {"
     assert_includes main, "      callDigest: callDigest,\n"
