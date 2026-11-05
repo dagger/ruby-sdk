@@ -1,6 +1,7 @@
 require_relative "mod_helper"
 $LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
 require "ruby_sdk/codegen/stand_in"
+require "dagger/mod/cli"
 
 class EntrypointTest < Minitest::Test
   include ModHelper
@@ -16,7 +17,8 @@ class EntrypointTest < Minitest::Test
 
   def test_golden_types_and_main
     assert_equal File.read(File.join(GOLDEN, "types.dang")), Entrypoint.render_types(describe)
-    assert_equal File.read(File.join(GOLDEN, "main.dang")), Entrypoint.render_main("main")
+    assert_equal File.read(File.join(GOLDEN, "main.dang")),
+                 Entrypoint.render_main("main", client_version: TARGET_VERSION)
   end
 
   # What Steep needs beside the annotations: the readers and initializer of
@@ -31,13 +33,14 @@ class EntrypointTest < Minitest::Test
   # engine to load with the module, which builds from its context directory;
   # types and call then get no workspace.
   def test_sources_make_the_module_build_from_its_context
-    main = Entrypoint.render_main("main", outside: ["../shared"], outside_files: ["../Gemfile.common"])
+    main = Entrypoint.render_main("main", client_version: TARGET_VERSION, outside: ["../shared"],
+                                          outside_files: ["../Gemfile.common"])
 
     assert_equal File.read(File.join(GOLDEN, "main-sources.dang")), main
   end
 
   def test_a_module_without_anything_outside_keeps_the_workspace_contract
-    main = Entrypoint.render_main("main")
+    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
 
     refute_includes main, "sources"
     assert_includes main, "  pub types(workspace: Workspace!): [TypeDef!]! {\n"
@@ -45,7 +48,7 @@ class EntrypointTest < Minitest::Test
   end
 
   def test_the_call_runs_on_the_current_source_and_records_none_of_it
-    main = Entrypoint.render_main("main")
+    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
 
     assert_includes main, "RubyModuleBuild(source: currentModule.source, moduleName: moduleName).installed"
     refute_match(/digest\(|sha256:|dagger generate/, main)
@@ -75,8 +78,23 @@ class EntrypointTest < Minitest::Test
     assert_equal RubySdk::Codegen::StandIn::TYPES, Entrypoint.render_types(describe("CoreSchema"))
   end
 
+  # Both contracts: without it, a nested client gets whatever view the engine gives the module.
+  def test_the_call_sets_the_client_version_before_it_runs_the_module
+    [Entrypoint.render_main("main", client_version: "v9"),
+     Entrypoint.render_main("main", client_version: "v9", outside: ["../shared"])].each do |main|
+      assert_includes main, %(  let clientVersion: String! = "v9"\n)
+      assert_match(/\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n\s*\.withExec\(\["ruby"/, main)
+    end
+  end
+
+  def test_the_entrypoint_command_requires_the_client_version
+    error = assert_raises(Dagger::Mod::Error) { Dagger::Mod::CLI.entrypoint({ output: "/nowhere" }) }
+
+    assert_includes error.message, "--client-version"
+  end
+
   def test_the_call_declares_the_call_digest_and_sends_it
-    main = Entrypoint.render_main("main")
+    main = Entrypoint.render_main("main", client_version: TARGET_VERSION)
 
     assert_includes main, "    callDigest: String,\n  ): JSON! {"
     assert_includes main, "      callDigest: callDigest,\n"

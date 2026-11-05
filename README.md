@@ -165,9 +165,9 @@ dang = "2.1"
     dagger = "v1.0.0-beta.21"
 ```
 
-The module's clients' API view uses the same version, which the SDK sets. A
-module gets the file, and a new version, at its next `dagger generate`. A plain
-scope gets none.
+The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
+clients' API view use the same version, which the SDK sets. A module gets the
+file, and a new version, at its next `dagger generate`. A plain scope gets none.
 v1.0.0-beta.21 shares one API view with v1.0.0-beta.20 and stays valid on
 v1.0.0-beta.22, the first release with prerelease-granular views. The
 identifier-casing cut has not shipped, and its release is not decided.
@@ -184,6 +184,10 @@ entrypoint, so they ignore the file. dagger/dagger#14902, still open, proposes
 that an engine read it: the nearest file between the entrypoint and the module's
 directory would set the entrypoint's view, and a module without one would get
 v1.0.0-beta.20. That proposal has not been tested with this SDK.
+
+`DAGGER_CLIENT_VERSION` declares the version on the exec that starts the module's
+process. v1.0.0-beta.22 reads it (dagger/dagger#14881), and earlier releases do
+not. Its effect on a running engine has not been tested with this SDK either.
 
 The language stays 2.1, but a versioned import needs Dang v2.2.0 or later to
 parse, so older standalone Dang tooling may reject the file.

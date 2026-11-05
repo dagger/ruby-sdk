@@ -40,6 +40,12 @@ class E2E
     [[APP, "app"], ["#{FIXTURES}/include/app", "include-app"]].each do |scope, name|
       entrypoint = ws.directory(path: "/#{scope}/sdk/entrypoint")
       check_versioned(entrypoint.file(path: "dang.toml").contents, target_version(ws), "#{name}'s dang.toml")
+      check_includes(entrypoint.file(path: "main.dang").contents,
+                     %(let clientVersion: String! = "#{target_version(ws)}"\n),
+                     "#{name}'s entrypoint does not declare the target version dang.toml names")
+      check_includes(entrypoint.file(path: "main.dang").contents,
+                     %(.withEnvVariable("DAGGER_CLIENT_VERSION", clientVersion)),
+                     "#{name}'s entrypoint does not set the client version")
       again = changed(generate(ws, scope, name:), ws)
       check(again.is_empty, "regenerating #{name} changed it: #{paths(again)}")
     end

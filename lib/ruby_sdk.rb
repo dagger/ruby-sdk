@@ -25,7 +25,7 @@ class RubySdk
               ruby_version:).generated
   end
 
-  def steep(ws:, path: nil) = Steep.new(ws:, image:).check(path)
+  def steep(ws:, path: nil) = Steep.new(ws:, image:, target_version: @target_version).check(path)
 
   private
 

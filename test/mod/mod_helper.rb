@@ -4,6 +4,9 @@ require "dagger/mod"
 require "ruby_sdk/signatures"
 
 module ModHelper
+  TARGET_VERSION = File.read(File.expand_path("../../ruby-sdk.dang", __dir__))[/let targetVersion: String! = "([^"]+)"/,
+                                                                               1]
+
   # Declares classes the way a module file does, under a namespace of their
   # own, with a fresh registry each time.
   module Fixtures; end

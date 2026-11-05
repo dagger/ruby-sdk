@@ -11,7 +11,7 @@ The first release. It requires Dagger v1.0.0-beta.19 or later.
 
 - `sdk/entrypoint/dang.toml` in a module, written through `sdk-helpers`, with
   the Dagger version the module was generated for: v1.0.0-beta.21, which its
-  clients' API view also uses. Generation manages
+  `DAGGER_CLIENT_VERSION` and clients' API view also use. Generation manages
   that version and the language, and keeps other settings without comments or
   formatting.
 - A workspace SDK: `dagger module install github.com/dagger/ruby-sdk`
