@@ -71,6 +71,12 @@ type ModuleTypes {
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
+          function("dangConfigCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("A module's dang.toml names the target version its entrypoint declares, in Dang 2.1: generation keeps other settings, replaces the Dagger version, refuses what contradicts them, leaves ancestors alone, keeps the cwd, and changes nothing the second time.")
+            .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
           function("typesLoadCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger functions loads a generated module, so the engine evaluates its rendered types.dang.")
             .withCheck

@@ -14,7 +14,7 @@ module Dagger
           @query.select("path").execute
         end
 
-        # dagger generate accepts this module, and Steep passes on it if it has a Steepfile, in its own image with its Gemfile's development group.
+        # dagger generate accepts this module, unless sdk-helpers refuses its sdk/entrypoint/dang.toml, which the check does not read, and Steep passes on it if it has a Steepfile, in its own image with its Gemfile's development group.
         def steep
           @query.select("steep").execute(allow_nil: true)
           nil

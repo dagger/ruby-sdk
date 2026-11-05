@@ -11,9 +11,10 @@ module Dagger
       ALONE_RUNTIME: String
       CONTEXT_RUNTIME: String
 
-      def self?.write: (Description::Module description, name: String, output: String) -> void
+      def self?.write: (Description::Module description, name: String, output: String, client_version: String) -> void
       def self?.render_types: (Description::Module description) -> String
-      def self?.render_main: (String name, ?outside: Array[String], ?outside_files: Array[String]) -> String
+      def self?.render_main: (String name, client_version: String, ?outside: Array[String], ?outside_files: Array[String])
+                                  -> String
       def self?.sources: (Array[String] outside, Array[String] outside_files) -> String
       def self?.object: (Description::ObjectType type) -> Array[String]
       def self?.collection: (Description::Collection members) -> Array[String]
