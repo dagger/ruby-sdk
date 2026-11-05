@@ -73,8 +73,7 @@ cd "$ws" && dagger module install ./ruby-sdk
 ## Engines
 
 The SDK requires Dagger v1.0.0-beta.19 or later. That is documentation only:
-nothing checks the version, and generation with the current target has run only
-on v1.0.0-beta.21.
+nothing checks the version.
 
 - A custom engine: set `DAGGER_ENGINE` to it and run the checks. Its nested
   CLI is its own.
