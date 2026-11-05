@@ -62,9 +62,18 @@ sequenceDiagram
   S->>I: install, then dagger-mod entrypoint: describe the module
   I-->>S: types.dang, main.dang, module.rbs, signatures.json
   S->>S: render build.dang, write dagger-module.toml
+  S->>S: the Dang wrapper writes sdk/entrypoint/dang.toml through sdk-helpers
   S-->>E: the workspace with the scope's changes
 ```
 
+- `RubySdk.targetVersion` in `ruby-sdk.dang` is the Dagger version of what
+  generation writes. The request carries it to `Scope`, which selects the
+  clients' schema view with it. The Ruby half's own process keeps the
+  manifest's `engineVersion`.
+- The Dang wrapper writes `sdk/entrypoint/dang.toml` with `sdk-helpers`, from the
+  file in the workspace it received, because the Ruby half replaces `sdk/` whole.
+  sdk-helpers merges that file and reports its errors. A plain scope gets no
+  file and keeps one it has.
 - Every generated member carries a `.dagger-generated` marker naming its kind.
   A directory where a member goes without the marker is the user's: generation
   refuses to write over it and never deletes it. The user's `Gemfile` gets one
@@ -243,7 +252,8 @@ by what generation writes into it, and runs generation's own refusals on each
 (the same class methods of `RubySdk::Scope`), then Steep against the
 `module.rbs` that generation would write, in the module's image with its
 Gemfile's development group. A passing check means `dagger generate` accepts
-the module. `dagger call ruby-sdk mod --path <module> steep` checks one.
+the module, unless sdk-helpers refuses its `sdk/entrypoint/dang.toml`, which the
+check does not read. `dagger call ruby-sdk mod --path <module> steep` checks one.
 
 ## The engine
 

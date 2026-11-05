@@ -73,7 +73,8 @@ cd "$ws" && dagger module install ./ruby-sdk
 ## Engines
 
 The SDK requires Dagger v1.0.0-beta.19 or later. That is documentation only:
-nothing checks the version.
+nothing checks the version, and generation with the current target has run only
+on v1.0.0-beta.21.
 
 - A custom engine: set `DAGGER_ENGINE` to it and run the checks. Its nested
   CLI is its own.
@@ -103,6 +104,9 @@ development image (`test/refresh.rb`), and `root-scope` generates the root's
 plain scope, which the SDK's generation skips. Each client records the core
 it was generated against (`CORE_DIGEST`), so a stale client fails to load.
 
+A module's `sdk/entrypoint/dang.toml` is the user's despite the marker on
+`sdk/`: generation keeps its other settings.
+
 ## Rules
 
 - Generation happens at `dagger generate` only. A module runs from its
@@ -110,13 +114,19 @@ it was generated against (`CORE_DIGEST`), so a stale client fails to load.
   and on its current source; a call runs no code generation.
 - The SDK module stays a thin Dang wrapper at the root; the Ruby half runs in
   an exec and reads its own files from `currentModule.source`.
+- `RubySdk.targetVersion` in `ruby-sdk.dang` is the one Dagger version of what
+  generation writes: clients' API view and `sdk/entrypoint/dang.toml`. `RubyHalf`'s
+  `clientVersion` is a separate channel: the manifest's `engineVersion`, for
+  the Ruby half's own process. The Dang wrapper writes `dang.toml` through
+  `sdk-helpers`, which merges the existing file and reports its errors.
 - Types come from `#:` RBS annotations, parsed at generation into
   `sdk/entrypoint/signatures.json`; the DSL carries what a type cannot say.
 - No engine version checks in code. A feature that needs a newer engine is
   detected by its schema, as `CurrentModule.contextDirectory` is.
 - A passing `dagger check ruby-sdk:steep` means `dagger generate` accepts the
   module: the Steep check runs generation's own refusals, the same methods of
-  `RubySdk::Scope`.
+  `RubySdk::Scope`. The exception is an sdk-helpers error on
+  `sdk/entrypoint/dang.toml`, which the check does not read.
 - The entrypoint contract: `types` returns the literal typedefs; `call` runs
   `dagger-mod call` with the request on stdin and declares a nullable
   `callDigest`, which keys its exec. A module with gems outside its directory

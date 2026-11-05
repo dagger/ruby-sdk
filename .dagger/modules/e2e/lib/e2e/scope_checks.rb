@@ -53,7 +53,7 @@ class E2E
     check(generated.cwd == scoped.with_workdir(path: scope).cwd, "generateScope changed the workspace cwd")
     %w[dagger-module.toml Gemfile Gemfile.lock dagger.gemfile .gitignore .gitattributes Steepfile lib/scope_init.rb
        sdk/.dagger-generated sdk/dagger-sdk.gemspec sdk/exe/dagger-mod sdk/entrypoint/main.dang
-       sdk/entrypoint/types.dang sdk/entrypoint/build.dang sdk/entrypoint/signatures.json
+       sdk/entrypoint/dang.toml sdk/entrypoint/types.dang sdk/entrypoint/build.dang sdk/entrypoint/signatures.json
        sdk/entrypoint/module.rbs clients/core/.dagger-generated
        clients/core/lib/dagger/clients/core.rb clients/roots/.dagger-generated
        clients/roots/dagger-clients-roots.gemspec clients/roots/lib/dagger/clients/roots.rb
@@ -269,7 +269,7 @@ class E2E
           "sdk/sig is not the library's signatures")
     check(vendored.directory(path: "exe").entries == ["dagger-mod"], "sdk/exe holds more than dagger-mod")
     check(vendored.directory(path: "entrypoint").entries.sort ==
-            %w[build.dang main.dang module.rbs signatures.json types.dang],
+            %w[build.dang dang.toml main.dang module.rbs signatures.json types.dang],
           "sdk/entrypoint holds more than the generated entrypoint")
   end
 

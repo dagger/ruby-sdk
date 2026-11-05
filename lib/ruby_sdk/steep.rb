@@ -38,8 +38,9 @@ class RubySdk
     end
 
     # Every module, or the one at or above path. Passing, it says that
-    # dagger generate accepts every module checked, and Steep every one with
-    # a Steepfile.
+    # dagger generate accepts every module checked, unless sdk-helpers refuses
+    # its sdk/entrypoint/dang.toml, which this does not read, and Steep every
+    # one with a Steepfile.
     def check(path = nil)
       roots = path ? [module_at(path)] : modules
       outcomes = roots.map { |root| Thread.new { outcome(root) } }.map(&:value)

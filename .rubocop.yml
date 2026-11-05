@@ -55,8 +55,9 @@ Naming/MethodParameterName:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+# Scope also carries the generated target to the client schemas and the entrypoint.
 Metrics/ClassLength:
-  Max: 300
+  Max: 305
   CountAsOne: ["heredoc"]
 
 Metrics/CyclomaticComplexity:

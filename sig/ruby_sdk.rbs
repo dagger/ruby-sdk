@@ -3,11 +3,12 @@ class RubySdk
 
   @template: String
   @ruby_version: String
+  @target_version: String
 
   attr_reader template: String
   attr_reader ruby_version: String
 
-  def initialize: (template: String, ruby_version: String) -> void
+  def initialize: (template: String, ruby_version: String, target_version: String) -> void
   def find_client_root: (ws: Dagger::Clients::Core::Workspace) -> String?
   def steep: (ws: Dagger::Clients::Core::Workspace, ?path: String?) -> nil
   def generate_scope: (ws: Dagger::Clients::Core::Workspace, is_module: bool, name: String,

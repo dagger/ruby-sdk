@@ -19,7 +19,10 @@ other modules from Ruby: from a module, or from a plain Ruby program.
 ## Requirements
 
 - Dagger v1.0.0-beta.19 or later, its CLI and engine. The SDK checks no
-  version: on an older engine, what it lacks fails where it is used.
+  version: on an older engine, what it lacks fails where it is used. Generation
+  asks every engine for the v1.0.0-beta.21 API view. The source of v1.0.0-beta.19
+  and v1.0.0-beta.20 accepts that request, but generation with this target has
+  run only on v1.0.0-beta.21.
 - No Ruby on the host for modules: they build in containers, on the SDK's
   pinned Ruby 4.0 image, or on `ruby:<version>` with a `.ruby-version`. A
   plain Ruby program needs Ruby 3.4 or later and Bundler.
@@ -120,7 +123,8 @@ The module's name gives its main class by the engine's rule (`hello` gives
   Steepfile            yours, from the template
   lib/                 yours
   sdk/                 generated: the dagger-sdk gem, and a module's entrypoint,
-                       signatures read from its annotations and module.rbs
+                       signatures read from its annotations, module.rbs, and
+                       dang.toml, which you may add settings to
   clients/core/        generated: the core API
   clients/roots/       generated: core and each client as private methods
   clients/<name>/      generated: one per declared client
@@ -146,6 +150,43 @@ source = "./sdk/entrypoint"
 Generation refuses a manifest with `[runtime]`, `[[dependencies]]`,
 `engineVersion`, `include`, `exclude`, a `source` other than `.`, or another
 entrypoint, naming what it found, and refuses a `dagger.json`.
+
+### A module's `dang.toml`
+
+Generation writes `sdk/entrypoint/dang.toml`, which names the Dagger version
+the module was generated for and the Dang language its entrypoint is written
+in:
+
+```toml
+dang = "2.1"
+
+[imports]
+  [imports.Dagger]
+    dagger = "v1.0.0-beta.21"
+```
+
+The module's clients' API view uses the same version, which the SDK sets. A
+module gets the file, and a new version, at its next `dagger generate`. A plain
+scope gets none.
+v1.0.0-beta.21 shares one API view with v1.0.0-beta.20 and stays valid on
+v1.0.0-beta.22, the first release with prerelease-granular views. The
+identifier-casing cut has not shipped, and its release is not decided.
+
+Generation loads the file it finds there through sdk-helpers, sets `dang` and
+`imports.Dagger.dagger`, and keeps every other setting and import. It rewrites
+the file, so comments and formatting are lost. sdk-helpers removes a `path` from
+the `Dagger` import and refuses a non-empty `endpoint` on it; generation stops
+with that error. Generation reads no other `dang.toml` and changes none outside
+`sdk/`, which it replaces whole. A scope that stops being a module keeps the file.
+
+Released engines up to v1.0.0-beta.22 load only the `.dang` files of an
+entrypoint, so they ignore the file. dagger/dagger#14902, still open, proposes
+that an engine read it: the nearest file between the entrypoint and the module's
+directory would set the entrypoint's view, and a module without one would get
+v1.0.0-beta.20. That proposal has not been tested with this SDK.
+
+The language stays 2.1, but a versioned import needs Dang v2.2.0 or later to
+parse, so older standalone Dang tooling may reject the file.
 
 ## Declaring a module
 
@@ -334,7 +375,10 @@ SDK module itself, plain scopes and other SDKs' modules are not modules here.
 
 **What a passing check means.** `dagger generate` accepts every module the
 check found, as it stands, with the clients it was last generated with, and
-Steep passes on each that has a `Steepfile`. The check runs generation's own
+Steep passes on each that has a `Steepfile`. The one exception is
+`sdk/entrypoint/dang.toml`, which generation merges through sdk-helpers and the
+check does not read: an error there, such as an `endpoint` on the `Dagger`
+import, stops generation alone. The check runs generation's own
 refusals on each module, the same code: the scope's members and manifest,
 Bundler on its `Gemfile`, and `dagger-mod entrypoint` on its annotations as
 they are now, with every rule of the registry (a function or field without a

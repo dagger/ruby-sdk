@@ -65,6 +65,8 @@ class E2E
     # Both sides from the root, so that paths are the workspace's.
     def changed(after, before) = after.with_workdir(path: ".").changes(from: before.with_workdir(path: "."))
 
+    def target_version(ws) = ws.file(path: "/ruby-sdk.dang").contents[/let targetVersion: String! = "([^"]+)"/, 1]
+
     def manifest(name) = %(name = "#{name}"\n\n[entrypoint]\nkind = "dang"\nsource = "./sdk/entrypoint"\n)
 
     def paths(changes)
