@@ -159,7 +159,7 @@ dang = "2.1"
 
 [imports]
   [imports.Dagger]
-    dagger = "v1.0.0-beta.21"
+    dagger = "v1.0.0-beta.25"
 ```
 
 The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its

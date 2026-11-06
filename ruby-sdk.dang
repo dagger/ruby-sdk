@@ -66,7 +66,7 @@ type RubySdk {
   # The Dagger version of what generation writes: the view of a scope's clients,
   # and a module's DAGGER_CLIENT_VERSION and dang.toml. RubyHalf's clientVersion
   # is the Ruby half's own.
-  let targetVersion: String! = "v1.0.0-beta.21"
+  let targetVersion: String! = "v1.0.0-beta.25"
 
   let dangConfigPath: String! = "sdk/entrypoint/dang.toml"
 }
