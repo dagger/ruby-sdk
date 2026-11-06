@@ -104,8 +104,9 @@ module Dagger
         # @param cache_key Optional cache equivalence key. If set, volumes with the same cacheKey may be considered equivalent for cache lookups, still subject to their resource dependencies.
         # @param insecure_skip_host_key_check Disable SSH host key verification. This is insecure and must be explicitly opted into.
         # @param experimental_service_host Service to use as the SSHFS network endpoint while verifying the original host key.
-        def sshfs_volume(endpoint:, private_key:, known_hosts: nil, cache_key: nil, insecure_skip_host_key_check: nil, experimental_service_host: nil)
-          Volume.new(@query.select("sshfsVolume", endpoint:, privateKey: private_key, knownHosts: known_hosts, cacheKey: cache_key, insecureSkipHostKeyCheck: insecure_skip_host_key_check, experimentalServiceHost: experimental_service_host))
+        # @param follow_symlinks Resolve symlinks on the remote host, so they appear as the files and directories they point to. Without it, absolute symlinks and symlinks containing ".." can't be read. With it, creating a symlink in the volume fails.
+        def sshfs_volume(endpoint:, private_key:, known_hosts: nil, cache_key: nil, insecure_skip_host_key_check: nil, experimental_service_host: nil, follow_symlinks: nil)
+          Volume.new(@query.select("sshfsVolume", endpoint:, privateKey: private_key, knownHosts: known_hosts, cacheKey: cache_key, insecureSkipHostKeyCheck: insecure_skip_host_key_check, experimentalServiceHost: experimental_service_host, followSymlinks: follow_symlinks))
         end
 
         # Creates a new secret.

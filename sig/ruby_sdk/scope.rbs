@@ -32,6 +32,7 @@ class RubySdk
     @clients: Array[Dagger::Clients::Core::ModuleSource]
     @sdk: directory
     @image: String
+    @target_version: String
     @template: String?
     @ruby_version: String
     @resources: Resources
@@ -53,12 +54,13 @@ class RubySdk
     def self.bundler_dir: (String? subpath) -> String
     def self.bundler_refusal: (String path, Dagger::Clients::Core::Container checked) -> String?
     def self.lock_refusal: (String path, String lock, Resources resources) -> String?
-    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, ?subpath: String?)
+    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, String target_version,
+                         ?subpath: String?)
                      -> Dagger::Clients::Core::Container
     def self.describe_refusal: (String path, Dagger::Clients::Core::Container described) -> String?
 
     def initialize: (ws: workspace, is_module: bool, name: String, clients: Array[Dagger::Clients::Core::ModuleSource],
-                     sdk: directory, image: String, ?template: String?, ?ruby_version: String) -> void
+                     sdk: directory, image: String, target_version: String, ?template: String?, ?ruby_version: String) -> void
     def generated: () -> workspace
     def client_members: () -> Array[Member]
     def dagger_gemfile: (Array[Member] members) -> String

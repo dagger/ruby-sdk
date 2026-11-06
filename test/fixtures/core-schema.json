@@ -1888,79 +1888,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "ArtifactResult",
-        "fields": [
-          {
-            "name": "id",
-            "description": "A unique identifier for this ArtifactResult.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID"
-              }
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "artifact",
-            "description": "The artifact that was evaluated.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Artifact"
-              }
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "error",
-            "description": "The evaluation failure, if any.",
-            "type": {
-              "kind": "OBJECT",
-              "name": "Error"
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "value",
-            "description": "The evaluated value, or null when evaluation failed.",
-            "type": {
-              "kind": "INTERFACE",
-              "name": "Node"
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          }
-        ],
-        "interfaces": [
-          {
-            "kind": "INTERFACE",
-            "name": "Node",
-            "interfaces": null,
-            "possibleTypes": null,
-            "directives": null
-          }
-        ],
-        "possibleTypes": [],
-        "directives": []
-      },
-      {
-        "kind": "OBJECT",
         "name": "Artifacts",
-        "description": "An immutable selection of workspace artifacts. Listed types, dimensions, and keys use OR; chained filters use AND. Empty alternatives match nothing; unknown names match nothing but module load failures. Filters never change addresses or dimension identifiers. Module keys match a module's configured or kebab-case name. A module that failed to load has no schema, so its load failure stands in for whatever it would hold: a filter keeps it when the module could hold something the filter selects, and an exclusion drops it only by its own address, such as <module>/** or ?module=<module>.",
+        "description": "A selection of workspace artifacts and their immutable collection view. Collection key filters replace collection references with subsets. Static filters change only membership. Listed types, dimensions, and keys use OR; chained filters use AND. Empty alternatives match nothing; unknown names match nothing but module load failures. Filters never change addresses or dimension identifiers. Module keys match a module's configured or kebab-case name. A module that failed to load has no schema, so its load failure stands in for whatever it would hold: a filter keeps it when the module could hold something the filter selects, and an exclusion drops it only by its own address, such as <module>/** or ?module=<module>.",
         "fields": [
           {
             "name": "id",
@@ -2162,69 +2091,6 @@
             "directives": []
           },
           {
-            "name": "values",
-            "description": "Evaluate the selection in parallel, retaining each result and error.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "ArtifactResult"
-                  }
-                }
-              }
-            },
-            "args": [
-              {
-                "name": "failFast",
-                "description": "Cancel remaining work after the first failure.",
-                "defaultValue": "false",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean"
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "arguments",
-                "description": "Field arguments applied to each artifact, as a JSON object.",
-                "defaultValue": "\"{}\"",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "JSON"
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "maxConcurrency",
-                "description": "Evaluate at most this many artifacts at once on this engine; the rest wait. Checks that scale out to cloud engines are not counted. 0 means no limit.",
-                "defaultValue": "0",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Int"
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": [
-              {
-                "name": "reevaluate",
-                "args": []
-              }
-            ]
-          },
-          {
             "name": "modules",
             "description": "List the modules represented in this selection without evaluating artifact values.",
             "type": {
@@ -2414,49 +2280,8 @@
             "directives": []
           },
           {
-            "name": "withArtifacts",
-            "description": "Combine two selections, keeping each workspace address once. Different addresses remain distinct even if they return the same object.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Artifacts"
-              }
-            },
-            "args": [
-              {
-                "name": "artifacts",
-                "description": "",
-                "defaultValue": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID"
-                  }
-                },
-                "directives": [
-                  {
-                    "name": "expectedType",
-                    "args": [
-                      {
-                        "name": "name",
-                        "value": "\"Artifacts\""
-                      }
-                    ]
-                  }
-                ],
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
             "name": "withoutUri",
-            "description": "Remove artifacts selected by a DAG address.",
+            "description": "Remove artifacts selected by a DAG address. Retain the collection view.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2641,7 +2466,7 @@
           },
           {
             "name": "filterDimensionKeys",
-            "description": "Keep artifacts with any listed key in this dimension.",
+            "description": "Keep artifacts with any listed key in this dimension. Replace collection references with matching subsets. Skip absent keys and leave the source view unchanged.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2819,7 +2644,7 @@
           },
           {
             "name": "items",
-            "description": "Enumerate complete artifacts without evaluating their values.",
+            "description": "List artifact descriptions with their collection view. Discover collection keys without evaluating leaf values.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -3845,18 +3670,6 @@
                 "kind": "OBJECT",
                 "name": "TypeDef"
               }
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "batchType",
-            "description": "The type of batch operations, or null when there are none.",
-            "type": {
-              "kind": "OBJECT",
-              "name": "TypeDef"
             },
             "args": [],
             "isDeprecated": false,
@@ -5421,6 +5234,80 @@
             "directives": []
           },
           {
+            "name": "withMountedFiles",
+            "description": "Retrieves this container plus the given files mounted read-only in a directory at the given path.\n\nEach file appears under the base name of its path. The directory holds nothing else, and nothing can be written to it.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Container"
+              }
+            },
+            "args": [
+              {
+                "name": "path",
+                "description": "Location of the directory holding the files (e.g., \"/work/lib\").",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "sources",
+                "description": "Identifiers of the files to mount. Two files with the same base name are an error.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "ID"
+                      }
+                    }
+                  }
+                },
+                "directives": [
+                  {
+                    "name": "expectedType",
+                    "args": [
+                      {
+                        "name": "name",
+                        "value": "\"File\""
+                      }
+                    ]
+                  }
+                ],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "expand",
+                "description": "Replace \"${VAR}\" or \"$VAR\" in the value of path according to the current environment variables defined in the container (e.g. \"/$VAR/lib\").",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
             "name": "withMountedTemp",
             "description": "Retrieves this container plus a temporary directory mounted at the given path. Any writes will be ephemeral to a single withExec call; they will not be persisted to subsequent withExecs.",
             "type": {
@@ -6881,6 +6768,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "transparentHugePages",
+                "description": "Let the command, and the processes it starts, use the Linux kernel's transparent huge pages. Large-memory programs such as compilers can run faster with them, at some cost in memory.\n\nWithout this, a command gets huge pages only for memory its own program asks huge pages for, as on a host set to \"madvise\". That only matters on hosts with Linux 6.18 or later whose transparent huge pages are set to \"always\" (/sys/kernel/mm/transparent_hugepage/enabled, or a size under /sys/kernel/mm/transparent_hugepage/hugepages-*). With the usual default settings, this changes nothing. On older kernels, commands get what the host's settings give them, whether they set this or not.\n\nIt isn't part of the exec's cache key: an exec that differs from a cached one only in this setting reuses the cached result, whichever setting produced it.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -7205,6 +7104,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "sourceDateEpoch",
+                "description": "Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.\n\nFormatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -7320,6 +7231,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "sourceDateEpoch",
+                "description": "Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.\n\nFormatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -7408,6 +7331,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "sourceDateEpoch",
+                "description": "Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.\n\nFormatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -7472,6 +7407,18 @@
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "sourceDateEpoch",
+                "description": "Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.\n\nFormatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int"
                 },
                 "directives": [],
                 "isDeprecated": false,
@@ -13211,6 +13158,70 @@
               }
             },
             "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "extract",
+            "description": "Extracts this archive file into a directory.\n\nThe format is detected from the file's contents: zip, or tar, either uncompressed or compressed with gzip, bzip2, xz or zstd.\n\nAn entry whose path would leave the directory is an error.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Directory"
+              }
+            },
+            "args": [
+              {
+                "name": "stripComponents",
+                "description": "Remove this many leading elements from each entry's path, as tar --strip-components does.\n\nEntries with no more elements than this are skipped.",
+                "defaultValue": "0",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "include",
+                "description": "If set, only entries matching one of these glob patterns, or in a directory that does, are extracted (e.g., [\"src/\", \"*.go\"]).\n\nPatterns match entry paths after stripComponents is applied.",
+                "defaultValue": "[]",
+                "type": {
+                  "kind": "LIST",
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String"
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "exclude",
+                "description": "If set, entries matching one of these glob patterns, or in a directory that does, are not extracted (e.g., [\"**/testdata\", \"**/*_test.go\"]).\n\nPatterns match entry paths after stripComponents is applied.",
+                "defaultValue": "[]",
+                "type": {
+                  "kind": "LIST",
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String"
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
@@ -23096,13 +23107,6 @@
           },
           {
             "kind": "OBJECT",
-            "name": "ArtifactResult",
-            "interfaces": null,
-            "possibleTypes": null,
-            "directives": null
-          },
-          {
-            "kind": "OBJECT",
             "name": "Artifacts",
             "interfaces": null,
             "possibleTypes": null,
@@ -24764,6 +24768,18 @@
                     ]
                   }
                 ],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "followSymlinks",
+                "description": "Resolve symlinks on the remote host, so they appear as the files and directories they point to. Without it, absolute symlinks and symlinks containing \"..\" can't be read. With it, creating a symlink in the volume fails.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
               }
@@ -33854,5 +33870,5 @@
       }
     ]
   },
-  "__schemaVersion": "v1.0.0"
+  "__schemaVersion": "v1.0.0-beta.25"
 }

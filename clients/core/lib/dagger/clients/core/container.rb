@@ -261,6 +261,16 @@ module Dagger
           Container.new(@query.select("withMountedFile", path:, source:, owner:, inheritOwner: inherit_owner, expand:, readOnly: read_only))
         end
 
+        # Retrieves this container plus the given files mounted read-only in a directory at the given path.
+        #
+        # Each file appears under the base name of its path. The directory holds nothing else, and nothing can be written to it.
+        # @param path Location of the directory holding the files (e.g., "/work/lib").
+        # @param sources Identifiers of the files to mount. Two files with the same base name are an error.
+        # @param expand Replace "${VAR}" or "$VAR" in the value of path according to the current environment variables defined in the container (e.g. "/$VAR/lib").
+        def with_mounted_files(path:, sources:, expand: nil)
+          Container.new(@query.select("withMountedFiles", path:, sources:, expand:))
+        end
+
         # Retrieves this container plus a temporary directory mounted at the given path. Any writes will be ephemeral to a single withExec call; they will not be persisted to subsequent withExecs.
         # @param path Location of the temporary directory (e.g., "/tmp/temp_dir").
         # @param size Size of the temporary directory in bytes.
@@ -427,8 +437,9 @@ module Dagger
         # @param insecure_root_capabilities Execute the command with all root capabilities. Like --privileged in Docker  DANGER: this grants the command full access to the host system. Only use when 1) you trust the command being executed and 2) you specifically need this level of access.
         # @param expand Replace "${VAR}" or "$VAR" in the args according to the current environment variables defined in the container (e.g. "/$VAR/foo").
         # @param no_init Skip the automatic init process injected into containers by default.  Only use this if you specifically need the command to be pid 1 in the container. Otherwise it may result in unexpected behavior. If you're not sure, you don't need this.
-        def with_exec(args:, use_entrypoint: nil, stdin: nil, redirect_stdin: nil, redirect_stdout: nil, redirect_stderr: nil, expect: nil, disable_dagger_in_dagger: nil, experimental_privileged_nesting: nil, dagger_in_dagger_new_session: nil, insecure_root_capabilities: nil, expand: nil, no_init: nil)
-          Container.new(@query.select("withExec", args:, useEntrypoint: use_entrypoint, stdin:, redirectStdin: redirect_stdin, redirectStdout: redirect_stdout, redirectStderr: redirect_stderr, expect:, disableDaggerInDagger: disable_dagger_in_dagger, experimentalPrivilegedNesting: experimental_privileged_nesting, daggerInDaggerNewSession: dagger_in_dagger_new_session, insecureRootCapabilities: insecure_root_capabilities, expand:, noInit: no_init))
+        # @param transparent_huge_pages Let the command, and the processes it starts, use the Linux kernel's transparent huge pages. Large-memory programs such as compilers can run faster with them, at some cost in memory.  Without this, a command gets huge pages only for memory its own program asks huge pages for, as on a host set to "madvise". That only matters on hosts with Linux 6.18 or later whose transparent huge pages are set to "always" (/sys/kernel/mm/transparent_hugepage/enabled, or a size under /sys/kernel/mm/transparent_hugepage/hugepages-*). With the usual default settings, this changes nothing. On older kernels, commands get what the host's settings give them, whether they set this or not.  It isn't part of the exec's cache key: an exec that differs from a cached one only in this setting reuses the cached result, whichever setting produced it.
+        def with_exec(args:, use_entrypoint: nil, stdin: nil, redirect_stdin: nil, redirect_stdout: nil, redirect_stderr: nil, expect: nil, disable_dagger_in_dagger: nil, experimental_privileged_nesting: nil, dagger_in_dagger_new_session: nil, insecure_root_capabilities: nil, expand: nil, no_init: nil, transparent_huge_pages: nil)
+          Container.new(@query.select("withExec", args:, useEntrypoint: use_entrypoint, stdin:, redirectStdin: redirect_stdin, redirectStdout: redirect_stdout, redirectStderr: redirect_stderr, expect:, disableDaggerInDagger: disable_dagger_in_dagger, experimentalPrivilegedNesting: experimental_privileged_nesting, daggerInDaggerNewSession: dagger_in_dagger_new_session, insecureRootCapabilities: insecure_root_capabilities, expand:, noInit: no_init, transparentHugePages: transparent_huge_pages))
         end
 
         # The buffered standard output stream of the last executed command
@@ -490,8 +501,9 @@ module Dagger
         # @param registry_service Service to use as the registry endpoint for the image address.  The service will be started only for this push.
         # @param protocol Protocol to use for registry communication.  Defaults to "HTTPS". Use "HTTP" only for plain HTTP registries.
         # @param insecure_skip_tls_verify Allow HTTPS registry communication without verifying the server certificate.
-        def publish(address:, platform_variants: nil, forced_compression: nil, media_types: nil, registry_service: nil, protocol: nil, insecure_skip_tls_verify: nil)
-          @query.select("publish", address:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, registryService: registry_service, protocol:, insecureSkipTLSVerify: insecure_skip_tls_verify).execute
+        # @param source_date_epoch Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.  Formatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.
+        def publish(address:, platform_variants: nil, forced_compression: nil, media_types: nil, registry_service: nil, protocol: nil, insecure_skip_tls_verify: nil, source_date_epoch: nil)
+          @query.select("publish", address:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, registryService: registry_service, protocol:, insecureSkipTLSVerify: insecure_skip_tls_verify, sourceDateEpoch: source_date_epoch).execute
         end
 
         # The platform this container executes and publishes as.
@@ -507,8 +519,9 @@ module Dagger
         # @param forced_compression Force each layer of the exported image to use the specified compression algorithm.  If this is unset, then if a layer already has a compressed blob in the engine's cache, that will be used (this can result in a mix of compression algorithms for different layers). If this is unset and a layer has no compressed blob in the engine's cache, then it will be compressed using Gzip.
         # @param media_types Use the specified media types for the exported image's layers.  Defaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.
         # @param expand Replace "${VAR}" or "$VAR" in the value of path according to the current environment variables defined in the container (e.g. "/$VAR/foo").
-        def export(path:, platform_variants: nil, forced_compression: nil, media_types: nil, expand: nil)
-          @query.select("export", path:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, expand:).execute
+        # @param source_date_epoch Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.  Formatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.
+        def export(path:, platform_variants: nil, forced_compression: nil, media_types: nil, expand: nil, source_date_epoch: nil)
+          @query.select("export", path:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, expand:, sourceDateEpoch: source_date_epoch).execute
         end
 
         # Exports the container as an image to the host's container image store.
@@ -516,8 +529,9 @@ module Dagger
         # @param platform_variants Identifiers for other platform specific containers.  Used for multi-platform image.
         # @param forced_compression Force each layer of the exported image to use the specified compression algorithm.  If this is unset, then if a layer already has a compressed blob in the engine's cache, that will be used (this can result in a mix of compression algorithms for different layers). If this is unset and a layer has no compressed blob in the engine's cache, then it will be compressed using Gzip.
         # @param media_types Use the specified media types for the exported image's layers.  Defaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.
-        def export_image(name:, platform_variants: nil, forced_compression: nil, media_types: nil)
-          @query.select("exportImage", name:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types).execute(allow_nil: true)
+        # @param source_date_epoch Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.  Formatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.
+        def export_image(name:, platform_variants: nil, forced_compression: nil, media_types: nil, source_date_epoch: nil)
+          @query.select("exportImage", name:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, sourceDateEpoch: source_date_epoch).execute(allow_nil: true)
           nil
         end
 
@@ -525,8 +539,9 @@ module Dagger
         # @param platform_variants Identifiers for other platform specific containers.  Used for multi-platform images.
         # @param forced_compression Force each layer of the image to use the specified compression algorithm.  If this is unset, then if a layer already has a compressed blob in the engine's cache, that will be used (this can result in a mix of compression algorithms for different layers). If this is unset and a layer has no compressed blob in the engine's cache, then it will be compressed using Gzip.
         # @param media_types Use the specified media types for the image's layers.  Defaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.
-        def as_tarball(platform_variants: nil, forced_compression: nil, media_types: nil)
-          File.new(@query.select("asTarball", platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types))
+        # @param source_date_epoch Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.  Formatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.
+        def as_tarball(platform_variants: nil, forced_compression: nil, media_types: nil, source_date_epoch: nil)
+          File.new(@query.select("asTarball", platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, sourceDateEpoch: source_date_epoch))
         end
 
         # Reads the container from an OCI tarball.

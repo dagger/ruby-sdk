@@ -45,6 +45,7 @@ module Dagger
         def mounts: () -> ::Array[::String]
         def with_mounted_directory: (path: ::String, source: Directory, ?owner: ::String?, ?inherit_owner: bool?, ?read_only: bool?, ?expand: bool?) -> Container
         def with_mounted_file: (path: ::String, source: File, ?owner: ::String?, ?inherit_owner: bool?, ?expand: bool?, ?read_only: bool?) -> Container
+        def with_mounted_files: (path: ::String, sources: ::Array[::Dagger::Type], ?expand: bool?) -> Container
         def with_mounted_temp: (path: ::String, ?size: ::Integer?, ?expand: bool?) -> Container
         def with_mounted_cache: (path: ::String, cache: CacheVolume, ?source: Directory?, ?sharing: CacheSharingMode?, ?owner: ::String?, ?inherit_owner: bool?, ?expand: bool?) -> Container
         def with_mounted_volume: (path: ::String, volume: Volume, ?read_only: bool?, ?expand: bool?) -> Container
@@ -62,7 +63,7 @@ module Dagger
         def exists: (path: ::String, ?expected_type: ExistsType?, ?do_not_follow_symlinks: bool?, ?expand: bool?) -> bool
         def stat: (path: ::String, ?do_not_follow_symlinks: bool?) -> Stat?
         def with_error: (err: ::String) -> Container
-        def with_exec: (args: ::Array[::String], ?use_entrypoint: bool?, ?stdin: ::String?, ?redirect_stdin: ::String?, ?redirect_stdout: ::String?, ?redirect_stderr: ::String?, ?expect: ReturnType?, ?disable_dagger_in_dagger: bool?, ?experimental_privileged_nesting: bool?, ?dagger_in_dagger_new_session: bool?, ?insecure_root_capabilities: bool?, ?expand: bool?, ?no_init: bool?) -> Container
+        def with_exec: (args: ::Array[::String], ?use_entrypoint: bool?, ?stdin: ::String?, ?redirect_stdin: ::String?, ?redirect_stdout: ::String?, ?redirect_stderr: ::String?, ?expect: ReturnType?, ?disable_dagger_in_dagger: bool?, ?experimental_privileged_nesting: bool?, ?dagger_in_dagger_new_session: bool?, ?insecure_root_capabilities: bool?, ?expand: bool?, ?no_init: bool?, ?transparent_huge_pages: bool?) -> Container
         def stdout: () -> ::String
         def stderr: () -> ::String
         def combined_output: () -> ::String
@@ -70,11 +71,11 @@ module Dagger
         def with_symlink: (target: ::String, link_name: ::String, ?expand: bool?) -> Container
         def with_annotation: (name: ::String, value: ::String) -> Container
         def without_annotation: (name: ::String) -> Container
-        def publish: (address: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?registry_service: Service?, ?protocol: RegistryProtocol?, ?insecure_skip_tls_verify: bool?) -> ::String
+        def publish: (address: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?registry_service: Service?, ?protocol: RegistryProtocol?, ?insecure_skip_tls_verify: bool?, ?source_date_epoch: ::Integer?) -> ::String
         def platform: () -> Platform
-        def export: (path: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?expand: bool?) -> ::String
-        def export_image: (name: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?) -> nil
-        def as_tarball: (?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?) -> File
+        def export: (path: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?expand: bool?, ?source_date_epoch: ::Integer?) -> ::String
+        def export_image: (name: ::String, ?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?source_date_epoch: ::Integer?) -> nil
+        def as_tarball: (?platform_variants: ::Array[::Dagger::Type]?, ?forced_compression: ImageLayerCompression?, ?media_types: ImageMediaTypes?, ?source_date_epoch: ::Integer?) -> File
         def import: (source: File, ?tag: ::String?) -> Container
         def with_registry_auth: (address: ::String, username: ::String, secret: Secret) -> Container
         def without_registry_auth: (address: ::String) -> Container

@@ -28,8 +28,8 @@ class SdkModuleTest < Minitest::Test
   end
 
   def test_a_call_names_a_function_of_the_ruby_half
-    request = { "moduleSource" => "src", "template" => "default", "rubyVersion" => "", "function" => "nope",
-                "args" => "{}" }
+    request = { "moduleSource" => "src", "template" => "default", "rubyVersion" => "", "targetVersion" => "v1",
+                "function" => "nope", "args" => "{}" }
 
     assert_raises(RubySdk::Error) { RubySdk::Call.run(request) }
   ensure

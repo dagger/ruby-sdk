@@ -8,7 +8,6 @@ module Dagger
         def self.graphql_name: () -> ::String
         def key_type: () -> TypeDef
         def value_type: () -> TypeDef
-        def batch_type: () -> TypeDef?
       end
     end
   end

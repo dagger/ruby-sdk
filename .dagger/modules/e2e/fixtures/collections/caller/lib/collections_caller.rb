@@ -10,9 +10,9 @@ class CollectionsCaller
   #: () -> Array[String]
   def subset_keys = collections.items.subset(keys: %w[c b]).keys
 
-  function "The keys a subset removed, through its batch."
+  function "The keys a subset removed."
   #: () -> Array[String]
-  def removed = collections.items.subset(keys: %w[a]).batch.removed
+  def removed = collections.items.subset(keys: %w[a]).removed
 
   function "An item's name, through get."
   #: () -> String

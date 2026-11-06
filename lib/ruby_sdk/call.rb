@@ -11,7 +11,8 @@ class RubySdk
 
     def run(request)
       Dagger::Mod.module_source_id = request.fetch("moduleSource")
-      sdk = RubySdk.new(template: request.fetch("template"), ruby_version: request.fetch("rubyVersion"))
+      sdk = RubySdk.new(template: request.fetch("template"), ruby_version: request.fetch("rubyVersion"),
+                        target_version: request.fetch("targetVersion"))
       args = JSON.parse(request.fetch("args"))
       case request.fetch("function")
       when "findClientRoot" then sdk.find_client_root(ws: load(Core::Workspace, args.fetch("ws")))

@@ -10,9 +10,10 @@ class RubySdk
 
   attr_reader :template, :ruby_version
 
-  def initialize(template:, ruby_version:)
+  def initialize(template:, ruby_version:, target_version:)
     @template = template
     @ruby_version = ruby_version
+    @target_version = target_version
   end
 
   def find_client_root(ws:) = Scope.find_root(ws)
@@ -20,10 +21,11 @@ class RubySdk
   def generate_scope(ws:, is_module:, name:, clients:)
     raise Error, "no template #{template.inspect}: choose #{TEMPLATES.join(" or ")}" unless TEMPLATES.include?(template)
 
-    Scope.new(ws:, is_module:, name:, clients:, sdk: source, image:, template:, ruby_version:).generated
+    Scope.new(ws:, is_module:, name:, clients:, sdk: source, image:, target_version: @target_version, template:,
+              ruby_version:).generated
   end
 
-  def steep(ws:, path: nil) = Steep.new(ws:, image:).check(path)
+  def steep(ws:, path: nil) = Steep.new(ws:, image:, target_version: @target_version).check(path)
 
   private
 

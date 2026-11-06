@@ -4,6 +4,9 @@ require "dagger/mod"
 require "ruby_sdk/signatures"
 
 module ModHelper
+  # The goldens render this, not the SDK's target, so they do not change with it.
+  CLIENT_VERSION = "v1.2.3".freeze
+
   # Declares classes the way a module file does, under a namespace of their
   # own, with a fresh registry each time.
   module Fixtures; end

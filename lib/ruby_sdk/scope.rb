@@ -62,7 +62,7 @@ class RubySdk
       File.write("Gemfile.lock", locked.sub(/^(BUNDLED WITH\n\s+)\S+/) { "#{$1}#{Bundler::VERSION}" })
     RUBY
 
-    def initialize(ws:, is_module:, name:, clients:, sdk:, image:, template: nil, ruby_version: "")
+    def initialize(ws:, is_module:, name:, clients:, sdk:, image:, target_version:, template: nil, ruby_version: "")
       @ws = ws
       @path = normalize(ws.cwd)
       @is_module = is_module
@@ -70,6 +70,7 @@ class RubySdk
       @clients = clients
       @sdk = sdk
       @image = image
+      @target_version = target_version
       @template = template
       @ruby_version = ruby_version
     end
@@ -253,10 +254,11 @@ class RubySdk
 
     # dagger-mod entrypoint on the module's annotations as they are now, in
     # its installed container: the registry's every rule.
-    def self.describe(installed, scope, subpath: nil)
+    def self.describe(installed, scope, target_version, subpath: nil)
       signatures = "#{subpath ? "/src/#{subpath}" : "/src"}/#{SIGNATURES}"
       installed.with_new_file(path: signatures, contents: Signatures.json(scope))
-               .with_exec(args: DESCRIBE, disable_dagger_in_dagger: true, expect: Core::ReturnType::ANY)
+               .with_exec(args: [*DESCRIBE, "--client-version", target_version], disable_dagger_in_dagger: true,
+                          expect: Core::ReturnType::ANY)
     end
 
     def self.describe_refusal(path, described)
@@ -355,10 +357,10 @@ class RubySdk
     def stand_in
       Codegen::StandIn::FILES.reduce(Core.core.directory) { |dir, (path, contents)| dir.with_new_file(path:, contents:) }
                              .as_module_source
+                             .with_engine_version(version: @target_version)
     end
 
-    # Every schema in one view, the stand-in's, which is the engine's own:
-    # two views would give two cores.
+    # Every schema in one view, the target's: two views would give two cores.
     def core_member = codegen(stand_in.client_schema_introspection_json, %w[core /schemas/schema.json /out])
 
     def client_member(member, digest)
@@ -373,7 +375,7 @@ class RubySdk
     end
 
     def client_schema(member)
-      member.source.with_engine_version(version: stand_in.engine_version).client_schema_introspection_json
+      member.source.with_engine_version(version: @target_version).client_schema_introspection_json
     end
 
     def codegen(schema, args) = codegen_with({ "/schemas/schema.json" => schema }, args)
@@ -437,7 +439,7 @@ class RubySdk
       build = build(target, members)
       source, subpath = layout(target, build)
       installed = Core::Container.new(build.installed(Core.core.query, source, subpath:))
-      described = self.class.describe(installed, scope, subpath:)
+      described = self.class.describe(installed, scope, @target_version, subpath:)
       refused = self.class.describe_refusal(@path, described)
       raise Error, refused if refused
 
@@ -454,7 +456,8 @@ class RubySdk
                           .with_file(path: ::File.basename(SIGNATURES), source: signatures)
       return rendered unless build.context?
 
-      main = Dagger::Mod::Entrypoint.render_main(@name, outside: build.outside, outside_files: build.outside_files)
+      main = Dagger::Mod::Entrypoint.render_main(@name, client_version: @target_version, outside: build.outside,
+                                                        outside_files: build.outside_files)
       rendered.with_new_file(path: "main.dang", contents: main)
     end
   end

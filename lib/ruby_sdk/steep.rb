@@ -31,15 +31,17 @@ class RubySdk
       def failed? = !refusals.empty? || !exit_code.zero?
     end
 
-    def initialize(ws:, image:)
+    def initialize(ws:, image:, target_version:)
       @ws = ws
       @root_ws = ws.with_workdir(path: ".")
       @image = image
+      @target_version = target_version
     end
 
     # Every module, or the one at or above path. Passing, it says that
-    # dagger generate accepts every module checked, and Steep every one with
-    # a Steepfile.
+    # dagger generate accepts every module checked, unless sdk-helpers refuses
+    # its sdk/entrypoint/dang.toml, which this does not read, and Steep every
+    # one with a Steepfile.
     def check(path = nil)
       roots = path ? [module_at(path)] : modules
       outcomes = roots.map { |root| Thread.new { outcome(root) } }.map(&:value)
@@ -145,7 +147,7 @@ class RubySdk
     def checked(root, dir, build, refusals, layout)
       source, subpath = layout
       installed = Core::Container.new(build.installed(Core.core.query, source, development: true, subpath:))
-      described = Scope.describe(installed, dir, subpath:)
+      described = Scope.describe(installed, dir, @target_version, subpath:)
       refused = Scope.describe_refusal(root, described)
       all = refusals + [refused].compact
       return Outcome.new(root, all, false, 0, "") unless dir.exists(path: "Steepfile")

@@ -24,7 +24,9 @@ class SteepTest < Minitest::Test
     "bare/dagger-module.toml" => MANIFEST, "bare/sdk/.dagger-generated" => "sdk\n"
   }.freeze
 
-  def steep(files, cwd: "/") = RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby")
+  def steep(files, cwd: "/")
+    RubySdk::Steep.new(ws: FakeWorkspace.new(FakeTree.new(files), cwd), image: "ruby", target_version: "v1.2.3")
+  end
 
   def test_every_module_this_sdk_generated_is_found_and_nothing_else
     files = OTHERS.merge(authored(".dagger/modules/clean")).merge(authored("apps/nested/broken"))
@@ -64,7 +66,10 @@ class SteepTest < Minitest::Test
     RubySdk::Steep::Outcome.new(root, refusals, steep, code, output)
   end
 
-  def recorded(files, outcomes) = Recorded.new(outcomes, ws: FakeWorkspace.new(FakeTree.new(files), "/"), image: "ruby")
+  def recorded(files, outcomes)
+    Recorded.new(outcomes, ws: FakeWorkspace.new(FakeTree.new(files), "/"), image: "ruby",
+                           target_version: "v1.2.3")
+  end
 
   def test_every_failing_module_is_reported_with_its_output_and_exit_code
     files = authored("a").merge(authored("b")).merge(authored("c")).merge(authored("d", steepfile: false))

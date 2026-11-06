@@ -3,7 +3,7 @@
 module Dagger
   module Clients
     module Core
-      # An immutable selection of workspace artifacts. Listed types, dimensions, and keys use OR; chained filters use AND. Empty alternatives match nothing; unknown names match nothing but module load failures. Filters never change addresses or dimension identifiers. Module keys match a module's configured or kebab-case name. A module that failed to load has no schema, so its load failure stands in for whatever it would hold: a filter keeps it when the module could hold something the filter selects, and an exclusion drops it only by its own address, such as <module>/** or ?module=<module>.
+      # A selection of workspace artifacts and their immutable collection view. Collection key filters replace collection references with subsets. Static filters change only membership. Listed types, dimensions, and keys use OR; chained filters use AND. Empty alternatives match nothing; unknown names match nothing but module load failures. Filters never change addresses or dimension identifiers. Module keys match a module's configured or kebab-case name. A module that failed to load has no schema, so its load failure stands in for whatever it would hold: a filter keeps it when the module could hold something the filter selects, and an exclusion drops it only by its own address, such as <module>/** or ?module=<module>.
       class Artifacts < ::Dagger::Type
         include Node
 
@@ -47,14 +47,6 @@ module Dagger
           @query.select("dimensionDefinitions").execute_object_list(ArtifactDimension)
         end
 
-        # Evaluate the selection in parallel, retaining each result and error.
-        # @param fail_fast Cancel remaining work after the first failure.
-        # @param arguments Field arguments applied to each artifact, as a JSON object.
-        # @param max_concurrency Evaluate at most this many artifacts at once on this engine; the rest wait. Checks that scale out to cloud engines are not counted. 0 means no limit.
-        def values(fail_fast: nil, arguments: nil, max_concurrency: nil)
-          @query.select("values", failFast: fail_fast, arguments:, maxConcurrency: max_concurrency).execute_object_list(ArtifactResult)
-        end
-
         # List the modules represented in this selection without evaluating artifact values.
         def modules
           @query.select("modules").execute_object_list(Module)
@@ -83,12 +75,7 @@ module Dagger
           Artifacts.new(@query.select("filterParentDirectives", directives:, exclude:))
         end
 
-        # Combine two selections, keeping each workspace address once. Different addresses remain distinct even if they return the same object.
-        def with_artifacts(artifacts:)
-          Artifacts.new(@query.select("withArtifacts", artifacts:))
-        end
-
-        # Remove artifacts selected by a DAG address.
+        # Remove artifacts selected by a DAG address. Retain the collection view.
         def without_uri(uri:)
           Artifacts.new(@query.select("withoutUri", uri:))
         end
@@ -114,7 +101,7 @@ module Dagger
           Artifacts.new(@query.select("filterDimensions", dimensions:))
         end
 
-        # Keep artifacts with any listed key in this dimension.
+        # Keep artifacts with any listed key in this dimension. Replace collection references with matching subsets. Skip absent keys and leave the source view unchanged.
         def filter_dimension_keys(dimension:, keys:)
           Artifacts.new(@query.select("filterDimensionKeys", dimension:, keys:))
         end
@@ -144,7 +131,7 @@ module Dagger
           @query.select("dimensionItems", dimension:).execute_object_list(Artifact)
         end
 
-        # Enumerate complete artifacts without evaluating their values.
+        # List artifact descriptions with their collection view. Discover collection keys without evaluating leaf values.
         def items
           @query.select("items").execute_object_list(Artifact)
         end

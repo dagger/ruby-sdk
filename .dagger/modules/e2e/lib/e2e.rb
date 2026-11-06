@@ -13,6 +13,7 @@ class E2E
 end
 
 require_relative "e2e/scope_checks"
+require_relative "e2e/dang_config_checks"
 require_relative "e2e/module_checks"
 require_relative "e2e/cli_checks"
 require_relative "e2e/sdk_checks"

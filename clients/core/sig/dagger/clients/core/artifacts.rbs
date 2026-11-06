@@ -13,13 +13,11 @@ module Dagger
         def as_services: () -> ::Array[Service]
         def path_definitions: (?absolute: bool?, ?type_assertion: bool?, ?dimension: ::String?) -> ::Array[ArtifactPath]
         def dimension_definitions: () -> ::Array[ArtifactDimension]
-        def values: (?fail_fast: bool?, ?arguments: ::String?, ?max_concurrency: ::Integer?) -> ::Array[ArtifactResult]
         def modules: () -> ::Array[Module]
         def types: () -> ::Array[TypeDef]
         def filter_directives: (directives: ::Array[::String], ?exclude: bool?) -> Artifacts
         def filter_parent_types: (types: ::Array[::String], ?exclude: bool?) -> Artifacts
         def filter_parent_directives: (directives: ::Array[::String], ?exclude: bool?) -> Artifacts
-        def with_artifacts: (artifacts: Artifacts) -> Artifacts
         def without_uri: (uri: ::String) -> Artifacts
         def filter_types: (types: ::Array[::String], ?exclude: bool?) -> Artifacts
         def filter_path: (path: ::Array[::String]) -> Artifacts

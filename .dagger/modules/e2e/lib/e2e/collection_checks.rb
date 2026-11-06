@@ -2,7 +2,7 @@ class E2E
   COLLECTIONS = "#{FIXTURES}/collections/app".freeze
   COLLECTIONS_CALLER = "#{FIXTURES}/collections/caller".freeze
 
-  function "A collection through dagger call and the API: keys, get, list, subset, batch, its delta after a " \
+  function "A collection through dagger call and the API: keys, get, list, subset, its delta after a " \
            "subset and after a change of keys, with marked members and with the engine's member names.", check: true
   #: (ws: Core::Workspace) -> void
   def collections_check(ws:)
@@ -13,7 +13,7 @@ class E2E
       %w[items keys] => %w[b a c],
       %w[items get --key=a name] => "item:a",
       %w[items name --collections-item=a] => "item:a",
-      %w[items selected --collections-item=a --collections-item=c] => %w[a c],
+      %w[items subset --keys=a,c selected] => %w[a c],
       %w[suites keys] => %w[unit lint],
       %w[suites get --key=lint name] => "lint"
     }.each do |args, want|
@@ -23,7 +23,7 @@ class E2E
     collection_queries(ws)
   end
 
-  function "A Ruby module calls a collection module through its generated client: subset, batch, get and list.",
+  function "A Ruby module calls a collection module through its generated client: subset, delta, get and list.",
            check: true
   #: (ws: Core::Workspace) -> void
   def collection_client_check(ws:)
@@ -37,20 +37,18 @@ class E2E
     end
   end
 
-  function "dagger check runs a collection's checks: one per item of its item type, and one per item of a " \
-           "collection's own check.", check: true
+  function "dagger check runs a collection's checks: one per item of its item type, and the collection's own " \
+           "check once.", check: true
   #: (ws: Core::Workspace) -> void
   def collection_checks_check(ws:)
     ws = fixtures(ws)
     ground = playground(ws)
     links = cli(ground, "-m", COLLECTIONS, "check", "--module", "collections", "-l", "--all", "-f=link").stdout.split
-    want = %w[complete&collections-suite=lint complete&collections-suite=unit verify&collections-item=a
-              verify&collections-item=b verify&collections-item=c]
-    # v1.0.0-beta.19 also names the collection's field: check=items/verify.
-    named = links.map { it.sub(%r{check=\w+/}, "check=") }
-    check(named.sort == want.map { "dag+check://?check=#{it}" }, "dagger check -l --all listed #{links.inspect}")
+    want = %w[suites/complete verify&collections-item=a verify&collections-item=b
+              verify&collections-item=c].map { "dag+check://?check=#{it}" }
+    check(links.sort == want, "dagger check -l --all listed #{links.inspect}")
     item_c = links.find { it.end_with?("item=c") }
-    cli(ground, "-m", COLLECTIONS, "check", *(links - [item_c])).sync
+    (links - [item_c]).each { cli(ground, "-m", COLLECTIONS, "check", it).sync }
     check_includes(cli_failure(ground, "-m", COLLECTIONS, "check", item_c), "item c fails its check",
                    "the check of item c")
   end
@@ -75,18 +73,18 @@ class E2E
     root = Dagger::QueryBuilder.new.select("collections")
     items = root.select("items")
     subset = items.select("subset", keys: %w[c b])
-    changed = items.select("batch").select("change", names: %w[c d]).select("batch")
+    changed = items.select("change", names: %w[c d])
     suites = root.select("suites")
     {
       "list" => [items.select("list").select("name").execute, %w[item:b item:a item:c].map { { "name" => it } }],
       "subset keys" => [subset.select("keys").execute, %w[b c]],
-      "subset removed" => [subset.select("batch").select("removed").execute, %w[a]],
-      "empty subset" => [items.select("subset", keys: []).select("batch").select("removed").execute, %w[b a c]],
+      "subset removed" => [subset.select("removed").execute, %w[a]],
+      "empty subset" => [items.select("subset", keys: []).select("removed").execute, %w[b a c]],
       "changed added" => [changed.select("added").execute, %w[d]],
       "changed removed" => [changed.select("removed").execute, %w[b a]],
-      "a check that passes" => [suites.select("batch").select("complete").select("pass").execute, true],
-      "a check that fails" => [suites.select("subset", keys: %w[unit]).select("batch").select("complete")
-                                     .select("pass").execute, false]
+      "a check that passes" => [suites.select("complete").select("pass").execute, true],
+      "a check that fails" => [suites.select("subset", keys: %w[unit]).select("complete").select("pass").execute,
+                               false]
     }.each { |what, (got, want)| check(got == want, "#{what}: got #{got.inspect}, want #{want.inspect}") }
   end
 end

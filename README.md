@@ -120,7 +120,8 @@ The module's name gives its main class by the engine's rule (`hello` gives
   Steepfile            yours, from the template
   lib/                 yours
   sdk/                 generated: the dagger-sdk gem, and a module's entrypoint,
-                       signatures read from its annotations and module.rbs
+                       signatures read from its annotations, module.rbs, and
+                       dang.toml, which you may add settings to
   clients/core/        generated: the core API
   clients/roots/       generated: core and each client as private methods
   clients/<name>/      generated: one per declared client
@@ -146,6 +147,37 @@ source = "./sdk/entrypoint"
 Generation refuses a manifest with `[runtime]`, `[[dependencies]]`,
 `engineVersion`, `include`, `exclude`, a `source` other than `.`, or another
 entrypoint, naming what it found, and refuses a `dagger.json`.
+
+### A module's `dang.toml`
+
+Generation writes `sdk/entrypoint/dang.toml`, which names the Dagger version
+the module was generated for and the Dang language its entrypoint is written
+in:
+
+```toml
+dang = "2.1"
+
+[imports]
+  [imports.Dagger]
+    dagger = "v1.0.0-beta.25"
+```
+
+The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
+clients' API view use the same version, which the SDK sets. A module gets the
+file, and a new version, at its next `dagger generate`. A plain scope gets none.
+
+Generation loads the file it finds there through sdk-helpers, sets `dang` and
+`imports.Dagger.dagger`, and keeps every other setting and import. It rewrites
+the file, so comments and formatting are lost. sdk-helpers removes a `path` from
+the `Dagger` import and refuses a non-empty `endpoint` on it; generation stops
+with that error. Generation reads no other `dang.toml` and changes none outside
+`sdk/`, which it replaces whole. A scope that stops being a module keeps the file.
+
+An engine that reads `dang.toml` serves the entrypoint the API version it names;
+one that does not ignores the file. `DAGGER_CLIENT_VERSION` asks for the same
+version for the module's own process, on an engine that reads it. A versioned
+import needs Dang v2.2.0 or later to parse, so older standalone Dang tooling may
+reject the file.
 
 ## Declaring a module
 
@@ -261,8 +293,8 @@ module the scope declares as a client.
 ### Collections
 
 A collection is an object of many items, selected by key. The engine gives it
-`keys`, `get`, `list`, `subset` and `batch`; a check of its item type runs
-once per item, and its other functions run on a selection, under `batch`.
+`keys`, `get`, `list` and `subset`; a check of its item type runs once per
+item, and its other functions run on a selection.
 
 ```ruby
 class Items
@@ -334,7 +366,10 @@ SDK module itself, plain scopes and other SDKs' modules are not modules here.
 
 **What a passing check means.** `dagger generate` accepts every module the
 check found, as it stands, with the clients it was last generated with, and
-Steep passes on each that has a `Steepfile`. The check runs generation's own
+Steep passes on each that has a `Steepfile`. The one exception is
+`sdk/entrypoint/dang.toml`, which generation merges through sdk-helpers and the
+check does not read: an error there, such as an `endpoint` on the `Dagger`
+import, stops generation alone. The check runs generation's own
 refusals on each module, the same code: the scope's members and manifest,
 Bundler on its `Gemfile`, and `dagger-mod entrypoint` on its annotations as
 they are now, with every rule of the registry (a function or field without a

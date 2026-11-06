@@ -147,7 +147,27 @@
           "returns": "void"
         },
         "artifacts_check": {
-          "line": 60,
+          "line": 58,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        }
+      }
+    }
+  ],
+  "lib/e2e/dang_config_checks.rb": [
+    {
+      "class": "E2E",
+      "nesting": [
+        "E2E"
+      ],
+      "methods": {
+        "dang_config_check": {
+          "line": 18,
           "params": [
             {
               "name": "ws",

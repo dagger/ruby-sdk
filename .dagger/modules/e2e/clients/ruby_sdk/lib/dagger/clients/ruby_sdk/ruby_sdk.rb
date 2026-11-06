@@ -29,7 +29,7 @@ module Dagger
           ::Dagger::Clients::Core::Workspace.new(@query.select("generateScope", ws:, isModule: is_module, name:, clients:))
         end
 
-        # dagger generate accepts every Ruby module this SDK generated in the workspace, and Steep passes on each with a Steepfile: a module is a directory whose manifest names ./sdk/entrypoint, whose sdk/ carries the SDK's marker, and which has a Gemfile. The check runs generation's own refusals on each, then Steep in the module's image with its Gemfile's development group, which the module's container never installs.
+        # dagger generate accepts every Ruby module this SDK generated in the workspace, unless sdk-helpers refuses its sdk/entrypoint/dang.toml, which the check does not read, and Steep passes on each with a Steepfile: a module is a directory whose manifest names ./sdk/entrypoint, whose sdk/ carries the SDK's marker, and which has a Gemfile. The check runs generation's own refusals on each, then Steep in the module's image with its Gemfile's development group, which the module's container never installs.
         def steep(ws:)
           ::Dagger::Clients::Core::Check.new(@query.select("steep", ws:))
         end
