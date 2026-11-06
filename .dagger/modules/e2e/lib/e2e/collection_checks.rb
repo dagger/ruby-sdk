@@ -48,7 +48,7 @@ class E2E
               verify&collections-item=c].map { "dag+check://?check=#{it}" }
     check(links.sort == want, "dagger check -l --all listed #{links.inspect}")
     item_c = links.find { it.end_with?("item=c") }
-    cli(ground, "-m", COLLECTIONS, "check", *(links - [item_c])).sync
+    (links - [item_c]).each { cli(ground, "-m", COLLECTIONS, "check", it).sync }
     check_includes(cli_failure(ground, "-m", COLLECTIONS, "check", item_c), "item c fails its check",
                    "the check of item c")
   end
