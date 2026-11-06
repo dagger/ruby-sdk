@@ -238,7 +238,7 @@ fetches its ID on every use, as the Go client does.
 ## Collections
 
 A class with `collection` becomes an engine collection: the engine gives it
-`keys`, `get`, `list`, `subset` and `batch`, runs a check of its item type
+`keys`, `get`, `list` and `subset`, runs a check of its item type
 once per item, and computes the delta of a selection. Members go by the
 engine's names (`keys`, `get`, `delta`) or are marked (`keys:`, `get:`,
 `delta:`). `Dagger::Mod::CollectionRules` checks the engine's rules at

@@ -293,8 +293,8 @@ module the scope declares as a client.
 ### Collections
 
 A collection is an object of many items, selected by key. The engine gives it
-`keys`, `get`, `list`, `subset` and `batch`; a check of its item type runs
-once per item, and its other functions run on a selection, under `batch`.
+`keys`, `get`, `list` and `subset`; a check of its item type runs once per
+item, and its other functions run on a selection.
 
 ```ruby
 class Items
