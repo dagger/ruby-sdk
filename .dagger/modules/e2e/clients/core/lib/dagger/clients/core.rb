@@ -5,7 +5,7 @@ require "dagger"
 module Dagger
   module Clients
     module Core
-      CORE_DIGEST = "sha256:ac1f71a039002440e968ab40d27d00434f4cea9445a6ad6501856ed3353f8ab5".freeze
+      CORE_DIGEST = "sha256:78b7f2afb3fa97b76499a5842060cb2ef5e02c214a1f2b920a3d61fcab4c62f3".freeze
 
       autoload :AcronymStyle, "dagger/clients/core/acronym_style"
       autoload :Address, "dagger/clients/core/address"
@@ -18,7 +18,6 @@ module Dagger
       autoload :ArtifactDimensionKey, "dagger/clients/core/artifact_dimension_key"
       autoload :ArtifactDimensionKind, "dagger/clients/core/artifact_dimension_kind"
       autoload :ArtifactPath, "dagger/clients/core/artifact_path"
-      autoload :ArtifactResult, "dagger/clients/core/artifact_result"
       autoload :Artifacts, "dagger/clients/core/artifacts"
       autoload :BuildArg, "dagger/clients/core/build_arg"
       autoload :Bytes, "dagger/clients/core/bytes"

@@ -18,7 +18,7 @@ module Dagger
         def container: (?platform: ::String?) -> Container
         def cache_volume: (key: ::String, ?source: Directory?, ?sharing: CacheSharingMode?, ?owner: ::String?) -> CacheVolume
         def engine_volume: (name: ::String, ?subdir: ::String?) -> Volume
-        def sshfs_volume: (endpoint: ::String, private_key: Secret, ?known_hosts: Secret?, ?cache_key: ::String?, ?insecure_skip_host_key_check: bool?, ?experimental_service_host: Service?) -> Volume
+        def sshfs_volume: (endpoint: ::String, private_key: Secret, ?known_hosts: Secret?, ?cache_key: ::String?, ?insecure_skip_host_key_check: bool?, ?experimental_service_host: Service?, ?follow_symlinks: bool?) -> Volume
         def secret: (uri: ::String, ?cache_key: ::String?) -> Secret
         def set_secret: (name: ::String, plaintext: ::String) -> Secret
         def host: () -> Host

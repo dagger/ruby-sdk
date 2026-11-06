@@ -147,7 +147,7 @@
           "returns": "void"
         },
         "artifacts_check": {
-          "line": 60,
+          "line": 58,
           "params": [
             {
               "name": "ws",

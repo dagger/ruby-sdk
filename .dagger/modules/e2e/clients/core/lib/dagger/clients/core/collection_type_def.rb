@@ -17,11 +17,6 @@ module Dagger
         def value_type
           TypeDef.new(@query.select("valueType"))
         end
-
-        # The type of batch operations, or null when there are none.
-        def batch_type
-          @query.select("batchType").execute_optional(TypeDef)
-        end
       end
     end
   end

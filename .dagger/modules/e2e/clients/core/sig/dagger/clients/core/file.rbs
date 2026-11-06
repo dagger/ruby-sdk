@@ -22,6 +22,7 @@ module Dagger
         def chown: (owner: ::String) -> File
         def as_git_bundle: () -> GitBundle
         def as_json: () -> JSONValue
+        def extract: (?strip_components: ::Integer?, ?include: ::Array[::String]?, ?exclude: ::Array[::String]?) -> Directory
         def as_env_file: (?expand: bool?) -> EnvFile
       end
     end

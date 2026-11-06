@@ -204,19 +204,19 @@ type ModuleTypes {
         )
         .withFunction(
           function("collectionsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("A collection through dagger call and the API: keys, get, list, subset, batch, its delta after a subset and after a change of keys, with marked members and with the engine's member names.")
+            .withDescription("A collection through dagger call and the API: keys, get, list, subset, its delta after a subset and after a change of keys, with marked members and with the engine's member names.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
           function("collectionClientCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("A Ruby module calls a collection module through its generated client: subset, batch, get and list.")
+            .withDescription("A Ruby module calls a collection module through its generated client: subset, delta, get and list.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
           function("collectionChecksCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("dagger check runs a collection's checks: one per item of its item type, and one per item of a collection's own check.")
+            .withDescription("dagger check runs a collection's checks: one per item of its item type, and the collection's own check once.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )

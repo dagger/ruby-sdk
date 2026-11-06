@@ -112,6 +112,18 @@ module Dagger
           JSONValue.new(@query.select("asJSON"))
         end
 
+        # Extracts this archive file into a directory.
+        #
+        # The format is detected from the file's contents: zip, or tar, either uncompressed or compressed with gzip, bzip2, xz or zstd.
+        #
+        # An entry whose path would leave the directory is an error.
+        # @param strip_components Remove this many leading elements from each entry's path, as tar --strip-components does.  Entries with no more elements than this are skipped.
+        # @param include If set, only entries matching one of these glob patterns, or in a directory that does, are extracted (e.g., ["src/", "*.go"]).  Patterns match entry paths after stripComponents is applied.
+        # @param exclude If set, entries matching one of these glob patterns, or in a directory that does, are not extracted (e.g., ["**/testdata", "**/*_test.go"]).  Patterns match entry paths after stripComponents is applied.
+        def extract(strip_components: nil, include: nil, exclude: nil)
+          Directory.new(@query.select("extract", stripComponents: strip_components, include:, exclude:))
+        end
+
         # Parse as an env file
         # @param expand Replace "${VAR}" or "$VAR" with the value of other vars
         def as_env_file(expand: nil)
