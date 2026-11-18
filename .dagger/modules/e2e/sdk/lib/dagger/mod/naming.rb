@@ -26,17 +26,9 @@ module Dagger
         end
       end
 
-      def snake(name)
-        name.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
-      end
-
-      def api_name(ruby_name)
-        head, *rest = ruby_name.to_s.split("_")
-        [head, *rest.map(&:capitalize)].join
-      end
-
       def file_name(module_name)
-        snake(module_name.gsub(/[^A-Za-z0-9]+/, "_")).squeeze("_").delete_prefix("_").delete_suffix("_")
+        module_name.gsub(/[^A-Za-z0-9]+/, "_").gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2')
+                   .downcase.squeeze("_").delete_prefix("_").delete_suffix("_")
       end
 
       def module_file(module_name) = "lib/#{file_name(module_name)}.rb"

@@ -13,12 +13,6 @@ class ModNamingTest < Minitest::Test
     }.each { |name, camel| assert_equal camel, Naming.to_camel(name), name }
   end
 
-  def test_api_names_are_lower_camel_case
-    assert_equal "howMany", Naming.api_name(:how_many)
-    assert_equal "x", Naming.api_name(:x)
-    assert_equal "sha256Sum", Naming.api_name("sha256_sum")
-  end
-
   def test_the_module_file_is_the_snake_case_module_name
     {
       "my-module" => "my_module", "MyModule" => "my_module", "myModule" => "my_module", "module3" => "module3",

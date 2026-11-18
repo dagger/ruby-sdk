@@ -153,8 +153,10 @@ class DispatchTest < Minitest::Test
     refute dispatch("copy", receiver: state).key?("__daggerCollectionBase")
   end
 
+  # The engine calls a function by the name the module declared: its Ruby name.
   def test_a_core_object_arrives_by_id_and_is_loaded_with_node
-    assert_equal "Directory", dispatch("nodeType", receiver: state, dir: "some-id")
+    assert_equal "Directory", dispatch("node_type", receiver: state, dir: "some-id")
+    assert_raises(Dagger::Mod::InvalidInputError) { dispatch("nodeType", receiver: state, dir: "some-id") }
   end
 
   def test_errors

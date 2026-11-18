@@ -14,10 +14,12 @@ class SdkModuleTest < Minitest::Test
 
   def manifest = File.read(File.join(ROOT, "dagger-module.toml"))
 
+  def camel(name) = name.to_s.gsub(/_\w/) { it[1].upcase }
+
   # RubySdk's fields and the functions every Dang type calls into Ruby; mod
   # is Dang's alone, the module a function such as steep then runs on.
   def test_the_dang_module_declares_what_ruby_sdk_answers
-    ruby = RubySdk.public_instance_methods(false).map { Dagger::Mod::Naming.api_name(it) }
+    ruby = RubySdk.public_instance_methods(false).map { camel(it) }
     called = Dir[File.join(ROOT, "*.dang")].flat_map { File.read(it).scan(/ruby\.call\("(\w+)"/).flatten }.uniq
 
     assert_equal (ruby + ["mod"]).sort, dang.scan(/^  pub (\w+)/).flatten.sort

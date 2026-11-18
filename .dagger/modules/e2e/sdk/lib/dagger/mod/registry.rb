@@ -214,7 +214,7 @@ module Dagger
       def describe_object(klass, main:)
         name = type_name(klass)
         fields = fields(klass).values.reject(&:private).map do |field|
-          Description::Field.new(Naming.api_name(field.name), type_ref(field.type, "#{name}.#{field.name}"), field.doc,
+          Description::Field.new(field.name.to_s, type_ref(field.type, "#{name}.#{field.name}"), field.doc,
                                  field.deprecated)
         end
         functions = functions(klass).values.map { describe_function(klass, it) }
@@ -273,7 +273,7 @@ module Dagger
         return decl.api_name if decl.api_name
         raise RegistrationError, "#{where}: a name ending in ? or ! needs name:" if decl.method_name.end_with?("?", "!")
 
-        Naming.api_name(decl.method_name)
+        decl.method_name.to_s
       end
 
       # A keyword whose default only Ruby knows is optional to callers, who
@@ -284,7 +284,7 @@ module Dagger
 
         type = type_ref(arg.type, context, optional: arg.optional && arg.default.equal?(UNSET))
         Description::Argument.new(
-          arg.api_name || Naming.api_name(arg.ruby_name), type, arg.doc, default_json(arg.default, type, context),
+          arg.api_name || arg.ruby_name.to_s, type, arg.doc, default_json(arg.default, type, context),
           arg.default_address, arg.ignore, arg.deprecated
         )
       end

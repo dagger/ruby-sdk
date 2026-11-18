@@ -17,6 +17,20 @@ module Dagger
         bindings[interface] ||= Binding.new(interface, registry).build
       end
 
+      # The engine names an interface's functions and arguments by the
+      # module's naming rules, which a call through it selects on the
+      # implementing object: one query per process answers for every interface.
+      def self.field_names(registry, root)
+        answers = (@field_names ||= {}) #: Hash[Registry, Hash[String, String]]
+        answers[registry] ||= begin
+          names = registry.interfaces.flat_map { registry.functions(it).values }.flat_map do |decl|
+            [decl.api_name || decl.method_name.to_s, *decl.args.map { it.api_name || it.ruby_name.to_s }]
+          end.uniq
+          naming = root.select("naming").select("module", name: ENV.fetch("DAGGER_MODULE"))
+          names.zip(naming.select("fieldNames", names:).execute).to_h
+        end
+      end
+
       # Builds a binding class. Its methods return what a generated client
       # returns: a value for a leaf, an object to chain on otherwise.
       #
@@ -38,19 +52,11 @@ module Dagger
           klass
         end
 
-        # One call of an interface function on the value `instance` holds. An
-        # optional argument left out is sent with its default, when the API
-        # can carry it, and left to the implementation otherwise.
-        def call(instance, decl, field, kwargs)
-          args = {} #: Hash[Symbol, untyped]
-          decl.args.each do |arg|
-            given = kwargs.key?(arg.ruby_name)
-            raise ::ArgumentError, "missing keyword: :#{arg.ruby_name}" unless given || arg.optional
-
-            value = kwargs.fetch(arg.ruby_name, arg.default)
-            args[(arg.api_name || Naming.api_name(arg.ruby_name)).to_sym] = value unless value.equal?(UNSET)
-          end
-          result(concrete(instance.query).select(field, **args), decl.returns)
+        # One call of an interface function on the value `instance` holds.
+        def call(instance, decl, kwargs)
+          names = Interface.field_names(@registry, instance.query.root)
+          field = names.fetch(decl.api_name || decl.method_name.to_s)
+          result(concrete(instance.query).select(field, **arguments(names, decl, kwargs)), decl.returns)
         end
 
         def result(query, type)
@@ -63,6 +69,20 @@ module Dagger
 
         private
 
+        # An optional argument left out is sent with its default, when the API
+        # can carry it, and left to the implementation otherwise.
+        def arguments(names, decl, kwargs)
+          args = {} #: Hash[Symbol, untyped]
+          decl.args.each do |arg|
+            given = kwargs.key?(arg.ruby_name)
+            raise ::ArgumentError, "missing keyword: :#{arg.ruby_name}" unless given || arg.optional
+
+            value = kwargs.fetch(arg.ruby_name, arg.default)
+            args[names.fetch(arg.api_name || arg.ruby_name.to_s).to_sym] = value unless value.equal?(UNSET)
+          end
+          args
+        end
+
         def concrete(query)
           id = query.loaded_id or return query
           type = @types[id] ||= query.select("__typename").execute
@@ -72,8 +92,7 @@ module Dagger
 
         def define(klass, decl)
           binder = self #: Binding
-          field = decl.api_name || Naming.api_name(decl.method_name)
-          klass.define_method(decl.method_name) { |**kwargs| binder.call(self, decl, field, kwargs) }
+          klass.define_method(decl.method_name) { |**kwargs| binder.call(self, decl, kwargs) }
         end
 
         def single(query, type)

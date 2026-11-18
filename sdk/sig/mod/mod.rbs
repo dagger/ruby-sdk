@@ -43,8 +43,6 @@ module Dagger
 
     module Naming
       def self?.to_camel: (String name) -> String
-      def self?.snake: (String name) -> String
-      def self?.api_name: (Symbol | String ruby_name) -> String
       def self?.file_name: (String module_name) -> String
       def self?.module_file: (String module_name) -> String
     end
@@ -169,9 +167,11 @@ module Dagger
       include Declaring
 
       self.@bindings: Hash[untyped, singleton(::Dagger::Type)]?
+      self.@field_names: Hash[Registry, Hash[String, String]]?
 
       def self.extended: (untyped base) -> void
       def self.binding: (untyped interface, Registry registry) -> singleton(::Dagger::Type)
+      def self.field_names: (Registry registry, ::Dagger::QueryBuilder root) -> Hash[String, String]
 
       class Binding
         @interface: untyped
@@ -180,11 +180,13 @@ module Dagger
 
         def initialize: (untyped interface, Registry registry) -> void
         def build: () -> singleton(::Dagger::Type)
-        def call: (untyped instance, FunctionDecl decl, String field, Hash[Symbol, untyped] kwargs) -> untyped
+        def call: (untyped instance, FunctionDecl decl, Hash[Symbol, untyped] kwargs) -> untyped
         def result: (QueryBuilder query, untyped type) -> untyped
 
         private
 
+        def arguments: (Hash[String, String] names, FunctionDecl decl, Hash[Symbol, untyped] kwargs)
+                     -> Hash[Symbol, untyped]
         def concrete: (QueryBuilder query) -> QueryBuilder
         def define: (singleton(::Dagger::Type) klass, FunctionDecl decl) -> void
         def single: (QueryBuilder query, untyped type) -> untyped
