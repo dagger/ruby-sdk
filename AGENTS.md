@@ -72,7 +72,7 @@ cd "$ws" && dagger module install ./ruby-sdk
 
 ## Engines
 
-The SDK requires Dagger v1.0.0-beta.19 or later. That is documentation only:
+The SDK requires Dagger v1.0.0-beta.26 or later. That is documentation only:
 nothing checks the version.
 
 - A custom engine: set `DAGGER_ENGINE` to it and run the checks. Its nested
@@ -129,9 +129,9 @@ A module's `sdk/entrypoint/dang.toml` is the user's despite the marker on
   `sdk/entrypoint/dang.toml`, which the check does not read.
 - The entrypoint contract: `types` returns the literal typedefs; `call` runs
   `dagger-mod call` with the request on stdin and declares a nullable
-  `callDigest`, which keys its exec. A module with gems outside its directory
-  declares `sources`, and its `types` and `call` take no workspace; every other
-  module keeps `types(workspace:)` and `call(workspace:, …)`.
+  `callDigest`, which keys its exec. Every module declares `sources`, so its
+  `types` and `call` take no workspace; a module without gems outside its
+  directory returns its manifest alone.
 - Code style: RuboCop's configuration, lines up to 120 characters, comments
   that say why, not what. In Steep, a literal symbol widens to `Symbol`
   (annotate `Symbol?`), `grep` does not narrow (use a local and `is_a?`), and

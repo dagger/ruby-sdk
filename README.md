@@ -18,7 +18,7 @@ other modules from Ruby: from a module, or from a plain Ruby program.
 
 ## Requirements
 
-- Dagger v1.0.0-beta.19 or later, its CLI and engine. The SDK checks no
+- Dagger v1.0.0-beta.26 or later, its CLI and engine. The SDK checks no
   version: on an older engine, what it lacks fails where it is used.
 - No Ruby on the host for modules: they build in containers, on the SDK's
   pinned Ruby 4.0 image, or on `ruby:<version>` with a `.ruby-version`. A
@@ -159,7 +159,7 @@ dang = "2.1"
 
 [imports]
   [imports.Dagger]
-    dagger = "v1.0.0-beta.25"
+    dagger = "v1.0.0-beta.27"
 ```
 
 The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
@@ -536,13 +536,11 @@ again (8 s for a module with one native extension).
   Gemfile names: until then a call fails with Bundler's error and the hint.
 - Only what the Gemfile names is loaded: a file that the module's code reads
   outside its directory, with `require_relative` or `File.read`, is not there.
-- It needs an engine that evaluates the entrypoint's `sources`, which no
-  schema field shows, and whose `CurrentModule` has `contextDirectory` and
+- It needs an engine whose `CurrentModule` has `contextDirectory` and
   `sourceSubpath`, which generation checks: it refuses the module on an
-  engine without them. Declaring `sources` changes the entrypoint's contract:
-  `types` and `call` get no workspace. A module without gems outside its
-  directory keeps the contract where they get one, and generates the same
-  files as before.
+  engine without them. Every entrypoint declares `sources`, so `types` and
+  `call` get no workspace; a module without gems outside its directory
+  returns its manifest alone.
 
 ## Errors
 
