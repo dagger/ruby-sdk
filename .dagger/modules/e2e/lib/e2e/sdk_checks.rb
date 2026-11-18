@@ -26,8 +26,8 @@ class E2E
     development_image(ws).with_directory(path: "/src", source: tree(ws).without_directory(path: "tmp"))
                          .with_workdir(path: "/src")
                          .with_env_variable(name: "BUNDLE_GEMFILE", value: "/tools/Gemfile")
-                         .with_exec(args: %w[ruby lib/ruby_sdk/codegen/cli.rb core test/fixtures/core-schema.json
-                                             tmp/codegen/core])
+                         .with_exec(args: %w[ruby lib/ruby_sdk/codegen/cli.rb core test/fixtures/names.json
+                                             test/fixtures/core-schema.json tmp/codegen/core])
                          .with_exec(args: ["ruby", "-Itest", "-e", CODEGEN])
                          .with_exec(args: ["bundle", "exec", *command])
                          .sync

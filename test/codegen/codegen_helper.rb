@@ -6,6 +6,7 @@ require "ruby_sdk/codegen/cli"
 
 module CodegenHelper
   CORE_SCHEMA = File.expand_path("../fixtures/core-schema.json", __dir__)
+  NAMES = File.expand_path("../fixtures/names.json", __dir__)
   GOLDEN = File.expand_path("../golden/codegen", __dir__)
   GOLDEN_FILES = %w[
     lib/dagger/clients/core/env_variable.rb sig/dagger/clients/core/env_variable.rbs
@@ -94,3 +95,6 @@ module CodegenHelper
 
   def core_files = @core_files ||= RubySdk::Codegen::Package.core(core_schema)
 end
+
+# test/refresh.rb writes the fixture after loading this file.
+RubySdk::Codegen::Naming.names = JSON.parse(File.read(CodegenHelper::NAMES)) if File.exist?(CodegenHelper::NAMES)

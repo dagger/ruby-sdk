@@ -13,14 +13,17 @@ class RubySdk
     # Runs in an exec the SDK module starts, with the schemas mounted as files
     # and the member written to a directory the engine reads back.
     module CLI
-      USAGE = "usage: cli.rb core <stand-in-schema.json> <out> | " \
-              "client <schema.json> <out> <name> <ref> <core-digest> [<pin>] | " \
-              "roots <out> [<schema.json> <name>]...".freeze
+      USAGE = "usage: cli.rb core <names.json> <stand-in-schema.json> <out> | " \
+              "client <names.json> <schema.json> <out> <name> <ref> <core-digest> [<pin>] | " \
+              "roots <names.json> <out> [<schema.json> <name>]...".freeze
 
       module_function
 
       def run(argv)
-        command, *args = argv
+        command, names, *args = argv
+        raise Error, USAGE unless names
+
+        Naming.names = read(names)
         case command
         when "core" then core(args)
         when "client" then client(args)

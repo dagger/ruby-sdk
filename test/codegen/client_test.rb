@@ -56,6 +56,20 @@ class ClientTest < Minitest::Test
     assert_includes index, '::Dagger::Client.select(directory, TARGET, "asGreeter", {})'
   end
 
+  # The receiver is the parent type's name, styled once from the schema's names.
+  def test_a_contributed_field_names_its_receiver_after_the_parent_type
+    names = RubySdk::Codegen::Naming.names
+    RubySdk::Codegen::Naming.names = { "GitRepository" => "git_repository", "asGreeter" => "as_greeter" }
+    directory = client_document["__schema"]["types"].find { it["name"] == "Directory" }
+    field = directory["fields"].find { it["name"] == "asGreeter" }
+    render = RubySdk::Codegen::Render.new(Schema.new(client_document), "Dagger::Clients::Greeter", owner: "greeter")
+    ruby = render.contributed_function({ "name" => "GitRepository" }, field)
+
+    assert_includes ruby, "def self.as_greeter(git_repository)"
+  ensure
+    RubySdk::Codegen::Naming.names = names
+  end
+
   def test_a_client_is_the_same_bytes_in_two_directories
     trees = Array.new(2) do
       Dir.mktmpdir do |dir|

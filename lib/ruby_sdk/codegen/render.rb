@@ -76,7 +76,7 @@ class RubySdk
 
       def contributed_function(parent, field)
         args = ordered_args(field)
-        receiver = Naming.argument_name(Naming.snake(parent["name"]))
+        receiver = Naming.argument_name(parent["name"])
         receiver += "_" if args.any? { Naming.argument_name(it["name"]) == receiver }
         selection = "::Dagger::Client.select(#{receiver}, TARGET, #{field["name"].dump}, #{args_hash(args)})"
         params = [receiver, *args.map { param(it) }].join(", ")

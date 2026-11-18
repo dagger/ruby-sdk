@@ -381,10 +381,14 @@ class RubySdk
     def codegen(schema, args) = codegen_with({ "/schemas/schema.json" => schema }, args)
 
     def codegen_with(schemas, args)
+      names = Codegen::Naming.identifiers(schemas.values.map { JSON.parse(it.contents) })
+      snake = Core.core.naming(version: @target_version).format_identifiers(names:, casing: Core::Casing::SNAKE)
       container = Core.core.container.from(address: @image)
                       .with_mounted_directory(path: "/codegen", source: @sdk.directory(path: "lib"))
+                      .with_new_file(path: "/schemas/names.json", contents: JSON.generate(names.zip(snake).to_h))
       schemas.reduce(container) { |ctr, (path, schema)| ctr.with_mounted_file(path:, source: schema) }
-             .with_exec(args: ["ruby", "/codegen/ruby_sdk/codegen/cli.rb", *args], disable_dagger_in_dagger: true)
+             .with_exec(args: ["ruby", "/codegen/ruby_sdk/codegen/cli.rb", args.first.to_s, "/schemas/names.json",
+                               *args.drop(1)], disable_dagger_in_dagger: true)
              .directory(path: "/out")
     end
 

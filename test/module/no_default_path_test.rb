@@ -5,8 +5,8 @@ require_relative "../test_helper"
 class NoDefaultPathTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   # Core's bindings mirror the engine's API, whose Function.withArg takes the
-  # option; the recorded schema and the designs describe it.
-  EXEMPT = %r{(\A|/)clients/core/|\Atest/fixtures/core-schema\.json\z|\Ahack/designs/|\Atmp/|vendor/bundle/}
+  # option; the recorded schema, its names and the designs describe it.
+  EXEMPT = %r{(\A|/)clients/core/|\Atest/fixtures/(core-schema|names)\.json\z|\Ahack/designs/|\Atmp/|vendor/bundle/}
   PATTERN = /default_path|defaultPath/
 
   # Other hidden directories at the root hold the state of tools, not the

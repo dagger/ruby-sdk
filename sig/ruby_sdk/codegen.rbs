@@ -27,7 +27,10 @@ class RubySdk
       KEYWORDS: Array[String]
       RESERVED_METHODS: Array[String]
 
+      attr_accessor self.names: Hash[String, String]
+
       def self?.snake: (String name) -> String
+      def self?.identifiers: (Array[json] documents) -> Array[String]
       def self?.method_name: (String graphql_name) -> String
       def self?.argument_name: (String graphql_name) -> String
       def self?.constant: (String name) -> String
