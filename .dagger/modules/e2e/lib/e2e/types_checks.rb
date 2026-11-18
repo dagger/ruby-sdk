@@ -93,7 +93,8 @@ class E2E
     ws = fixtures(ws)
     ground = playground(ws)
     build = core.version
-    failed = cli_failure(ground, "-m", TYPES, "call", "--build", build, "explode", "--message", "boom #{build}")
+    failed = cli_failure(ground, PLAIN_PROGRESS, "-m", TYPES, "call", "--build", build, "explode", "--message",
+                         "boom #{build}")
     check(failed.include?("ArgumentError") && failed.include?("boom #{build}"),
           "the failed call does not name the error: #{failed}")
     rescued = JSON.parse(cli(ground, "-m", TYPES, "call", "--json", "--build", build, "exec-error").stdout)

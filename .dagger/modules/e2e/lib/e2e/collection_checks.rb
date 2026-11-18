@@ -49,8 +49,8 @@ class E2E
     check(links.sort == want, "dagger check -l --all listed #{links.inspect}")
     item_c = links.find { it.end_with?("item=c") }
     (links - [item_c]).each { cli(ground, "-m", COLLECTIONS, "check", it).sync }
-    check_includes(cli_failure(ground, "-m", COLLECTIONS, "check", item_c), "item c fails its check",
-                   "the check of item c")
+    check_includes(cli_failure(ground, PLAIN_PROGRESS, "-vvv", "-m", COLLECTIONS, "check", item_c),
+                   "item c fails its check", "the check of item c")
   end
 
   function "A function returns core artifacts, which the CLI selects on, and reads them in the module.", check: true

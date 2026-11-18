@@ -6,6 +6,9 @@ class E2E
     FIXTURES = ".dagger/modules/e2e/fixtures".freeze
     OUT = ".dagger/modules/e2e/out".freeze
     PLAYGROUND = "/work/ruby-sdk".freeze
+    # The nested CLI's default report leaves out a failed call's error and a
+    # failed Ruby check's logs: plain progress prints the one, at -vvv the other.
+    PLAIN_PROGRESS = "--progress=plain".freeze
     APP = "#{FIXTURES}/app".freeze
     DEP = "#{FIXTURES}/clients/dep".freeze
     PLAIN = "#{FIXTURES}/plain".freeze
