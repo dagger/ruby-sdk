@@ -43,7 +43,13 @@ class E2E
   def collection_checks_check(ws:)
     ws = fixtures(ws)
     ground = playground(ws)
-    links = cli(ground, "-m", COLLECTIONS, "check", "--module", "collections", "-l", "--all", "-f=link").stdout.split
+    # A nested listing in the outer trace replaces the outer CLI's own report,
+    # so it runs in a trace of its own.
+    links = ground.with_workdir(path: PLAYGROUND)
+                  .with_exec(args: ["env", "-u", "TRACEPARENT", "-u", "BAGGAGE", "dagger", "-m", COLLECTIONS, "check",
+                                    "--module", "collections", "-l", "--all", "-f=link"],
+                             experimental_privileged_nesting: true)
+                  .stdout.split
     want = %w[suites/complete verify&collections-item=a verify&collections-item=b
               verify&collections-item=c].map { "dag+check://?check=#{it}" }
     check(links.sort == want, "dagger check -l --all listed #{links.inspect}")
