@@ -141,6 +141,24 @@ class E2E
     end
   end
 
+  function "The engine names a module's Ruby declarations: load_json(base_url:) is load-json --base-url, and a " \
+           "call through the module's own interface selects the engine's names on the implementing object.",
+           check: true
+  #: (ws: Core::Workspace) -> void
+  def engine_naming_check(ws:)
+    ground = playground(fixtures(ws))
+    listed = cli(ground, "-m", NAMING_APP, "functions").stdout
+    %w[load-json loader arch].each { check_includes(listed, it, "dagger functions did not list #{it}") }
+    {
+      ["call", "load-json", "--base-url", "https://x"] => "https://x/app.json",
+      %w[call arch] => "ARM64",
+      ["-c", "load-through $(loader) --base-url https://x"] => "https://x/dep.json"
+    }.each do |args, want|
+      got = cli(ground, "-m", NAMING_APP, *args).stdout.strip
+      check(got == want, "#{args.join(" ")}: got #{got.inspect}, want #{want.inspect}")
+    end
+  end
+
   function "dagger generate over every registered scope, the SDK module's Ruby half and this harness included, " \
            "changes nothing.", check: true
   #: (ws: Core::Workspace) -> void

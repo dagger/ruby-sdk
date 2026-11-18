@@ -306,8 +306,18 @@
           ],
           "returns": "void"
         },
+        "engine_naming_check": {
+          "line": 148,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
         "generated_up_to_date_check": {
-          "line": 147,
+          "line": 165,
           "params": [
             {
               "name": "ws",

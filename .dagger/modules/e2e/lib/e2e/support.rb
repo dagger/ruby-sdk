@@ -15,6 +15,7 @@ class E2E
     LOOKUP = "#{FIXTURES}/lookup/app".freeze
     CONFIG_APP = "#{FIXTURES}/config/app".freeze
     CONFIGURED = "#{FIXTURES}/config/configured".freeze
+    NAMING_APP = "#{FIXTURES}/naming".freeze
     # The fixture scopes, which the repository keeps as sources: path => what
     # dagger.toml would record. A client comes before the scopes that use it.
     SCOPES = {
@@ -22,6 +23,7 @@ class E2E
       DEP => { name: "dep" },
       LOOKUP => { name: "lookup-app" },
       "#{FIXTURES}/types" => { name: "types", clients: [DEP] },
+      NAMING_APP => { name: "naming-app", clients: [DEP] },
       PLAIN => { clients: [DEP] },
       CONFIG_APP => { name: "config-app" },
       CONFIGURED => { name: "config-configured", ruby_version: "3.4" },
