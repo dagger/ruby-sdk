@@ -145,7 +145,9 @@ class E2E
     ground = ground.with_new_file(path: "#{PLAYGROUND}/.dagger/modules/cache-leaf/nonce.txt",
                                   contents: "#{nonce}-changed\n")
     lines << changed_line("changed-target-one-hop", first, value.call("cache-lib", "changed"), nonce)
-    lines << changed_line("changed-target-two-hops", demo, value.call("cache-demo", "changed"), nonce)
+    # A call is keyed on its module's own files, so the top sees the leaf once the middle changes.
+    ground = ground.with_new_file(path: "#{PLAYGROUND}/.dagger/modules/cache-lib/notes.txt", contents: "#{nonce}\n")
+    lines << changed_line("changed-middle-two-hops", demo, value.call("cache-demo", "changed"), nonce)
     lines.each { puts it }
     check(lines.all? { it.end_with?(": ok") }, lines.join("\n"))
   end

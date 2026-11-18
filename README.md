@@ -465,9 +465,12 @@ one of its classes, or `extend Dagger::Clients::Roots` at the top level, which
 gives them to top-level code alone.
 
 A client loads its module through `serveModule` on first use, once per
-session. A plain program in a scope (a directory with a `Gemfile`, registered
-with `dagger module client add` from it) runs under `dagger run`, or starts
-its own `dagger session` and stops it on exit:
+session. An edit in a client module's own directory gives the next call to it
+a new result; a module that calls it through another module sees the edit
+once that module's own files change too. A plain program in a scope (a
+directory with a `Gemfile`, registered with `dagger module client add` from it)
+runs under `dagger run`, or starts its own `dagger session` and stops it on
+exit:
 
 ```sh
 bundle install
