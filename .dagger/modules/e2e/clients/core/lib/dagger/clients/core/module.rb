@@ -31,7 +31,7 @@ module Dagger
         #
         # Note: this is in the context of a module, so some core types may be hidden.
         def introspection_schema_json
-          File.new(@query.select("introspectionSchemaJSON"))
+          File.new(@query.select("introspectionSchemaJson"))
         end
 
         # The generated files and directories made on top of the module source's context directory.

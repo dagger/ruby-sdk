@@ -65,8 +65,8 @@ class E2E
 
   # Each client's method is the engine's constructor field for its module,
   # in snake case.
-  CLIENT_METHODS = %(core: "core", httpserver: "HTTPServer", module3: "module3", my_module: "MyModule", ) +
-                   %(p11_lib: "p11lib", s3_bucket: "s3-bucket")
+  CLIENT_METHODS = %(core: "core", http_server: "HTTPServer", module3: "module3", my_module: "MyModule", ) +
+                   %(p11lib: "p11lib", s3_bucket: "s3-bucket")
 
   def client_methods(made)
     names = ".dagger/modules/names"

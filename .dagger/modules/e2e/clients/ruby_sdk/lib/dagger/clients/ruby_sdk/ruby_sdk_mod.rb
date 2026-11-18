@@ -4,10 +4,10 @@ module Dagger
   module Clients
     module RubySdk
       # A Ruby module of the workspace: the nearest one at or above a path.
-      class RubySdkMod < ::Dagger::Type
+      class RubySDKMod < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
 
-        def self.graphql_name = "RubySdkMod"
+        def self.graphql_name = "RubySDKMod"
 
         # The path the module was asked for, relative to the workspace cwd.
         def path

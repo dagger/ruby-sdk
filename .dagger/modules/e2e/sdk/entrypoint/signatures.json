@@ -147,7 +147,7 @@
           "returns": "void"
         },
         "artifacts_check": {
-          "line": 58,
+          "line": 64,
           "params": [
             {
               "name": "ws",
@@ -537,7 +537,7 @@
           "returns": "void"
         },
         "sources_call_check": {
-          "line": 30,
+          "line": 29,
           "params": [
             {
               "name": "ws",
@@ -547,7 +547,7 @@
           "returns": "void"
         },
         "sources_contract_check": {
-          "line": 48,
+          "line": 47,
           "params": [
             {
               "name": "ws",
@@ -566,8 +566,18 @@
           ],
           "returns": "void"
         },
+        "sources_alone_scope_check": {
+          "line": 84,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
         "sources_refusals_check": {
-          "line": 85,
+          "line": 98,
           "params": [
             {
               "name": "ws",
@@ -577,7 +587,7 @@
           "returns": "void"
         },
         "sources_git_check": {
-          "line": 104,
+          "line": 117,
           "params": [
             {
               "name": "ws",

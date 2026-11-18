@@ -9,14 +9,14 @@ module Dagger
 
         def self.graphql_name = "GitPushResult"
 
+        # The previous remote object ID; empty when the ref was created.
+        def previous_sha
+          @query.select("previousSha").execute
+        end
+
         # The fully qualified remote ref.
         def ref
           @query.select("ref").execute
-        end
-
-        # The previous remote object ID; empty when the ref was created.
-        def previous_sha
-          @query.select("previousSHA").execute
         end
 
         # The object ID pushed to the remote.

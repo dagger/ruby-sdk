@@ -3526,7 +3526,7 @@
             "directives": []
           },
           {
-            "name": "traceURL",
+            "name": "traceUrl",
             "description": "The trace URL for the current session",
             "type": {
               "kind": "NON_NULL",
@@ -3924,7 +3924,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "insecureSkipTLSVerify",
+                "name": "insecureSkipTlsVerify",
                 "description": "Allow HTTPS registry communication without verifying the server certificate.",
                 "defaultValue": "false",
                 "type": {
@@ -4037,6 +4037,18 @@
               {
                 "name": "expand",
                 "description": "Replace \"${VAR}\" or \"$VAR\" in the value of path according to the current environment variables defined in the container (e.g. \"/$VAR/foo\").",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "resolveBrokenSymlinks",
+                "description": "Repair symlinks that directory selection would break. Resolve targets across the root filesystem and directory or file mounts. Preserve working relative links and links that already have no target. Cache, volume, tmpfs, secret, and socket mounts cause an error if selection, a resolved link, or mount target resolution needs their contents.",
                 "defaultValue": "false",
                 "type": {
                   "kind": "SCALAR",
@@ -7050,7 +7062,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Use the specified media types for the published image's layers.\n\nDefaults to \"OCI\", which is compatible with most recent registries, but \"Docker\" may be needed for older registries without OCI support.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -7094,7 +7106,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "insecureSkipTLSVerify",
+                "name": "insecureSkipTlsVerify",
                 "description": "Allow HTTPS registry communication without verifying the server certificate.",
                 "defaultValue": "false",
                 "type": {
@@ -7211,7 +7223,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Use the specified media types for the exported image's layers.\n\nDefaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -7323,7 +7335,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Use the specified media types for the exported image's layers.\n\nDefaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -7403,7 +7415,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Use the specified media types for the image's layers.\n\nDefaults to OCI, which is largely compatible with most recent container runtimes, but Docker may be needed for older runtimes without OCI support.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -7625,7 +7637,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Media types to use for image layers. Defaults to OCI.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -7680,7 +7692,7 @@
               {
                 "name": "mediaTypes",
                 "description": "Media types to use for image layers. Defaults to OCI.",
-                "defaultValue": "OCIMediaTypes",
+                "defaultValue": "OCI",
                 "type": {
                   "kind": "ENUM",
                   "name": "ImageMediaTypes"
@@ -8284,7 +8296,7 @@
             ]
           },
           {
-            "name": "withGPU",
+            "name": "withGpu",
             "description": "Configures all GPUs available on the host to be accessible to this container.\n\nThis currently works with NVIDIA devices only, and requires the engine to run with GPU support enabled.",
             "type": {
               "kind": "NON_NULL",
@@ -8299,7 +8311,7 @@
             "directives": []
           },
           {
-            "name": "experimentalWithGPU",
+            "name": "experimentalWithGpu",
             "description": "Configures the provided list of devices to be accessible to this container.\n\nThis currently works for Nvidia devices only.",
             "type": {
               "kind": "NON_NULL",
@@ -8332,21 +8344,21 @@
               }
             ],
             "isDeprecated": true,
-            "deprecationReason": "Use \"withGPU\" instead, which exposes all GPUs available on the host.",
+            "deprecationReason": "Use \"withGpu\" instead, which exposes all GPUs available on the host.",
             "directives": [
               {
                 "name": "deprecated",
                 "args": [
                   {
                     "name": "reason",
-                    "value": "\"Use \\\"withGPU\\\" instead, which exposes all GPUs available on the host.\""
+                    "value": "\"Use \\\"withGpu\\\" instead, which exposes all GPUs available on the host.\""
                   }
                 ]
               }
             ]
           },
           {
-            "name": "experimentalWithAllGPUs",
+            "name": "experimentalWithAllGpus",
             "description": "Configures all available GPUs on the host to be accessible to this container.\n\nThis currently works for Nvidia devices only.",
             "type": {
               "kind": "NON_NULL",
@@ -8357,14 +8369,14 @@
             },
             "args": [],
             "isDeprecated": true,
-            "deprecationReason": "Use \"withGPU\" instead.",
+            "deprecationReason": "Use \"withGpu\" instead.",
             "directives": [
               {
                 "name": "deprecated",
                 "args": [
                   {
                     "name": "reason",
-                    "value": "\"Use \\\"withGPU\\\" instead.\""
+                    "value": "\"Use \\\"withGpu\\\" instead.\""
                   }
                 ]
               }
@@ -8807,6 +8819,31 @@
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
+          },
+          {
+            "name": "naming",
+            "description": "The names the engine gives this module's own declarations: the same as its source's ModuleSource.naming, for module runtimes, which have no ModuleSource.\n\nIt answers for the module under its own name (ModuleSource.moduleName), by the naming rules of the version the module is named by. A workspace or toolchain that loads the module under another name namespaces its types under that name instead, which this doesn't reflect.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ModuleNaming"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": [
+              {
+                "name": "experimental",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Identifier casing APIs are likely to change.\""
+                  }
+                ]
+              }
+            ]
           },
           {
             "name": "source",
@@ -9849,6 +9886,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "resolveBrokenSymlinks",
+                "description": "Repair symlinks that directory selection would break. Copy targets from this directory into the result. Preserve working relative links and links that already have no target.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -10454,6 +10503,37 @@
                     ]
                   }
                 ],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "withPlatform",
+            "description": "Retrieves this directory, declared as made for the given platform.\n\nDeclare a result whose contents are the same whichever platform made them, such as a Go package compiled for a platform by any platform's Go toolchain. An engine of another platform that makes the same directory for the same platform then finds this one, and the other way around.\n\nThe contents are not checked: a declared result that depends on the platform it was made on can be found where it doesn't belong.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Directory"
+              }
+            },
+            "args": [
+              {
+                "name": "platform",
+                "description": "The platform the directory's contents are for (e.g., \"linux/arm64\").",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Platform"
+                  }
+                },
+                "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
               }
@@ -12632,7 +12712,20 @@
                 "name": "ID"
               }
             },
-            "args": [],
+            "args": [
+              {
+                "name": "keyByContent",
+                "description": "Also key the file by its content, so that what consumes it is cached across any two recipes that produce the same file. This hashes the file unless it already has a content key.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": [
@@ -13148,7 +13241,7 @@
             "directives": []
           },
           {
-            "name": "asJSON",
+            "name": "asJson",
             "description": "Parse the file contents as JSON.",
             "type": {
               "kind": "NON_NULL",
@@ -14069,21 +14162,21 @@
         "description": "The behavior configured for function result caching.",
         "enumValues": [
           {
-            "name": "Default",
+            "name": "DEFAULT",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
           },
           {
-            "name": "PerSession",
+            "name": "PER_SESSION",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
           },
           {
-            "name": "Never",
+            "name": "NEVER",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
@@ -14343,7 +14436,7 @@
             "directives": []
           },
           {
-            "name": "withVCSGeneratedPaths",
+            "name": "withVcsGeneratedPaths",
             "description": "Set the list of paths to mark generated in version control.",
             "type": {
               "kind": "NON_NULL",
@@ -14380,7 +14473,7 @@
             "directives": []
           },
           {
-            "name": "withVCSIgnoredPaths",
+            "name": "withVcsIgnoredPaths",
             "description": "Set the list of paths to ignore in version control.",
             "type": {
               "kind": "NON_NULL",
@@ -14630,6 +14723,27 @@
             "directives": []
           },
           {
+            "name": "prerequisiteShas",
+            "description": "Commits that must already exist wherever this bundle is applied.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                }
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
             "name": "version",
             "description": "Bundle format version (2 or 3).",
             "type": {
@@ -14671,27 +14785,6 @@
                   "ofType": {
                     "kind": "OBJECT",
                     "name": "GitBundleRef"
-                  }
-                }
-              }
-            },
-            "args": [],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "prerequisiteSHAs",
-            "description": "Commits that must already exist wherever this bundle is applied.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String"
                   }
                 }
               }
@@ -14968,7 +15061,7 @@
             "directives": []
           },
           {
-            "name": "treeSHA",
+            "name": "treeSha",
             "description": "The ID of the commit's Git tree object.\n\nCommits with identical trees have identical contents and file modes.",
             "type": {
               "kind": "NON_NULL",
@@ -15210,8 +15303,8 @@
             "directives": []
           },
           {
-            "name": "ref",
-            "description": "The fully qualified remote ref.",
+            "name": "previousSha",
+            "description": "The previous remote object ID; empty when the ref was created.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -15225,8 +15318,8 @@
             "directives": []
           },
           {
-            "name": "previousSHA",
-            "description": "The previous remote object ID; empty when the ref was created.",
+            "name": "ref",
+            "description": "The fully qualified remote ref.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -15360,7 +15453,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "expectedRemoteSHA",
+                "name": "expectedRemoteSha",
                 "description": "Optional lease: a full lowercase object ID allows replacement only if the remote ref still has that value. Checked even for up-to-date pushes. Empty or omitted uses normal non-force rules, creating the ref if it does not exist.",
                 "defaultValue": "\"\"",
                 "type": {
@@ -15397,7 +15490,7 @@
             "directives": []
           },
           {
-            "name": "commitSHA",
+            "name": "commitSha",
             "description": "The resolved commit SHA at this ref.",
             "type": {
               "kind": "NON_NULL",
@@ -15475,14 +15568,14 @@
             },
             "args": [],
             "isDeprecated": true,
-            "deprecationReason": "Use \"commitSHA\" instead.",
+            "deprecationReason": "Use \"commitSha\" instead.",
             "directives": [
               {
                 "name": "deprecated",
                 "args": [
                   {
                     "name": "reason",
-                    "value": "\"Use \\\"commitSHA\\\" instead.\""
+                    "value": "\"Use \\\"commitSha\\\" instead.\""
                   }
                 ]
               }
@@ -17528,100 +17621,32 @@
         "description": "Compression algorithm to use for image layers.",
         "enumValues": [
           {
-            "name": "Gzip",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "Zstd",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "EStarGZ",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "Uncompressed",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
             "name": "GZIP",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"Gzip\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           },
           {
             "name": "ZSTD",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"Zstd\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           },
           {
             "name": "ESTARGZ",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"EStarGZ\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           },
           {
             "name": "UNCOMPRESSED",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"Uncompressed\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           }
         ],
         "interfaces": [],
@@ -17634,52 +17659,18 @@
         "description": "Mediatypes to use in published or exported image metadata.",
         "enumValues": [
           {
-            "name": "OCIMediaTypes",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
-            "name": "DockerMediaTypes",
-            "description": "",
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": []
-          },
-          {
             "name": "OCI",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"OCIMediaTypes\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           },
           {
             "name": "DOCKER",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
-            "directives": [
-              {
-                "name": "enumValue",
-                "args": [
-                  {
-                    "name": "value",
-                    "value": "\"DockerMediaTypes\""
-                  }
-                ]
-              }
-            ]
+            "directives": []
           }
         ],
         "interfaces": [],
@@ -19159,7 +19150,7 @@
             "directives": []
           },
           {
-            "name": "withMCPServer",
+            "name": "withMcpServer",
             "description": "Add an external MCP server to the LLM",
             "type": {
               "kind": "NON_NULL",
@@ -21019,7 +21010,7 @@
             "directives": []
           },
           {
-            "name": "introspectionSchemaJSON",
+            "name": "introspectionSchemaJson",
             "description": "The introspection schema JSON file for this module.\n\nThis file represents the schema visible to the module's source code, including all core types and those from the dependencies.\n\nNote: this is in the context of a module, so some core types may be hidden.",
             "type": {
               "kind": "NON_NULL",
@@ -21490,6 +21481,247 @@
       },
       {
         "kind": "OBJECT",
+        "name": "ModuleNaming",
+        "description": "The names the engine gives a module's own declarations, by the naming rules of the version the module is named by.\n\nEvery list-taking field answers in input order.",
+        "fields": [
+          {
+            "name": "id",
+            "description": "A unique identifier for this ModuleNaming.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "version",
+            "description": "The normalized engine version whose naming rules name the module.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "name",
+            "description": "The module's name, which namespaces its types.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "originalName",
+            "description": "The module's original name, which its main object and namespaced type names are spelled after. It differs from name when the module is loaded under another name, as a dependency alias.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "typeNames",
+            "description": "The schema names of objects, interfaces and enums this module declares, as the engine installs them: namespaced under the module's name, in input order.\n\nA name is prefixed with the module's name unless it already starts with the module's name on a word boundary. With the engine's identifier naming rules: HttpClient in module my-mod is MyModHTTPClient; Postman in module post is PostPostman, while PostMan stays PostMan; K8STools in module k8s-tools is K8sTools, the module's own name. With the legacy strcase rules, HttpClient in module my-mod is MyModHttpClient.\n\nErrors on a name the module's naming rules can't parse (non-ASCII, no letters or digits, or over 256 bytes). The legacy rules name anything.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "names",
+                "description": "The type names as the module's source declares them.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "fieldNames",
+            "description": "The schema names of functions, object fields and function arguments this module declares, including interface functions and their arguments, in input order.\n\nWith the engine's identifier naming rules, acronyms are written like words: getURL is getUrl, baseURL is baseUrl, HTTPClient is httpClient. With the legacy strcase rules, HTTPClient is httpclient and e2eTest is e2ETest.\n\nErrors on a name the module's naming rules can't parse (non-ASCII, no letters or digits, or over 256 bytes). The legacy rules name anything.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "names",
+                "description": "The function, field and argument names as the module's source declares them.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "enumMemberNames",
+            "description": "The schema names of enum members this module declares, in input order: SCREAMING_SNAKE_CASE.\n\nA name already written in GraphQL's enum member convention (HTTP2, P_256) is kept as it is. With the engine's identifier naming rules, Arm64 is ARM64 and GitHub is GITHUB; with the legacy strcase rules, Arm64 is ARM_64.\n\nErrors on a name the module's naming rules can't parse (non-ASCII, no letters or digits, or over 256 bytes). The legacy rules name anything.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "names",
+                "description": "The enum member names as the module's source declares them.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "mainObject",
+            "description": "Which of the candidates, the names of objects this module declares, the engine takes as the module's main object; null if none.\n\nThe engine finds the main object by the module's name, in any casing: the first candidate, in input order, whose name normalizes to the same type name as the module's, or is spelled as that type name already (K8STools for module k8s-tools, by either rules: strcase spells k8s-tools K8STools, though it would normalize K8STools again to K8Stools). Failing that, with the engine's identifier naming rules only, the only candidate spelled the same once lowercased without word boundaries (Sha256Sum for module sha256sum); several such candidates are ambiguous, and give null.\n\nErrors on a name the module's naming rules can't parse (non-ASCII, no letters or digits, or over 256 bytes). The legacy rules name anything.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String"
+            },
+            "args": [
+              {
+                "name": "candidates",
+                "description": "The object names as the module's source declares them.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          }
+        ],
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "interfaces": null,
+            "possibleTypes": null,
+            "directives": null
+          }
+        ],
+        "possibleTypes": [],
+        "directives": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "ModuleSource",
         "description": "The source needed to load and run a module, along with any metadata about the source such as versions/urls/etc.",
         "fields": [
@@ -21678,7 +21910,7 @@
             "directives": []
           },
           {
-            "name": "withSDK",
+            "name": "withSdk",
             "description": "Update the module source with a new SDK.",
             "type": {
               "kind": "NON_NULL",
@@ -22333,7 +22565,7 @@
             "directives": []
           },
           {
-            "name": "introspectionSchemaJSON",
+            "name": "introspectionSchemaJson",
             "description": "The introspection schema JSON file for this module source.\n\nThis file represents the schema visible to the module's source code, including all core types and those from the dependencies.\n\nNote: this is in the context of a module, so some core types may be hidden.",
             "type": {
               "kind": "NON_NULL",
@@ -22348,8 +22580,8 @@
             "directives": []
           },
           {
-            "name": "clientSchemaIntrospectionJSON",
-            "description": "The client-facing introspection schema JSON file for this module source.\n\nThis is the schema consumed by client codegen: unlike introspectionSchemaJSON (the module-facing schema), it hides no core types and installs this module (reached via dag.<moduleName>) so a generated client can bind it. The module's dependencies are excluded: a client is generated for a single module plus core, not its dependency graph.",
+            "name": "clientSchemaIntrospectionJson",
+            "description": "The client-facing introspection schema JSON file for this module source.\n\nThis is the schema consumed by client codegen: unlike introspectionSchemaJson (the module-facing schema), it hides no core types and installs this module (reached via dag.<moduleName>) so a generated client can bind it. The module's dependencies are excluded: a client is generated for a single module plus core, not its dependency graph.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -22357,7 +22589,20 @@
                 "name": "File"
               }
             },
-            "args": [],
+            "args": [
+              {
+                "name": "clientVersion",
+                "description": "The engine version of the client the schema is generated for, e.g. the engineVersion of the module that depends on this one: core is described as that client sees it, capped at this engine's version.\n\nThis module is still loaded at the engine version it declares, and so named by its own naming rules, as the engine serves it to such a client. Defaults to this module's own engine version.\n\nUse this rather than withEngineVersion, which makes this module declare another version and so changes its names.",
+                "defaultValue": "\"\"",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
@@ -22409,7 +22654,7 @@
             "directives": []
           },
           {
-            "name": "htmlURL",
+            "name": "htmlUrl",
             "description": "The URL to the source's git repo in a web browser. Only valid for git sources.",
             "type": {
               "kind": "NON_NULL",
@@ -22424,7 +22669,7 @@
             "directives": []
           },
           {
-            "name": "htmlRepoURL",
+            "name": "htmlRepoUrl",
             "description": "The URL to access the web view of the repository (e.g., GitHub, GitLab, Bitbucket).",
             "type": {
               "kind": "NON_NULL",
@@ -22826,6 +23071,31 @@
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
+          },
+          {
+            "name": "naming",
+            "description": "The names the engine gives this module's own declarations, by the naming rules of the version the module is named by: its engine version, capped at the engine's own.\n\nModules declaring a version before the identifier casing cut get the legacy strcase names; later ones get the engine's identifier naming rules.\n\nFor SDK codegen, which must reproduce these names before the module is loaded: this reads only the source's name, original name and engine version, so it answers before the module's entrypoint is generated.\n\nIt answers for the module under its own name (moduleName). A workspace or toolchain that loads the module under another name namespaces its types under that name instead, which this doesn't reflect.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ModuleNaming"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": [
+              {
+                "name": "experimental",
+                "args": [
+                  {
+                    "name": "reason",
+                    "value": "\"Identifier casing APIs are likely to change.\""
+                  }
+                ]
+              }
+            ]
           }
         ],
         "interfaces": [
@@ -22943,6 +23213,219 @@
           }
         ],
         "interfaces": [],
+        "possibleTypes": [],
+        "directives": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Naming",
+        "description": "The engine's identifier naming rules at an engine version.",
+        "fields": [
+          {
+            "name": "id",
+            "description": "A unique identifier for this Naming.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "version",
+            "description": "The normalized engine version these rules answer for.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "identifier",
+            "description": "Parse a name in any casing into words.\n\nKnown acronyms and terms come from the naming dictionary; everything else falls back to the case heuristic. Errors on non-ASCII input, input with no letters or digits, or input over 256 bytes.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Identifier"
+              }
+            },
+            "args": [
+              {
+                "name": "name",
+                "description": "The name to parse.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "formatIdentifiers",
+            "description": "Format many names at once, for codegen. Returns them in input order.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "names",
+                "description": "The names to format, in any casing.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String"
+                      }
+                    }
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "casing",
+                "description": "The casing to format the names in.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "Casing"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "acronyms",
+                "description": "How to write acronyms and terms where a word starts with a capital.",
+                "defaultValue": "UPPERCASE",
+                "type": {
+                  "kind": "ENUM",
+                  "name": "AcronymStyle"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "dictionary",
+            "description": "The acronyms and terms used to parse and format identifiers.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "NamingTerm"
+                  }
+                }
+              }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "module",
+            "description": "The names the engine gives the declarations of a module named by these rules.",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ModuleNaming"
+              }
+            },
+            "args": [
+              {
+                "name": "name",
+                "description": "The module's name, which namespaces its types.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "originalName",
+                "description": "The module's original name, when it's loaded under another (as a dependency alias): its main object and namespaced type names are spelled after it. Defaults to name.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          }
+        ],
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "interfaces": null,
+            "possibleTypes": null,
+            "directives": null
+          }
+        ],
         "possibleTypes": [],
         "directives": []
       },
@@ -23520,7 +24003,21 @@
           },
           {
             "kind": "OBJECT",
+            "name": "ModuleNaming",
+            "interfaces": null,
+            "possibleTypes": null,
+            "directives": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "ModuleSource",
+            "interfaces": null,
+            "possibleTypes": null,
+            "directives": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "Naming",
             "interfaces": null,
             "possibleTypes": null,
             "directives": null
@@ -25590,114 +26087,19 @@
             "directives": []
           },
           {
-            "name": "identifier",
-            "description": "Parse a name in any casing into words.\n\nKnown acronyms and terms come from the naming dictionary; everything else falls back to the case heuristic. Errors on non-ASCII input, input with no letters or digits, or input over 256 bytes.",
+            "name": "naming",
+            "description": "The engine's identifier naming rules at an engine version.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Identifier"
+                "name": "Naming"
               }
             },
             "args": [
-              {
-                "name": "name",
-                "description": "The name to parse.",
-                "defaultValue": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String"
-                  }
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": [
-              {
-                "name": "experimental",
-                "args": [
-                  {
-                    "name": "reason",
-                    "value": "\"Identifier casing APIs are likely to change.\""
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "formatIdentifiers",
-            "description": "Format many names at once, for codegen. Returns them in input order.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String"
-                  }
-                }
-              }
-            },
-            "args": [
-              {
-                "name": "names",
-                "description": "The names to format, in any casing.",
-                "defaultValue": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "LIST",
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String"
-                      }
-                    }
-                  }
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "casing",
-                "description": "The casing to format the names in.",
-                "defaultValue": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "ENUM",
-                    "name": "Casing"
-                  }
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "acronyms",
-                "description": "How to write acronyms and terms where a word starts with a capital.",
-                "defaultValue": "UPPERCASE",
-                "type": {
-                  "kind": "ENUM",
-                  "name": "AcronymStyle"
-                },
-                "directives": [],
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
               {
                 "name": "version",
-                "description": "The engine version whose naming dictionary to parse the names with, e.g. the __schemaVersion of a schema being generated. Defaults to the caller's engine version.",
+                "description": "The engine version to answer for, e.g. the engine version a module declares. Defaults to the caller's. Normalized as a module's is: a version past the engine's is capped at the engine's own.",
                 "defaultValue": null,
                 "type": {
                   "kind": "SCALAR",
@@ -25708,37 +26110,6 @@
                 "deprecationReason": null
               }
             ],
-            "isDeprecated": false,
-            "deprecationReason": null,
-            "directives": [
-              {
-                "name": "experimental",
-                "args": [
-                  {
-                    "name": "reason",
-                    "value": "\"Identifier casing APIs are likely to change.\""
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "namingDictionary",
-            "description": "The acronyms and terms used to parse and format identifiers.",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "NamingTerm"
-                  }
-                }
-              }
-            },
-            "args": [],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": [
@@ -30281,7 +30652,7 @@
             "directives": []
           },
           {
-            "name": "withSDK",
+            "name": "withSdk",
             "description": "Return this workspace with an SDK installed in its config.",
             "type": {
               "kind": "NON_NULL",
@@ -30348,7 +30719,7 @@
             "directives": []
           },
           {
-            "name": "withoutSDK",
+            "name": "withoutSdk",
             "description": "Return this workspace with an SDK removed from its config.",
             "type": {
               "kind": "NON_NULL",
@@ -32312,6 +32683,49 @@
             ]
           },
           {
+            "name": "scopeSetting",
+            "description": "The value a setting records in this SDK's scope settings, as a native JSON value.\n\nReads [sdks.<name>.scopes.\"<scope>\".settings] from the workspace config, in the scope whose key resolves to path. The setting key is matched without regard to case.\n\nNull when no scope resolves to path, or the scope records no such setting. Fails when the config is invalid, path escapes the workspace root, key matches several recorded settings, or the value cannot be represented as JSON.\n\nFails when this SDK is no longer installed in the workspace config, even if Workspace.sdk returned it earlier.",
+            "type": {
+              "kind": "OBJECT",
+              "name": "JSONValue"
+            },
+            "args": [
+              {
+                "name": "path",
+                "description": "Scope path, relative to the workspace cwd or absolute from the workspace root.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "key",
+                "description": "Setting name, matched without regard to case.",
+                "defaultValue": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String"
+                  }
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
             "name": "name",
             "description": "The user-facing SDK name.",
             "type": {
@@ -33870,5 +34284,5 @@
       }
     ]
   },
-  "__schemaVersion": "v1.0.0-beta.25"
+  "__schemaVersion": "v1.0.0-beta.27"
 }

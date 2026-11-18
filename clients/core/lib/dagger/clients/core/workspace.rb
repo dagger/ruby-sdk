@@ -335,14 +335,14 @@ module Dagger
         # @param here Write to the workspace config directory at the workspace cwd.
         # @param as_sdk_name Optional override for the SDK name conventionally derived from the installed module name.
         def with_sdk(ref:, name: nil, here: nil, as_sdk_name: nil)
-          Workspace.new(@query.select("withSDK", ref:, name:, here:, asSdkName: as_sdk_name))
+          Workspace.new(@query.select("withSdk", ref:, name:, here:, asSdkName: as_sdk_name))
         end
 
         # Return this workspace with an SDK removed from its config.
         # @param name Name of the installed SDK entry to remove.
         # @param here Write to the workspace config directory at the workspace cwd.
         def without_sdk(name:, here: nil)
-          Workspace.new(@query.select("withoutSDK", name:, here:))
+          Workspace.new(@query.select("withoutSdk", name:, here:))
         end
 
         # Return this workspace with an installed module selected as its main.

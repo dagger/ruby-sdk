@@ -4,10 +4,10 @@ module Dagger
   module Clients
     module RubySdk
       # The Ruby SDK: creates and regenerates Ruby modules and the clients they and plain programs use, and checks the modules with Steep.
-      class RubySdk < ::Dagger::Type
+      class RubySDK < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
 
-        def self.graphql_name = "RubySdk"
+        def self.graphql_name = "RubySDK"
 
         # The starter of a new module: default or empty.
         def template
@@ -36,7 +36,7 @@ module Dagger
 
         # The Ruby module at or above a path of the workspace, to act on alone: dagger call ruby-sdk mod --path <module> steep.
         def mod(ws:, path: nil)
-          RubySdkMod.new(@query.select("mod", ws:, path:))
+          RubySDKMod.new(@query.select("mod", ws:, path:))
         end
       end
     end

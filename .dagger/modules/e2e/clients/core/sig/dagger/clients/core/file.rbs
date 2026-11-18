@@ -8,7 +8,7 @@ module Dagger
         include Node
         include Syncer
         def self.graphql_name: () -> ::String
-        def sync: () -> File
+        def sync: (?key_by_content: bool?) -> File
         def contents: (?offset_lines: ::Integer?, ?limit_lines: ::Integer?) -> ::String
         def size: () -> ::Integer
         def name: () -> ::String

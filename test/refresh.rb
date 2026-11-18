@@ -13,7 +13,7 @@ directory = RubySdk::Codegen::StandIn::FILES.reduce(root) do |query, (path, cont
 end
 target_version = File.read(File.expand_path("../ruby-sdk.dang", __dir__))[/let targetVersion: String! = "([^"]+)"/, 1]
 schema = directory.select("asModuleSource").select("withEngineVersion", version: target_version)
-                  .select("clientSchemaIntrospectionJSON").select("contents").execute
+                  .select("clientSchemaIntrospectionJson").select("contents").execute
 File.write(File.expand_path("fixtures/core-schema.json", __dir__),
            "#{JSON.pretty_generate(JSON.parse(schema))}\n")
 

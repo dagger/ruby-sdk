@@ -8,7 +8,7 @@ module Dagger
       private
 
       def core: (?session: ::Dagger::Session?) -> ::Dagger::Clients::Core::Query
-      def ruby_sdk: (?template: ::String?, ?ruby_version: ::String?, ?session: ::Dagger::Session?) -> ::Dagger::Clients::RubySdk::RubySdk
+      def ruby_sdk: (?template: ::String?, ?ruby_version: ::String?, ?session: ::Dagger::Session?) -> ::Dagger::Clients::RubySdk::RubySDK
     end
   end
 end

@@ -116,8 +116,9 @@ module Dagger
 
         # Retrieves a directory at the given path.
         # @param path Location of the directory to retrieve. Example: "/src"
-        def directory(path:)
-          Directory.new(@query.select("directory", path:))
+        # @param resolve_broken_symlinks Repair symlinks that directory selection would break. Copy targets from this directory into the result. Preserve working relative links and links that already have no target.
+        def directory(path:, resolve_broken_symlinks: nil)
+          Directory.new(@query.select("directory", path:, resolveBrokenSymlinks: resolve_broken_symlinks))
         end
 
         # Return a snapshot with a directory added
@@ -197,6 +198,16 @@ module Dagger
         # @param ssh A socket to use for SSH authentication during the build  (e.g., for Dockerfile RUN --mount=type=ssh instructions).  Typically obtained via host.unixSocket() pointing to the SSH_AUTH_SOCK.
         def docker_build(dockerfile: nil, platform: nil, build_args: nil, target: nil, secrets: nil, no_init: nil, ssh: nil)
           Container.new(@query.select("dockerBuild", dockerfile:, platform:, buildArgs: build_args, target:, secrets:, noInit: no_init, ssh:))
+        end
+
+        # Retrieves this directory, declared as made for the given platform.
+        #
+        # Declare a result whose contents are the same whichever platform made them, such as a Go package compiled for a platform by any platform's Go toolchain. An engine of another platform that makes the same directory for the same platform then finds this one, and the other way around.
+        #
+        # The contents are not checked: a declared result that depends on the platform it was made on can be found where it doesn't belong.
+        # @param platform The platform the directory's contents are for (e.g., "linux/arm64").
+        def with_platform(platform:)
+          Directory.new(@query.select("withPlatform", platform:))
         end
 
         # Retrieves this directory with all file/dir timestamps set to the given time.

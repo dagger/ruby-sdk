@@ -18,7 +18,7 @@ other modules from Ruby: from a module, or from a plain Ruby program.
 
 ## Requirements
 
-- Dagger v1.0.0-beta.19 or later, its CLI and engine. The SDK checks no
+- Dagger v1.0.0-beta.26 or later, its CLI and engine. The SDK checks no
   version: on an older engine, what it lacks fails where it is used.
 - No Ruby on the host for modules: they build in containers, on the SDK's
   pinned Ruby 4.0 image, or on `ruby:<version>` with a `.ruby-version`. A
@@ -159,7 +159,7 @@ dang = "2.1"
 
 [imports]
   [imports.Dagger]
-    dagger = "v1.0.0-beta.25"
+    dagger = "v1.0.0-beta.27"
 ```
 
 The module's `DAGGER_CLIENT_VERSION`, its entrypoint's declaration and its
@@ -227,8 +227,8 @@ end
   gives the class one private method per client of the scope: `core`, and for
   a client `lib` the method `lib(...)`, with the arguments and types of
   `Dagger::Clients::Lib.lib(...)`, which keeps working. A method's name is the
-  engine's constructor field for the module in snake case: `p11lib` gives
-  `p11_lib`, `MyModule` `my_module`, `s3-bucket` `s3_bucket`. `dagger generate`
+  engine's constructor field for the module in snake case: `HTTPServer` gives
+  `http_server`, `MyModule` `my_module`, `s3-bucket` `s3_bucket`. `dagger generate`
   rewrites `clients/roots/` with the scope's clients, so `module client add`
   adds a method and `module client remove` drops it. The methods are instance
   methods: `def self.create`, the class body and classes nested in the class
@@ -465,9 +465,12 @@ one of its classes, or `extend Dagger::Clients::Roots` at the top level, which
 gives them to top-level code alone.
 
 A client loads its module through `serveModule` on first use, once per
-session. A plain program in a scope (a directory with a `Gemfile`, registered
-with `dagger module client add` from it) runs under `dagger run`, or starts
-its own `dagger session` and stops it on exit:
+session. An edit in a client module's own directory gives the next call to it
+a new result; a module that calls it through another module sees the edit
+once that module's own files change too. A plain program in a scope (a
+directory with a `Gemfile`, registered with `dagger module client add` from it)
+runs under `dagger run`, or starts its own `dagger session` and stops it on
+exit:
 
 ```sh
 bundle install
@@ -536,13 +539,11 @@ again (8 s for a module with one native extension).
   Gemfile names: until then a call fails with Bundler's error and the hint.
 - Only what the Gemfile names is loaded: a file that the module's code reads
   outside its directory, with `require_relative` or `File.read`, is not there.
-- It needs an engine that evaluates the entrypoint's `sources`, which no
-  schema field shows, and whose `CurrentModule` has `contextDirectory` and
+- It needs an engine whose `CurrentModule` has `contextDirectory` and
   `sourceSubpath`, which generation checks: it refuses the module on an
-  engine without them. Declaring `sources` changes the entrypoint's contract:
-  `types` and `call` get no workspace. A module without gems outside its
-  directory keeps the contract where they get one, and generates the same
-  files as before.
+  engine without them. Every entrypoint declares `sources`, so `types` and
+  `call` get no workspace; a module without gems outside its directory
+  returns its manifest alone.
 
 ## Errors
 

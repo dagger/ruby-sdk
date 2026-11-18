@@ -39,12 +39,12 @@ class EntrypointTest < Minitest::Test
     assert_equal File.read(File.join(GOLDEN, "main-sources.dang")), main
   end
 
-  def test_a_module_without_anything_outside_keeps_the_workspace_contract
+  def test_a_module_without_anything_outside_declares_sources
     main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
 
-    refute_includes main, "sources"
-    assert_includes main, "  pub types(workspace: Workspace!): [TypeDef!]! {\n"
-    assert_includes main, "  pub call(\n    workspace: Workspace!,\n    receiverType: String!,\n"
+    assert_includes main, "  pub sources(workspace: Workspace!): Directory! {\n"
+    assert_includes main, "  pub types: [TypeDef!]! {\n"
+    assert_includes main, "  pub call(\n    receiverType: String!,\n"
   end
 
   def test_the_call_runs_on_the_current_source_and_records_none_of_it
@@ -78,7 +78,7 @@ class EntrypointTest < Minitest::Test
     assert_equal RubySdk::Codegen::StandIn::TYPES, Entrypoint.render_types(describe("CoreSchema"))
   end
 
-  # Both contracts: without it, a nested client gets whatever view the engine gives the module.
+  # Both runtimes: without it, a nested client gets whatever view the engine gives the module.
   def test_the_call_sets_the_client_version_before_it_runs_the_module
     [Entrypoint.render_main("main", client_version: "v9"),
      Entrypoint.render_main("main", client_version: "v9", outside: ["../shared"])].each do |main|

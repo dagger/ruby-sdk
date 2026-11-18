@@ -6,7 +6,7 @@ module Dagger
       NAME = "ruby-sdk".freeze
       REF = "/".freeze
       PIN = nil
-      CORE_DIGEST = "sha256:78b7f2afb3fa97b76499a5842060cb2ef5e02c214a1f2b920a3d61fcab4c62f3".freeze
+      CORE_DIGEST = "sha256:d2bb153ec234c81f03f78497bf78d70e12f23defa6266ab1497eb88dc2408bab".freeze
     end
   end
 end

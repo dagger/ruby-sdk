@@ -12,8 +12,9 @@ module Dagger
         def self.graphql_name = "File"
 
         # Force evaluation in the engine.
-        def sync
-          @query.select("sync").execute_node(File)
+        # @param key_by_content Also key the file by its content, so that what consumes it is cached across any two recipes that produce the same file. This hashes the file unless it already has a content key.
+        def sync(key_by_content: nil)
+          @query.select("sync", keyByContent: key_by_content).execute_node(File)
         end
 
         # Retrieves the contents of the file.
@@ -109,7 +110,7 @@ module Dagger
 
         # Parse the file contents as JSON.
         def as_json
-          JSONValue.new(@query.select("asJSON"))
+          JSONValue.new(@query.select("asJson"))
         end
 
         # Extracts this archive file into a directory.

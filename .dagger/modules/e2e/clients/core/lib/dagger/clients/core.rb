@@ -5,7 +5,7 @@ require "dagger"
 module Dagger
   module Clients
     module Core
-      CORE_DIGEST = "sha256:78b7f2afb3fa97b76499a5842060cb2ef5e02c214a1f2b920a3d61fcab4c62f3".freeze
+      CORE_DIGEST = "sha256:d2bb153ec234c81f03f78497bf78d70e12f23defa6266ab1497eb88dc2408bab".freeze
 
       autoload :AcronymStyle, "dagger/clients/core/acronym_style"
       autoload :Address, "dagger/clients/core/address"
@@ -97,9 +97,11 @@ module Dagger
       autoload :ListTypeDef, "dagger/clients/core/list_type_def"
       autoload :Module, "dagger/clients/core/module"
       autoload :ModuleConfigClient, "dagger/clients/core/module_config_client"
+      autoload :ModuleNaming, "dagger/clients/core/module_naming"
       autoload :ModuleSource, "dagger/clients/core/module_source"
       autoload :ModuleSourceExperimentalFeature, "dagger/clients/core/module_source_experimental_feature"
       autoload :ModuleSourceKind, "dagger/clients/core/module_source_kind"
+      autoload :Naming, "dagger/clients/core/naming"
       autoload :NamingTerm, "dagger/clients/core/naming_term"
       autoload :NetworkProtocol, "dagger/clients/core/network_protocol"
       autoload :Node, "dagger/clients/core/node"

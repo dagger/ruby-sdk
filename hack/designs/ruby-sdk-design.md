@@ -142,7 +142,9 @@ sequenceDiagram
 ## The entrypoint contract
 
 The engine loads a module through the type of `main.dang` that implements
-`ModuleEntrypoint`, and picks the contract by whether it declares `sources`:
+`ModuleEntrypoint`, and picks the contract by whether it declares `sources`.
+Every generated entrypoint declares `sources`, which Dagger v1.0.0-beta.26
+added:
 
 | Member | Without `sources` | With `sources` |
 | --- | --- | --- |
@@ -153,9 +155,8 @@ The engine loads a module through the type of `main.dang` that implements
 `types` returns `ModuleTypes().all`, the literal typedefs of `types.dang`.
 `callDigest` is a nullable argument that the engine passes to an entrypoint
 that declares it. Neither contract reads the workspace: the module's files
-come from `currentModule`. Only a module with gems outside its directory
-declares `sources`, so every other module keeps the same files and has no
-member for the engine to evaluate at every load.
+come from `currentModule`. A module without gems outside its directory
+returns its manifest alone from `sources`.
 
 ## Gems outside a module
 
@@ -258,14 +259,13 @@ check does not read. `dagger call ruby-sdk mod --path <module> steep` checks one
 
 ## The engine
 
-The SDK requires Dagger v1.0.0-beta.19 or later, and checks no engine
-version: it runs on whatever engine it is given. A feature is checked by its
-schema where generation can see it: a module with gems outside its directory
-builds from `CurrentModule.contextDirectory` and `sourceSubpath`. Whether the
-engine evaluates the entrypoint's `sources`, which loads those gems, no schema
-field shows, so nothing checks it. The checks run in Dagger Cloud, on its
-engine, and a nested `dagger` in them is that engine's own CLI. The README
-lists the known engine limitations.
+The SDK requires Dagger v1.0.0-beta.26 or later, which evaluates the
+entrypoint's `sources`, and checks no engine version: it runs on whatever
+engine it is given. A feature is checked by its schema where generation can
+see it: a module with gems outside its directory builds from
+`CurrentModule.contextDirectory` and `sourceSubpath`. The checks run in
+Dagger Cloud, on its engine, and a nested `dagger` in them is that engine's
+own CLI. The README lists the known engine limitations.
 
 ## Decisions
 
@@ -279,4 +279,4 @@ lists the known engine limitations.
 | The SDK module in Dang | it needs no generated entrypoint, so the SDK never generates itself | a manifest-v2 Ruby SDK module |
 | Gems outside a module from the Gemfile | Bundler already names them; the entrypoint's `sources` returns them | an `include` list in the manifest |
 | No workspace restriction in the SDK | an installed module may read its caller's workspace; the SDK keeps a module's source and files its own, and the check covers that | a sandbox in the SDK, or a check that a module cannot read the workspace |
-| `sources` only in a module with gems outside | a module without them keeps the same files, with no member to evaluate at every load | `sources` in every entrypoint, returning the manifest alone without gems outside |
+| `sources` in every entrypoint, the manifest alone without gems outside | one contract for every module: `types` and `call` take no workspace | `sources` only in a module with gems outside, which kept the workspace contract for the others |

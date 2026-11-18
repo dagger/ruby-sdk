@@ -26,7 +26,7 @@ module Dagger
         # @param insecure_skip_tls_verify Allow HTTPS registry communication without verifying the server certificate.
         # @param no_lock Ignore the workspace lockfile for this lookup.
         def from(address:, version: nil, registry_service: nil, protocol: nil, insecure_skip_tls_verify: nil, no_lock: nil)
-          Container.new(@query.select("from", address:, version:, registryService: registry_service, protocol:, insecureSkipTLSVerify: insecure_skip_tls_verify, noLock: no_lock))
+          Container.new(@query.select("from", address:, version:, registryService: registry_service, protocol:, insecureSkipTlsVerify: insecure_skip_tls_verify, noLock: no_lock))
         end
 
         # Return a snapshot of the container's root filesystem. The snapshot can be modified then written back using withRootfs. Use that method for filesystem modifications.
@@ -45,8 +45,9 @@ module Dagger
         # Mounts are included.
         # @param path The path of the directory to retrieve (e.g., "./src").
         # @param expand Replace "${VAR}" or "$VAR" in the value of path according to the current environment variables defined in the container (e.g. "/$VAR/foo").
-        def directory(path:, expand: nil)
-          Directory.new(@query.select("directory", path:, expand:))
+        # @param resolve_broken_symlinks Repair symlinks that directory selection would break. Resolve targets across the root filesystem and directory or file mounts. Preserve working relative links and links that already have no target. Cache, volume, tmpfs, secret, and socket mounts cause an error if selection, a resolved link, or mount target resolution needs their contents.
+        def directory(path:, expand: nil, resolve_broken_symlinks: nil)
+          Directory.new(@query.select("directory", path:, expand:, resolveBrokenSymlinks: resolve_broken_symlinks))
         end
 
         # Retrieves a file at the given path.
@@ -503,7 +504,7 @@ module Dagger
         # @param insecure_skip_tls_verify Allow HTTPS registry communication without verifying the server certificate.
         # @param source_date_epoch Clamp the image's timestamps to this time, so that rebuilding unchanged files produces identical layers.  Formatted in seconds following Unix epoch (e.g., 1672531199). File timestamps in every layer and the image's creation times that are later than this are set to it, as with BuildKit's rewrite-timestamp and SOURCE_DATE_EPOCH. Every layer is rewritten, so this costs time on each export.
         def publish(address:, platform_variants: nil, forced_compression: nil, media_types: nil, registry_service: nil, protocol: nil, insecure_skip_tls_verify: nil, source_date_epoch: nil)
-          @query.select("publish", address:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, registryService: registry_service, protocol:, insecureSkipTLSVerify: insecure_skip_tls_verify, sourceDateEpoch: source_date_epoch).execute
+          @query.select("publish", address:, platformVariants: platform_variants, forcedCompression: forced_compression, mediaTypes: media_types, registryService: registry_service, protocol:, insecureSkipTlsVerify: insecure_skip_tls_verify, sourceDateEpoch: source_date_epoch).execute
         end
 
         # The platform this container executes and publishes as.
@@ -672,24 +673,24 @@ module Dagger
         #
         # This currently works with NVIDIA devices only, and requires the engine to run with GPU support enabled.
         def with_gpu
-          Container.new(@query.select("withGPU"))
+          Container.new(@query.select("withGpu"))
         end
 
         # Configures the provided list of devices to be accessible to this container.
         #
         # This currently works for Nvidia devices only.
         # @param devices List of devices to be accessible to this container.
-        # @deprecated Use "withGPU" instead, which exposes all GPUs available on the host.
+        # @deprecated Use "withGpu" instead, which exposes all GPUs available on the host.
         def experimental_with_gpu(devices:)
-          Container.new(@query.select("experimentalWithGPU", devices:))
+          Container.new(@query.select("experimentalWithGpu", devices:))
         end
 
         # Configures all available GPUs on the host to be accessible to this container.
         #
         # This currently works for Nvidia devices only.
-        # @deprecated Use "withGPU" instead.
-        def experimental_with_all_gp_us
-          Container.new(@query.select("experimentalWithAllGPUs"))
+        # @deprecated Use "withGpu" instead.
+        def experimental_with_all_gpus
+          Container.new(@query.select("experimentalWithAllGpus"))
         end
 
         # Turn the container into a Service.

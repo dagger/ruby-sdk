@@ -375,7 +375,7 @@ class RubySdk
     end
 
     def client_schema(member)
-      member.source.with_engine_version(version: @target_version).client_schema_introspection_json
+      member.source.client_schema_introspection_json(client_version: @target_version)
     end
 
     def codegen(schema, args) = codegen_with({ "/schemas/schema.json" => schema }, args)

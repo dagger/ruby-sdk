@@ -5,14 +5,23 @@ type Entrypoint implements ModuleEntrypoint {
 
   # The version the module's generated clients were generated for: a nested
   # client that declares none gets the module's view, which the engine decides.
-  let clientVersion: String! = "v1.0.0-beta.25"
+  let clientVersion: String! = "v1.0.0-beta.27"
 
-  pub types(workspace: Workspace!): [TypeDef!]! {
+  # What the build reads outside the module's directory, from its Gemfile,
+  # at its path from the workspace's root, with the manifest the engine
+  # requires there: the engine adds it to the module's context, and keys
+  # every call on it.
+  pub sources(workspace: Workspace!): Directory! {
+    let cwd = workspace.cwd
+    directory
+      .withFile(cwd + "/dagger-module.toml", workspace.file("dagger-module.toml"))
+  }
+
+  pub types: [TypeDef!]! {
     ModuleTypes().all
   }
 
   pub call(
-    workspace: Workspace!,
     receiverType: String!,
     receiverValue: JSON,
     fnName: String!,
@@ -35,8 +44,8 @@ type Entrypoint implements ModuleEntrypoint {
     (result :: JSON!)
   }
 
-  # The module's own source, not the workspace the engine hands over: that is
-  # the caller's, which holds the module only when the module sits in it.
+  # The module's own source, not the workspace sources reads: that is the
+  # caller's, which holds the module only when the module sits in it.
   let runtime: Container! {
     RubyModuleBuild(source: currentModule.source, moduleName: moduleName).installed
   }

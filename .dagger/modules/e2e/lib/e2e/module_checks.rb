@@ -92,7 +92,7 @@ class E2E
       "The path `/src/clients/core` does not exist." => files.without_directory(path: "#{APP}/clients/core"),
       "* rainbow (= 3.1.1)" => with_gem
     }.each do |error, changed|
-      failed = cli_failure(playground(ws, changed), "-m", APP, "call", "greet", "--name", core.version)
+      failed = cli_failure(playground(ws, changed), PLAIN_PROGRESS, "-m", APP, "call", "greet", "--name", core.version)
       check(failed.include?(error) && failed.include?(REGENERATE_HINT),
             "without dagger generate, wanted #{error.inspect} and the hint: #{failed}")
     end

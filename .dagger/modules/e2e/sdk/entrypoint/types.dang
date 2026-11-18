@@ -228,7 +228,7 @@ type ModuleTypes {
         )
         .withFunction(
           function("sourcesGenerateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("A module that uses a path gem outside its directory returns it from its entrypoint's sources and builds from its context; a module without one keeps its entrypoint; generating again changes nothing, and writes nothing outside the module.")
+            .withDescription("A module that uses a path gem outside its directory returns it from its entrypoint's sources and builds from its context; a module without one keeps its build; generating again changes nothing, and writes nothing outside the module.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
@@ -240,13 +240,19 @@ type ModuleTypes {
         )
         .withFunction(
           function("sourcesContractCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("The engine runs the contract each entrypoint declares: the include app, with sources, gets no workspace in types and call, the control module keeps it, and the engine lists the functions of both.")
+            .withDescription("The engine runs the contract every entrypoint declares: the include app and the control module declare sources and get no workspace in types and call, and the engine lists the functions of both.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
           function("sourcesScopeCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The engine keys a call on what sources returns and nothing else outside the module: a file beside the gem, or an edit in the gem's Bundler directories, leaves the result as it was.")
+            .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
+          function("sourcesAloneScopeCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("A module with nothing outside its directory keys a call on its own files only: a file beside it leaves the result as it was, and an edit in its lib/ gives a new one.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )

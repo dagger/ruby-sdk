@@ -5,12 +5,12 @@ repository's tags.
 
 ## Unreleased
 
-The first release. It requires Dagger v1.0.0-beta.19 or later.
+The first release. It requires Dagger v1.0.0-beta.26 or later.
 
 ### Added
 
 - `sdk/entrypoint/dang.toml` in a module, written through `sdk-helpers`, with
-  the Dagger version the module was generated for: v1.0.0-beta.25, which its
+  the Dagger version the module was generated for: v1.0.0-beta.27, which its
   `DAGGER_CLIENT_VERSION` and clients' API view also use. Generation manages
   that version and the language, and keeps other settings without comments or
   formatting.
@@ -18,7 +18,8 @@ The first release. It requires Dagger v1.0.0-beta.19 or later.
   records it in `dagger.toml`, and `dagger generate` generates each Ruby
   scope, module or plain project.
 - Modules on a generated Dang entrypoint (manifest v2), which run from their
-  committed generated files and their current source.
+  committed generated files and their current source. The entrypoint declares
+  `sources`, so its `types` and `call` take no workspace.
 - Module types as RBS `#:` annotations, read at generation, with refusals
   that name the file and line; the module's own RBS for Steep.
 - Generated clients: the core API, each declared module, and

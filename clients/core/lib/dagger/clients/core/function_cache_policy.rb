@@ -5,9 +5,9 @@ module Dagger
     module Core
       # The behavior configured for function result caching.
       class FunctionCachePolicy < ::Dagger::Enum
-        Default = new("Default", "Default")
-        PerSession = new("PerSession", "PerSession")
-        Never = new("Never", "Never")
+        DEFAULT = new("DEFAULT", "DEFAULT")
+        PER_SESSION = new("PER_SESSION", "PER_SESSION")
+        NEVER = new("NEVER", "NEVER")
       end
     end
   end

@@ -5,10 +5,8 @@ module Dagger
     module Core
       # Mediatypes to use in published or exported image metadata.
       class ImageMediaTypes < ::Dagger::Enum
-        OCIMediaTypes = new("OCIMediaTypes", "OCIMediaTypes")
-        DockerMediaTypes = new("DockerMediaTypes", "DockerMediaTypes")
-        OCI = OCIMediaTypes
-        DOCKER = DockerMediaTypes
+        OCI = new("OCI", "OCI")
+        DOCKER = new("DOCKER", "DOCKER")
       end
     end
   end

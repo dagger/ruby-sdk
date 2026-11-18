@@ -11,12 +11,12 @@ module Dagger
 
         # Set the list of paths to mark generated in version control.
         def with_vcs_generated_paths(paths:)
-          GeneratedCode.new(@query.select("withVCSGeneratedPaths", paths:))
+          GeneratedCode.new(@query.select("withVcsGeneratedPaths", paths:))
         end
 
         # Set the list of paths to ignore in version control.
         def with_vcs_ignored_paths(paths:)
-          GeneratedCode.new(@query.select("withVCSIgnoredPaths", paths:))
+          GeneratedCode.new(@query.select("withVcsIgnoredPaths", paths:))
         end
 
         # The directory containing the generated code.

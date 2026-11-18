@@ -4,10 +4,10 @@ module Dagger
   module Clients
     module RubySdk
       # The SDK module's Ruby half, lib/ruby_sdk.rb, run in an exec: the request on stdin, objects by ID, the module's own source by ID, the result in a file.
-      class RubySdkRubyHalf < ::Dagger::Type
+      class RubySDKRubyHalf < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
 
-        def self.graphql_name = "RubySdkRubyHalf"
+        def self.graphql_name = "RubySDKRubyHalf"
 
         # The starter of a new module, as the SDK's setting gives it.
         def template

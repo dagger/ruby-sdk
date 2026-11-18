@@ -39,7 +39,7 @@ class SdkModuleTest < Minitest::Test
   def test_the_manifest_is_a_dang_module_on_a_pinned_api
     assert_match(/^\[runtime\]\nsource = "dang"\n/, manifest)
     refute_match(/^\[entrypoint\]/, manifest)
-    assert_match(/^engineVersion = "v1\.0\.0-beta\.20"$/, manifest)
+    assert_match(/^engineVersion = "v1\.0\.0-beta\.27"$/, manifest)
   end
 
   # The Ruby half's nested client would otherwise see the engine's API, not the

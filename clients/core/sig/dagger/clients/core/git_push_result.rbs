@@ -6,8 +6,8 @@ module Dagger
       class GitPushResult < ::Dagger::Type
         include Node
         def self.graphql_name: () -> ::String
-        def ref: () -> ::String
         def previous_sha: () -> ::String
+        def ref: () -> ::String
         def sha: () -> ::String
         def disposition: () -> GitPushDisposition
       end

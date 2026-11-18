@@ -28,7 +28,7 @@ class RubySdk
       end
 
       # A client's method is its entry point's name, in snake case: the
-      # engine's constructor field for the module, so p11lib gives p11_lib.
+      # engine's constructor field for the module, so HTTPServer gives http_server.
       def method_name(field_name) = Naming.snake(field_name)
 
       def root(schema, name)

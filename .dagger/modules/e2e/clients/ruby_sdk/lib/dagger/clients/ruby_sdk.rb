@@ -12,15 +12,15 @@ module Dagger
 
       TARGET = ::Dagger::Client::Target.new(name: NAME, ref: REF, pin: PIN)
 
-      autoload :RubySdk, "dagger/clients/ruby_sdk/ruby_sdk"
-      autoload :RubySdkMod, "dagger/clients/ruby_sdk/ruby_sdk_mod"
-      autoload :RubySdkRubyHalf, "dagger/clients/ruby_sdk/ruby_sdk_ruby_half"
+      autoload :RubySDK, "dagger/clients/ruby_sdk/ruby_sdk"
+      autoload :RubySDKMod, "dagger/clients/ruby_sdk/ruby_sdk_mod"
+      autoload :RubySDKRubyHalf, "dagger/clients/ruby_sdk/ruby_sdk_ruby_half"
 
       # The Ruby SDK: creates and regenerates Ruby modules and the clients they and plain programs use, and checks the modules with Steep.
       # @param template The starter of a new module: default or empty.
       # @param ruby_version Written to .ruby-version; the module then builds on the ruby:<version> image.
       def self.ruby_sdk(template: nil, ruby_version: nil, session: nil)
-        ::Dagger::Clients::RubySdk::RubySdk.new(::Dagger::Client.root(TARGET, "rubySdk", { template:, rubyVersion: ruby_version }, session:))
+        RubySDK.new(::Dagger::Client.root(TARGET, "rubySdk", { template:, rubyVersion: ruby_version }, session:))
       end
     end
   end

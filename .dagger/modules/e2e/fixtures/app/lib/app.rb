@@ -1,5 +1,6 @@
 require "dagger"
 require "dagger/clients/core"
+require "securerandom"
 require_relative "app/greeting"
 
 class App
@@ -16,4 +17,8 @@ class App
   function "The engine's version."
   #: () -> String
   def version = Dagger::Clients::Core.core.version
+
+  function "A value of its own each time the call runs."
+  #: () -> String
+  def nonce = SecureRandom.hex(8)
 end

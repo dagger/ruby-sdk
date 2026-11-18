@@ -11,7 +11,7 @@ module Dagger
 
         # The trace URL for the current session
         def trace_url
-          @query.select("traceURL").execute
+          @query.select("traceUrl").execute
         end
       end
     end
