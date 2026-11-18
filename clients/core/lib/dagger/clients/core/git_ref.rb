@@ -19,7 +19,7 @@ module Dagger
         # @param branch Destination branch; a refs/ prefix is used verbatim. Defaults to this ref's branch name. Required for detached and non-branch refs.
         # @param expected_remote_sha Optional lease: a full lowercase object ID allows replacement only if the remote ref still has that value. Checked even for up-to-date pushes. Empty or omitted uses normal non-force rules, creating the ref if it does not exist.
         def push(to: nil, remote: nil, branch: nil, expected_remote_sha: nil)
-          GitPushResult.new(@query.select("push", to:, remote:, branch:, expectedRemoteSHA: expected_remote_sha).reevaluate)
+          GitPushResult.new(@query.select("push", to:, remote:, branch:, expectedRemoteSha: expected_remote_sha).reevaluate)
         end
 
         # The commit this ref resolves to.
@@ -29,7 +29,7 @@ module Dagger
 
         # The resolved commit SHA at this ref.
         def commit_sha
-          @query.select("commitSHA").execute
+          @query.select("commitSha").execute
         end
 
         # The filesystem tree at this ref.
@@ -41,7 +41,7 @@ module Dagger
         end
 
         # The resolved commit id at this ref.
-        # @deprecated Use "commitSHA" instead.
+        # @deprecated Use "commitSha" instead.
         def commit
           @query.select("commit").execute
         end

@@ -4,9 +4,9 @@ module Dagger
   module Clients
     module Core
       class FunctionCachePolicy < ::Dagger::Enum
-        Default: FunctionCachePolicy
-        PerSession: FunctionCachePolicy
-        Never: FunctionCachePolicy
+        DEFAULT: FunctionCachePolicy
+        PER_SESSION: FunctionCachePolicy
+        NEVER: FunctionCachePolicy
       end
     end
   end

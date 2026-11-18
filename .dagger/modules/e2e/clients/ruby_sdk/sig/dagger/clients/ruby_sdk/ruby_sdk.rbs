@@ -3,7 +3,7 @@
 module Dagger
   module Clients
     module RubySdk
-      class RubySdk < ::Dagger::Type
+      class RubySDK < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
         def self.graphql_name: () -> ::String
         def template: () -> ::String
@@ -11,7 +11,7 @@ module Dagger
         def find_client_root: (ws: ::Dagger::Clients::Core::Workspace) -> ::String?
         def generate_scope: (ws: ::Dagger::Clients::Core::Workspace, is_module: bool, name: ::String, clients: ::Array[::Dagger::Type]) -> ::Dagger::Clients::Core::Workspace
         def steep: (ws: ::Dagger::Clients::Core::Workspace) -> ::Dagger::Clients::Core::Check
-        def mod: (ws: ::Dagger::Clients::Core::Workspace, ?path: ::String?) -> RubySdkMod
+        def mod: (ws: ::Dagger::Clients::Core::Workspace, ?path: ::String?) -> RubySDKMod
       end
     end
   end

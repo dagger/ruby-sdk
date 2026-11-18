@@ -36,7 +36,7 @@ module Dagger
         def local_context_directory_path: () -> ::String
         def as_module: () -> Module
         def introspection_schema_json: () -> File
-        def client_schema_introspection_json: () -> File
+        def client_schema_introspection_json: (?client_version: ::String?) -> File
         def directory: (path: ::String) -> Directory
         def clone_ref: () -> ::String
         def html_url: () -> ::String
@@ -60,6 +60,7 @@ module Dagger
         def source_root_subpath: () -> ::String
         def context_directory: () -> Directory
         def kind: () -> ModuleSourceKind
+        def naming: () -> ModuleNaming
       end
     end
   end

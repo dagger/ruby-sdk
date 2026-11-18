@@ -182,7 +182,7 @@ module Dagger
         # @param name The name of the MCP server
         # @param service The MCP service to run and communicate with over stdio
         def with_mcp_server(name:, service:)
-          LLM.new(@query.select("withMCPServer", name:, service:))
+          LLM.new(@query.select("withMcpServer", name:, service:))
         end
 
         # Install skills from a directory, adding them to the skills the model discovers with ListSkills and reads with ReadSkill. Each skill is a directory containing a SKILL.md with name and description frontmatter, discovered anywhere in the tree. Installed skills take precedence over skills discovered in the workspace, but cannot shadow the engine's built-in skills.

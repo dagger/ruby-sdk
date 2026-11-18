@@ -227,8 +227,8 @@ end
   gives the class one private method per client of the scope: `core`, and for
   a client `lib` the method `lib(...)`, with the arguments and types of
   `Dagger::Clients::Lib.lib(...)`, which keeps working. A method's name is the
-  engine's constructor field for the module in snake case: `p11lib` gives
-  `p11_lib`, `MyModule` `my_module`, `s3-bucket` `s3_bucket`. `dagger generate`
+  engine's constructor field for the module in snake case: `HTTPServer` gives
+  `http_server`, `MyModule` `my_module`, `s3-bucket` `s3_bucket`. `dagger generate`
   rewrites `clients/roots/` with the scope's clients, so `module client add`
   adds a method and `module client remove` drops it. The methods are instance
   methods: `def self.create`, the class body and classes nested in the class

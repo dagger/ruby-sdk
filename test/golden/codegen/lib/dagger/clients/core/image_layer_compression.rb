@@ -5,14 +5,10 @@ module Dagger
     module Core
       # Compression algorithm to use for image layers.
       class ImageLayerCompression < ::Dagger::Enum
-        Gzip = new("Gzip", "Gzip")
-        Zstd = new("Zstd", "Zstd")
-        EStarGZ = new("EStarGZ", "EStarGZ")
-        Uncompressed = new("Uncompressed", "Uncompressed")
-        GZIP = Gzip
-        ZSTD = Zstd
-        ESTARGZ = EStarGZ
-        UNCOMPRESSED = Uncompressed
+        GZIP = new("GZIP", "GZIP")
+        ZSTD = new("ZSTD", "ZSTD")
+        ESTARGZ = new("ESTARGZ", "ESTARGZ")
+        UNCOMPRESSED = new("UNCOMPRESSED", "UNCOMPRESSED")
       end
     end
   end

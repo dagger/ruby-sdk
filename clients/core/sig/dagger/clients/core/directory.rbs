@@ -22,7 +22,7 @@ module Dagger
         def without_files: (paths: ::Array[::String]) -> Directory
         def exists: (path: ::String, ?expected_type: ExistsType?, ?do_not_follow_symlinks: bool?) -> bool
         def stat: (path: ::String, ?do_not_follow_symlinks: bool?) -> Stat?
-        def directory: (path: ::String) -> Directory
+        def directory: (path: ::String, ?resolve_broken_symlinks: bool?) -> Directory
         def with_directory: (path: ::String, source: Directory, ?exclude: ::Array[::String]?, ?include: ::Array[::String]?, ?gitignore: bool?, ?owner: ::String?, ?permissions: ::Integer?) -> Directory
         def filter: (?exclude: ::Array[::String]?, ?include: ::Array[::String]?, ?gitignore: bool?) -> Directory
         def with_new_directory: (path: ::String, ?permissions: ::Integer?) -> Directory
@@ -33,6 +33,7 @@ module Dagger
         def with_changes: (changes: Changeset) -> Directory
         def export: (path: ::String, ?wipe: bool?) -> ::String
         def docker_build: (?dockerfile: ::String?, ?platform: ::String?, ?build_args: ::Array[BuildArg]?, ?target: ::String?, ?secrets: ::Array[::Dagger::Type]?, ?no_init: bool?, ?ssh: Socket?) -> Container
+        def with_platform: (platform: ::String) -> Directory
         def with_timestamps: (timestamp: ::Integer) -> Directory
         def with_patch: (patch: ::String, ?on_conflict: PatchConflict?) -> Directory
         def with_patch_file: (patch: File, ?on_conflict: PatchConflict?) -> Directory

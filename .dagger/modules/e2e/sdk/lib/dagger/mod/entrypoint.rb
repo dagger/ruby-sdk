@@ -25,17 +25,14 @@ module Dagger
       end
 
       # outside, outside_files: what the build reads outside the module's
-      # directory, relative to it. sources returns them for the engine to
-      # load with the module, which selects the contract where types and
-      # call get no workspace; the module then builds from its context
-      # directory. Without them, the entrypoint keeps the contract that
-      # engines without sources run too.
+      # directory, relative to it. sources selects the contract where types and
+      # call take no workspace; a module with anything outside its directory
+      # builds from its context directory.
       def render_main(name, client_version:, outside: [], outside_files: [])
         alone = (outside + outside_files).empty?
-        contract = alone ? WORKSPACE_CONTRACT : { sources: sources(outside, outside_files), types: "", workspace: "" }
         format(MAIN, header: HEADER, name: quote(name), client_version: quote(client_version),
-                     command: JSON.generate(COMMAND).gsub(",", ", "),
-                     runtime: alone ? ALONE_RUNTIME : CONTEXT_RUNTIME, **contract)
+                     command: JSON.generate(COMMAND).gsub(",", ", "), sources: sources(outside, outside_files),
+                     runtime: alone ? ALONE_RUNTIME : CONTEXT_RUNTIME)
       end
 
       def sources(outside, outside_files)
@@ -152,12 +149,12 @@ module Dagger
           # client that declares none gets the module's view, which the engine decides.
           let clientVersion: String! = %<client_version>s
         %<sources>s
-          pub types%<types>s: [TypeDef!]! {
+          pub types: [TypeDef!]! {
             ModuleTypes().all
           }
 
           pub call(
-        %<workspace>s    receiverType: String!,
+            receiverType: String!,
             receiverValue: JSON,
             fnName: String!,
             fnArgs: JSON!,
@@ -182,10 +179,6 @@ module Dagger
         %<runtime>s}
       DANG
 
-      WORKSPACE_CONTRACT = {
-        sources: "", types: "(workspace: Workspace!)", workspace: "    workspace: Workspace!,\n"
-      }.freeze
-
       SOURCES = <<~DANG.gsub(/^(?=.)/, "  ").freeze
 
         # What the build reads outside the module's directory, from its Gemfile,
@@ -204,8 +197,8 @@ module Dagger
       SOURCES_FILE = %(\n      .withFile(cwd + %<at>s, workspace.file(%<path>s))).freeze
 
       ALONE_RUNTIME = <<~DANG.gsub(/^(?=.)/, "  ").freeze
-        # The module's own source, not the workspace the engine hands over: that is
-        # the caller's, which holds the module only when the module sits in it.
+        # The module's own source, not the workspace sources reads: that is the
+        # caller's, which holds the module only when the module sits in it.
         let runtime: Container! {
           RubyModuleBuild(source: currentModule.source, moduleName: moduleName).installed
         }

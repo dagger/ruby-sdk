@@ -51,7 +51,7 @@ module Dagger
         #
         # Commits with identical trees have identical contents and file modes.
         def tree_sha
-          @query.select("treeSHA").execute
+          @query.select("treeSha").execute
         end
 
         # Git author date, in RFC3339 format.

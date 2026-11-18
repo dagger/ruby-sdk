@@ -12,7 +12,7 @@ module Dagger
         def from: (address: ::String, ?version: ::String?, ?registry_service: Service?, ?protocol: RegistryProtocol?, ?insecure_skip_tls_verify: bool?, ?no_lock: bool?) -> Container
         def rootfs: () -> Directory
         def with_rootfs: (directory: Directory) -> Container
-        def directory: (path: ::String, ?expand: bool?) -> Directory
+        def directory: (path: ::String, ?expand: bool?, ?resolve_broken_symlinks: bool?) -> Directory
         def file: (path: ::String, ?expand: bool?) -> File
         def user: () -> ::String
         def with_user: (name: ::String) -> Container
@@ -93,7 +93,7 @@ module Dagger
         def terminal: (?cmd: ::Array[::String]?, ?disable_dagger_in_dagger: bool?, ?experimental_privileged_nesting: bool?, ?insecure_root_capabilities: bool?) -> Container
         def with_gpu: () -> Container
         def experimental_with_gpu: (devices: ::Array[::String]) -> Container
-        def experimental_with_all_gp_us: () -> Container
+        def experimental_with_all_gpus: () -> Container
         def as_service: (?args: ::Array[::String]?, ?use_entrypoint: bool?, ?disable_dagger_in_dagger: bool?, ?experimental_privileged_nesting: bool?, ?dagger_in_dagger_new_session: bool?, ?insecure_root_capabilities: bool?, ?expand: bool?, ?no_init: bool?) -> Service
         def up: (?random: bool?, ?ports: ::Array[PortForward]?, ?args: ::Array[::String]?, ?use_entrypoint: bool?, ?disable_dagger_in_dagger: bool?, ?experimental_privileged_nesting: bool?, ?dagger_in_dagger_new_session: bool?, ?insecure_root_capabilities: bool?, ?expand: bool?, ?no_init: bool?) -> nil
       end

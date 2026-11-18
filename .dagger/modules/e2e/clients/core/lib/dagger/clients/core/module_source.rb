@@ -51,7 +51,7 @@ module Dagger
         # Update the module source with a new SDK.
         # @param source The SDK source to set.
         def with_sdk(source:)
-          ModuleSource.new(@query.select("withSDK", source:))
+          ModuleSource.new(@query.select("withSdk", source:))
         end
 
         # Upgrade the engine version of the module to the given value.
@@ -181,14 +181,15 @@ module Dagger
         #
         # Note: this is in the context of a module, so some core types may be hidden.
         def introspection_schema_json
-          File.new(@query.select("introspectionSchemaJSON"))
+          File.new(@query.select("introspectionSchemaJson"))
         end
 
         # The client-facing introspection schema JSON file for this module source.
         #
-        # This is the schema consumed by client codegen: unlike introspectionSchemaJSON (the module-facing schema), it hides no core types and installs this module (reached via dag.<moduleName>) so a generated client can bind it. The module's dependencies are excluded: a client is generated for a single module plus core, not its dependency graph.
-        def client_schema_introspection_json
-          File.new(@query.select("clientSchemaIntrospectionJSON"))
+        # This is the schema consumed by client codegen: unlike introspectionSchemaJson (the module-facing schema), it hides no core types and installs this module (reached via dag.<moduleName>) so a generated client can bind it. The module's dependencies are excluded: a client is generated for a single module plus core, not its dependency graph.
+        # @param client_version The engine version of the client the schema is generated for, e.g. the engineVersion of the module that depends on this one: core is described as that client sees it, capped at this engine's version.  This module is still loaded at the engine version it declares, and so named by its own naming rules, as the engine serves it to such a client. Defaults to this module's own engine version.  Use this rather than withEngineVersion, which makes this module declare another version and so changes its names.
+        def client_schema_introspection_json(client_version: nil)
+          File.new(@query.select("clientSchemaIntrospectionJson", clientVersion: client_version))
         end
 
         # The directory containing the module configuration and source code (source code may be in a subdir).
@@ -204,12 +205,12 @@ module Dagger
 
         # The URL to the source's git repo in a web browser. Only valid for git sources.
         def html_url
-          @query.select("htmlURL").execute
+          @query.select("htmlUrl").execute
         end
 
         # The URL to access the web view of the repository (e.g., GitHub, GitLab, Bitbucket).
         def html_repo_url
-          @query.select("htmlRepoURL").execute
+          @query.select("htmlRepoUrl").execute
         end
 
         # The specified version of the git repo this source points to.
@@ -311,6 +312,18 @@ module Dagger
         # The kind of module source (currently local, git or dir).
         def kind
           ModuleSourceKind.from_name(@query.select("kind").execute)
+        end
+
+        # The names the engine gives this module's own declarations, by the naming rules of the version the module is named by: its engine version, capped at the engine's own.
+        #
+        # Modules declaring a version before the identifier casing cut get the legacy strcase names; later ones get the engine's identifier naming rules.
+        #
+        # For SDK codegen, which must reproduce these names before the module is loaded: this reads only the source's name, original name and engine version, so it answers before the module's entrypoint is generated.
+        #
+        # It answers for the module under its own name (moduleName). A workspace or toolchain that loads the module under another name namespaces its types under that name instead, which this doesn't reflect.
+        # @note Experimental: Identifier casing APIs are likely to change.
+        def naming
+          ModuleNaming.new(@query.select("naming"))
         end
       end
     end

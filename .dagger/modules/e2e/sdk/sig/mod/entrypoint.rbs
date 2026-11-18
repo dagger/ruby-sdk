@@ -4,7 +4,6 @@ module Dagger
       HEADER: String
       COMMAND: Array[String]
       MAIN: String
-      WORKSPACE_CONTRACT: Hash[Symbol, String]
       SOURCES: String
       SOURCES_DIRECTORY: String
       SOURCES_FILE: String

@@ -3,7 +3,7 @@
 module Dagger
   module Clients
     module RubySdk
-      class RubySdkRubyHalf < ::Dagger::Type
+      class RubySDKRubyHalf < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
         def self.graphql_name: () -> ::String
         def template: () -> ::String

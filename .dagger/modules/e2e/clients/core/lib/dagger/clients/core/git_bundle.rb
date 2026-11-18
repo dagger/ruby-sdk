@@ -19,6 +19,11 @@ module Dagger
           File.new(@query.select("asFile"))
         end
 
+        # Commits that must already exist wherever this bundle is applied.
+        def prerequisite_shas
+          @query.select("prerequisiteShas").execute
+        end
+
         # Bundle format version (2 or 3).
         def version
           @query.select("version").execute
@@ -32,11 +37,6 @@ module Dagger
         # Refs advertised by the bundle and the object IDs they resolve to.
         def refs
           @query.select("refs").execute_object_list(GitBundleRef)
-        end
-
-        # Commits that must already exist wherever this bundle is applied.
-        def prerequisite_sh_as
-          @query.select("prerequisiteSHAs").execute
         end
       end
     end

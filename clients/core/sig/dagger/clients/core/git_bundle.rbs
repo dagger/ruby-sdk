@@ -8,10 +8,10 @@ module Dagger
         def self.graphql_name: () -> ::String
         def validate: () -> GitBundle
         def as_file: () -> File
+        def prerequisite_shas: () -> ::Array[::String]
         def version: () -> ::Integer
         def object_format: () -> ::String
         def refs: () -> ::Array[GitBundleRef]
-        def prerequisite_sh_as: () -> ::Array[::String]
       end
     end
   end

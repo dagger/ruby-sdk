@@ -10,6 +10,7 @@ module Dagger
         def dependencies: () -> ::Array[Module]
         def generated_context_directory: () -> Directory
         def name: () -> ::String
+        def naming: () -> ModuleNaming
         def source: () -> Directory
         def source_subpath: () -> ::String
         def workdir: (path: ::String, ?exclude: ::Array[::String]?, ?include: ::Array[::String]?, ?gitignore: bool?) -> Directory

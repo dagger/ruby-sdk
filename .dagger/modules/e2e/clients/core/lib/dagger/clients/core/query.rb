@@ -258,29 +258,11 @@ module Dagger
           JSONValue.new(@query.select("json"))
         end
 
-        # Parse a name in any casing into words.
-        #
-        # Known acronyms and terms come from the naming dictionary; everything else falls back to the case heuristic. Errors on non-ASCII input, input with no letters or digits, or input over 256 bytes.
-        # @param name The name to parse.
+        # The engine's identifier naming rules at an engine version.
+        # @param version The engine version to answer for, e.g. the engine version a module declares. Defaults to the caller's. Normalized as a module's is: a version past the engine's is capped at the engine's own.
         # @note Experimental: Identifier casing APIs are likely to change.
-        def identifier(name:)
-          Identifier.new(@query.select("identifier", name:))
-        end
-
-        # Format many names at once, for codegen. Returns them in input order.
-        # @param names The names to format, in any casing.
-        # @param casing The casing to format the names in.
-        # @param acronyms How to write acronyms and terms where a word starts with a capital.
-        # @param version The engine version whose naming dictionary to parse the names with, e.g. the __schemaVersion of a schema being generated. Defaults to the caller's engine version.
-        # @note Experimental: Identifier casing APIs are likely to change.
-        def format_identifiers(names:, casing:, acronyms: nil, version: nil)
-          @query.select("formatIdentifiers", names:, casing:, acronyms:, version:).execute
-        end
-
-        # The acronyms and terms used to parse and format identifiers.
-        # @note Experimental: Identifier casing APIs are likely to change.
-        def naming_dictionary
-          @query.select("namingDictionary").execute_object_list(NamingTerm)
+        def naming(version: nil)
+          Naming.new(@query.select("naming", version:))
         end
 
         # Load a GraphQL introspection schema for merging.

@@ -132,7 +132,7 @@ class CoreTest < Minitest::Test
         core.constants.each { core.const_get(it) }
         query = core.core.container.from(address: "alpine").with_exec(args: ["echo", "hi"]).query
         print query.document.lines.map(&:strip).join(" ")
-        raise unless core::ImageLayerCompression::GZIP.equal?(core::ImageLayerCompression::Gzip)
+        raise unless core::ModuleSourceKind::LOCAL.equal?(core::ModuleSourceKind::LOCAL_SOURCE)
         raise unless Dagger::QueryBuilder.literal(core::BuildArg.new(name: "a", value: "b")) == '{name: "a", value: "b"}'
       RUBY
       sdk = File.expand_path("../../sdk/lib", __dir__)

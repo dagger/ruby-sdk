@@ -3,7 +3,7 @@
 module Dagger
   module Clients
     module RubySdk
-      class RubySdkMod < ::Dagger::Type
+      class RubySDKMod < ::Dagger::Type
         include ::Dagger::Clients::Core::Node
         def self.graphql_name: () -> ::String
         def path: () -> ::String

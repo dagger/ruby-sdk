@@ -41,9 +41,7 @@ module Dagger
         def llm: (?model: ::String?, ?provider: ::String?) -> LLM
         def llm_content: () -> LLMContent
         def json: () -> JSONValue
-        def identifier: (name: ::String) -> Identifier
-        def format_identifiers: (names: ::Array[::String], casing: Casing, ?acronyms: AcronymStyle?, ?version: ::String?) -> ::Array[::String]
-        def naming_dictionary: () -> ::Array[NamingTerm]
+        def naming: (?version: ::String?) -> Naming
         def schema: (json: ::String) -> Schema
         def env_file: (?expand: bool?) -> EnvFile
         def address: (value: ::String) -> Address
