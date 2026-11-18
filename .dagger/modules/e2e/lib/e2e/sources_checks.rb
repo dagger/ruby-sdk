@@ -78,6 +78,19 @@ class E2E
     check(again == nonce, "a file outside what sources returns gave a new result")
   end
 
+  function "A module with nothing outside its directory keys a call on its own files only: a file beside it " \
+           "leaves the result as it was, and an edit in its lib/ gives a new one.", check: true
+  #: (ws: Core::Workspace) -> void
+  def sources_alone_scope_check(ws:)
+    ground = playground(fixtures(ws))
+    nonce = cli(ground, "-m", APP, "call", "nonce").stdout.strip
+    beside = ground.with_new_file(path: "#{PLAYGROUND}/#{FIXTURES}/notes.txt", contents: "notes\n")
+    check(cli(beside, "-m", APP, "call", "nonce").stdout.strip == nonce, "a file beside the module gave a new result")
+    greeting = "#{PLAYGROUND}/#{APP}/lib/app/greeting.rb"
+    edited = beside.with_new_file(path: greeting, contents: "#{beside.file(path: greeting).contents}\n")
+    check(cli(edited, "-m", APP, "call", "nonce").stdout.strip != nonce, "an edit in lib/ reused the old result")
+  end
+
   function "Generation refuses a path gem it cannot load with the module, naming the Gemfile's line, and so does " \
            "the Steep check; a Gemfile that names a gem outside without dagger generate fails the call with the " \
            "hint to run it.", check: true
