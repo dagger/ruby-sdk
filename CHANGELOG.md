@@ -34,3 +34,14 @@ The first release. It requires Dagger v1.0.0-beta.26 or later.
   entrypoint's `sources` returns for the engine to load with the module.
 - Objects built through a field marked `@reevaluate` fetch their ID on every
   use.
+- Names from the engine: generated clients style each schema name with the
+  engine's `formatIdentifiers` in snake case, at the target version.
+- A module declares its functions, fields, arguments and members by their Ruby
+  names (`load_json(base_url:)`), and the engine gives the API's
+  (`loadJson(baseUrl:)`). A call through the module's own interface asks the
+  engine for those names.
+- The engine picks a module's main class among its classes, and names the
+  class of a new module: `http-server` gives `HTTPServer`, `p11lib` gives
+  `P11lib`. A class already named after the module by other rules keeps
+  working: the engine takes `HttpServer` for `http-server` and `P11Lib` for
+  `p11lib`.

@@ -89,6 +89,28 @@ sequenceDiagram
   without a session, and describes it with the types its annotations give.
   The registry refuses what the API cannot carry, naming the file and line.
 
+## Names
+
+The engine names identifiers. The SDK keeps no casing rules for schema names;
+file and directory names are its own.
+
+- A generated client styles every schema name with
+  `Query.naming(version:).formatIdentifiers(casing: SNAKE)` at the target
+  version. The Ruby half asks once per member, before the codegen exec, and
+  mounts the answers as `/schemas/names.json`; the codegen refuses a name it
+  has no answer for. Type and enum member constants keep the schema's names,
+  and the SDK adds a trailing `_` to a keyword or a method every object has.
+- A module declares its functions, fields, arguments and enum members by
+  their Ruby names, and the engine gives the schema names. The engine sends a
+  call with the declared names, so dispatch matches Ruby names.
+- A call through the module's own interface selects the schema names of the
+  interface's functions and arguments on the implementing object. The runtime
+  asks `ModuleNaming.fieldNames` for them once per process.
+- Generation asks `ModuleNaming.mainObject` for the main class among the
+  classes that `dagger-mod objects` lists, and `ModuleNaming.typeNames` for a
+  new module's class name, at the target version, which
+  `sdk/entrypoint/dang.toml` declares.
+
 ## Declaring types: RBS annotations
 
 A module's types are RBS in `#:` comments: at the end of a field's line, and

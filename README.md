@@ -105,9 +105,11 @@ and locks on the `ruby:<version>` image instead of the SDK's pinned Ruby 4.0
 image. Both are scope settings: `dagger.toml` keeps them, and every
 `dagger generate` passes them again.
 
-The module's name gives its main class by the engine's rule (`hello` gives
-`Hello`, `my-module` gives `MyModule`, `e2e` gives `E2E`), and its file is
-`lib/<snake_case name>.rb`.
+The engine names a new module's main class after the module (`hello` gives
+`Hello`, `my-module` gives `MyModule`, `http-server` gives `HTTPServer`), and
+its file is `lib/<snake_case name>.rb`. At generation, the engine picks the
+main class among the module's classes by the module's name, in any casing, so
+`HttpServer` serves `http-server` too.
 
 ## The tree of a scope
 
@@ -262,8 +264,9 @@ end
   the caller omits it. An installed module may read that workspace: the SDK
   adds no restriction of its own, and keeps the workspace out of the module's
   source and files.
-- A method name ending in `?` or `!` needs `name:`. `snake_case` names become
-  `camelCase` in the API.
+- A method name ending in `?` or `!` needs `name:`. A module declares its Ruby
+  names, and the engine names them in the API: `load_json(base_url:)` is
+  `loadJson(baseUrl:)`, `dagger call load-json --base-url`.
 - Top-level code of a module file must not call the API: generation loads the
   files without a session.
 
