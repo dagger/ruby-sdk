@@ -7,7 +7,7 @@ class E2E
             '"vendor/bundle"], gitignore: true))'.freeze
 
   function "A module that uses a path gem outside its directory returns it from its entrypoint's sources and " \
-           "builds from its context; a module without one keeps its entrypoint; generating again changes nothing, " \
+           "builds from its context; a module without one keeps its build; generating again changes nothing, " \
            "and writes nothing outside the module.", check: true
   #: (ws: Core::Workspace) -> void
   def sources_generate_check(ws:)
@@ -16,9 +16,8 @@ class E2E
     check_includes(ws.file(path: "/#{entrypoint}/main.dang").contents, SOURCES, "the include app's main.dang")
     check_includes(ws.file(path: "/#{entrypoint}/build.dang").contents, 'let anchor = subpath.trimSuffix("app")',
                    "the include app's build.dang")
-    control = ws.directory(path: "/#{APP}/sdk/entrypoint")
-    check_excludes(control.file(path: "main.dang").contents, "pub sources", "the control module's main.dang")
-    check_excludes(control.file(path: "build.dang").contents, "subpath", "the control module's build.dang")
+    control = ws.file(path: "/#{APP}/sdk/entrypoint/build.dang").contents
+    check_excludes(control, "subpath", "the control module's build.dang")
     again = generate(ws, INCLUDE_APP, name: "include-app")
     changes = changed(again, ws)
     check(changes.is_empty, "generating the include app again changed #{paths(changes)}")
@@ -41,8 +40,8 @@ class E2E
     check(call.call(edited, INCLUDE_CALLER, "word") == "two", "an edit to the gem did not reach the caller")
   end
 
-  function "The engine runs the contract each entrypoint declares: the include app, with sources, gets no " \
-           "workspace in types and call, the control module keeps it, and the engine lists the functions of both.",
+  function "The engine runs the contract every entrypoint declares: the include app and the control module " \
+           "declare sources and get no workspace in types and call, and the engine lists the functions of both.",
            check: true
   #: (ws: Core::Workspace) -> void
   def sources_contract_check(ws:)
@@ -51,8 +50,9 @@ class E2E
     check_includes(included, "  pub types: [TypeDef!]! {\n", "the include app's types")
     check_includes(included, "  pub call(\n    receiverType: String!,\n", "the include app's call")
     control = ws.file(path: "/#{APP}/sdk/entrypoint/main.dang").contents
-    check_includes(control, "  pub types(workspace: Workspace!): [TypeDef!]! {\n", "the control module's types")
-    check_includes(control, "  pub call(\n    workspace: Workspace!,\n", "the control module's call")
+    check_includes(control, "  pub sources(workspace: Workspace!): Directory! {\n", "the control module's sources")
+    check_includes(control, "  pub types: [TypeDef!]! {\n", "the control module's types")
+    check_includes(control, "  pub call(\n    receiverType: String!,\n", "the control module's call")
     ground = playground(ws)
     { INCLUDE_APP => %w[nonce word], APP => %w[greet version] }.each do |mod, functions|
       listed = cli(ground, "-m", mod, "functions").stdout
