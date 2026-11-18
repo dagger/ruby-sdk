@@ -102,7 +102,7 @@ type ModuleTypes {
         )
         .withFunction(
           function("naming_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("The SDK's naming rules over a table of names: main class, lib/ file, client directory and constant. cliModuleNameCheck checks main classes against the engine.")
+            .withDescription("Names over a table of module names: the engine's main class, the SDK's lib/ file, client directory and constant; and the main classes of existing modules, which the engine still takes.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )

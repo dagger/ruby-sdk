@@ -34,7 +34,6 @@ type RubyModuleBuild {
       .withEnvVariable("BUNDLE_WITHOUT", "development")
       .withEnvVariable("BUNDLE_USER_CACHE", "/cache/bundle/" + moduleName)
       .withEnvVariable("DAGGER_MODULE", moduleName)
-      .withEnvVariable("DAGGER_MAIN_OBJECT", "E2E")
       .withEnvVariable("DAGGER_MODULE_FILE", "lib/e2e.rb")
       .withMountedCache("/cache/bundle", cacheVolume("ruby-sdk-bundle"))
       .withWorkdir("/src")

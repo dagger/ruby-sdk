@@ -40,8 +40,7 @@ module Dagger
           "BUNDLE_GEMFILE" => "#{src(subpath)}/Gemfile", "BUNDLE_PATH" => "/usr/local/bundle",
           "BUNDLE_FROZEN" => frozen ? "true" : "false", "BUNDLE_WITHOUT" => "development",
           "BUNDLE_USER_CACHE" => user_cache(development),
-          "DAGGER_MODULE" => module_name, "DAGGER_MAIN_OBJECT" => Naming.to_camel(module_name),
-          "DAGGER_MODULE_FILE" => Naming.module_file(module_name)
+          "DAGGER_MODULE" => module_name, "DAGGER_MODULE_FILE" => Naming.module_file(module_name)
         }
         development ? variables.except("BUNDLE_WITHOUT") : variables
       end

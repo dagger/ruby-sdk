@@ -110,6 +110,8 @@ class OfflineScope < RubySdk::Scope
 
   def sdk_tree = FakeTree.new(".dagger-generated" => "sdk", "lib/dagger.rb" => "")
 
+  def main_class = @name.capitalize
+
   def written(target, members)
     target = target.with_new_directory(path: at("sdk"), source: sdk_tree)
     target = target.with_new_directory(path: at("clients/core"), source: core_member)

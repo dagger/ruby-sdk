@@ -57,7 +57,7 @@ Metrics/ParameterLists:
 
 # Scope also carries the generated target to the client schemas and the entrypoint.
 Metrics/ClassLength:
-  Max: 307
+  Max: 314
   CountAsOne: ["heredoc"]
 
 Metrics/CyclomaticComplexity:

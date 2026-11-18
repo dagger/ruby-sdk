@@ -61,7 +61,7 @@ module Dagger
         objects = @objects.map { describe_object(it, main: it.equal?(main)) } +
                   @interfaces.map { describe_interface(it) }
         Description::Module.new(
-          main_object:,
+          main_object: type_name(main),
           description: main.dagger_description,
           objects: objects.sort_by(&:name),
           enums: @enums.sort_by { type_name(it) }.map { describe_enum(it) }
@@ -87,6 +87,11 @@ module Dagger
       private
 
       def missing_main(name)
+        unless name
+          return "the engine takes none of #{@objects.map { type_name(it) }.join(", ")} as the main object: lib/ " \
+                 "must define a class named after the module with `extend Dagger::Mod::Object`"
+        end
+
         "the main object #{name} is not registered: lib/ must define class #{name} with `extend Dagger::Mod::Object`"
       end
 

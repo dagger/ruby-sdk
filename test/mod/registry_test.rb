@@ -360,4 +360,11 @@ class RegistryTest < Minitest::Test
 
     assert_match(/class Missing/, error.message)
   end
+
+  def test_without_a_main_object_the_candidates_are_named
+    declare("class Tool\n  extend Dagger::Mod::Object\nend\nclass Other\n  extend Dagger::Mod::Object\nend")
+    error = assert_raises(Dagger::Mod::RegistrationError) { describe(nil) }
+
+    assert_match(/\Athe engine takes none of Tool, Other as the main object/, error.message)
+  end
 end

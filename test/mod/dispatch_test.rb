@@ -205,6 +205,25 @@ class DispatchTest < Minitest::Test
     end
   end
 
+  # Module code may print as it loads; the candidates for the main object go to
+  # a file of their own.
+  def test_objects_writes_the_candidates_to_a_file_whatever_the_module_prints
+    Dir.mktmpdir do |dir|
+      source = %(require "dagger"\nputs "main"\nclass Main\n  extend Dagger::Mod::Object\nend\n)
+      File.write(File.join(dir, "main.rb"), source)
+      FileUtils.mkdir_p(File.join(dir, "sdk/entrypoint"))
+      File.write(File.join(dir, Dagger::Mod::Signatures::FILE),
+                 JSON.generate(RubySdk::Signatures.parse("main.rb" => source)))
+      sdk = File.expand_path("../../sdk", __dir__)
+      out, status = Open3.capture2e({ "DAGGER_MODULE" => "main", "DAGGER_MODULE_FILE" => "main.rb" }, "ruby", "-I",
+                                    "#{sdk}/lib", "#{sdk}/exe/dagger-mod", "objects", "--output", "out/objects.json",
+                                    chdir: dir)
+
+      assert status.success?, out
+      assert_equal ["Main"], JSON.parse(File.read(File.join(dir, "out/objects.json")))
+    end
+  end
+
   private
 
   # The module as a file, and its signatures as generation writes them.

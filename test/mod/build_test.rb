@@ -24,9 +24,8 @@ class BuildTest < Minitest::Test
   end
 
   def test_the_module_is_named_in_the_environment
-    assert_equal({ "DAGGER_MODULE" => "my-module", "DAGGER_MAIN_OBJECT" => "MyModule",
-                   "DAGGER_MODULE_FILE" => "lib/my_module.rb" },
-                 build.env.slice("DAGGER_MODULE", "DAGGER_MAIN_OBJECT", "DAGGER_MODULE_FILE"))
+    assert_equal({ "DAGGER_MODULE" => "my-module", "DAGGER_MODULE_FILE" => "lib/my_module.rb" },
+                 build.env.slice("DAGGER_MODULE", "DAGGER_MODULE_FILE"))
   end
 
   # Bundler's temporary files are named by process ID, which repeats across
