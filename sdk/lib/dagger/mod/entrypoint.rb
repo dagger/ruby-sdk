@@ -70,7 +70,13 @@ module Dagger
         { check: "withCheck", generator: "withGenerator", up: "withUp", agent: "withAgent" }.each do |flag, call|
           lines << ".#{call}" if definition.public_send(flag)
         end
+        lines << cache_policy(definition.cache) if definition.cache
         lines + definition.args.map { argument(it) }
+      end
+
+      def cache_policy(cache)
+        policy = { "never" => "NEVER", "session" => "PER_SESSION" }.fetch(cache, "DEFAULT")
+        ".withCachePolicy(FunctionCachePolicy.#{policy}#{option("timeToLive", cache) if policy == "DEFAULT"})"
       end
 
       def argument(arg)

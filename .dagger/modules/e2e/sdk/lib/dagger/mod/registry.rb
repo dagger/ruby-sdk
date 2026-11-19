@@ -11,6 +11,9 @@ module Dagger
       ARGUMENT = /\A[a-z_][a-z0-9_]*\z/
       ROOTS = "Dagger::Clients::Roots".freeze
       EXAMPLE = "#: (name: String) -> String".freeze
+      # Whole hours, minutes and seconds, which Go's time.ParseDuration reads exactly; the engine takes one second
+      # to a week.
+      TIME_TO_LIVE = /\A(?:\d+[hms])+\z/
 
       attr_reader :objects, :enums, :interfaces
 
@@ -258,20 +261,31 @@ module Dagger
           ArgDecl.new(field.name, field.type, nil, field.default, !field.default.equal?(UNSET), nil, field.ignore,
                       field.doc, field.deprecated)
         end
-        Description::Function.new("", object_ref(klass), nil, nil, false, false, false, false,
+        Description::Function.new("", object_ref(klass), nil, nil, false, false, false, false, nil,
                                   args.map { describe_arg(type_name(klass), it) })
       end
 
       def describe_function(klass, decl)
         where = "#{type_name(klass)}.#{decl.method_name}"
-        if decl.cache
-          raise RegistrationError, "#{where}: a cache policy needs a per-call signal the generated entrypoint lacks"
-        end
-
+        check_cache(member_at(klass, :function, decl.method_name), decl.cache)
         returns = decl.constructor ? object_ref(klass) : type_ref(decl.returns, "#{where} result")
         name = decl.constructor ? "" : function_name(decl, where)
         Description::Function.new(name, returns, decl.doc, decl.deprecated, decl.check, decl.generator, decl.start,
-                                  decl.agent, decl.args.map { describe_arg(where, it) })
+                                  decl.agent, decl.cache, decl.args.map { describe_arg(where, it) })
+      end
+
+      def check_cache(member, cache)
+        return if cache.nil? || %w[never session].include?(cache)
+
+        if cache.is_a?(String) && cache.match?(TIME_TO_LIVE)
+          seconds = cache.split(/(?<=[hms])/).sum do |part|
+            part.to_i * { "h" => 3600, "m" => 60, "s" => 1 }.fetch(part.delete("0-9"))
+          end
+          return if seconds.between?(1, 168 * 3600)
+        end
+
+        raise RegistrationError, "#{member}: cache: takes \"never\", \"session\" or a time to live from 1s to 168h, " \
+                                 "such as \"5m\" or \"1h30m\", not #{cache.inspect}"
       end
 
       def function_name(decl, where)

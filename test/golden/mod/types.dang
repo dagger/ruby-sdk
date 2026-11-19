@@ -16,6 +16,7 @@ type ModuleTypes {
         .withFunction(
           function("lint", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withCheck
+            .withCachePolicy(FunctionCachePolicy.NEVER)
         )
         .withFunction(
           function("mob", typeDef.withListOf(typeDef.withObject("Helper")))
@@ -23,11 +24,13 @@ type ModuleTypes {
             .withGenerator
             .withUp
             .withAgent
+            .withCachePolicy(FunctionCachePolicy.PER_SESSION)
             .withArg("who", typeDef.withOptional(true).withKind(TypeDefKind.STRING_KIND))
             .withArg("color", typeDef.withEnum("Color"), description: "Which one", defaultValue: ("\"BLUE\"" :: Dagger.JSON!))
         )
         .withFunction(
           function("isReady", typeDef.withKind(TypeDefKind.BOOLEAN_KIND))
+            .withCachePolicy(FunctionCachePolicy.DEFAULT, timeToLive: "1h30m")
         )
         .withConstructor(
           function("", typeDef.withObject("Main"))

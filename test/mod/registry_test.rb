@@ -197,8 +197,28 @@ class RegistryTest < Minitest::Test
                  refusal("  function\n  #: () -> Nope\n  def a = nil")
   end
 
+  def test_a_cache_policy_is_never_session_or_a_time_to_live_the_engine_accepts
+    caches = [nil, "never", "session", "1s", "90m", "1h30m", "168h"]
+    functions = caches.each_with_index.map do |cache, i|
+      "function cache: #{cache.inspect}\n#: () -> void\ndef a#{i} = nil\n"
+    end
+    declare("class Main\nextend Dagger::Mod::Object\n#{functions.join}end")
+
+    assert_equal caches, object(describe, "Main").functions.map(&:cache)
+  end
+
+  def test_any_other_cache_policy_is_refused_with_its_line
+    ["", "0s", "999ms", "168h1s", "-5m", "5 m", "1.5h", ".5s", "1.s", "forever", "per_session", 5, false,
+     :never].each do |cache|
+      setup
+
+      assert_equal "lib/main.rb:6: Main.a: cache: takes \"never\", \"session\" or a time to live from 1s to 168h, " \
+                   "such as \"5m\" or \"1h30m\", not #{cache.inspect}",
+                   refusal("  function cache: #{cache.inspect}\n  #: () -> void\n  def a = nil")
+    end
+  end
+
   REFUSED = {
-    "a cache policy" => "function cache: \"never\"\n#: () -> void\ndef a = nil",
     "a positional parameter" => "function\n#: (Integer) -> Integer\ndef a(x) = x",
     "an arg the method lacks" => "function\narg :x, doc: \"X.\"\n#: () -> void\ndef a = nil",
     "a predicate without name:" => "function\n#: () -> bool\ndef a? = true",

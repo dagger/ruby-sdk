@@ -15,7 +15,8 @@ module Dagger
       Argument = Data.define(:name, :type, :description, :default_value, :default_address, :ignore,
                              :deprecated)
 
-      Function = Data.define(:name, :returns, :description, :deprecated, :check, :generator, :up, :agent, :args)
+      Function = Data.define(:name, :returns, :description, :deprecated, :check, :generator, :up, :agent, :cache,
+                             :args)
 
       Field = Data.define(:name, :type, :description, :deprecated)
 

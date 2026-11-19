@@ -23,16 +23,16 @@ class Main
   #: (?from: String) -> String
   def container(from: "alpine") = from
 
-  function check: true
+  function check: true, cache: "never"
   #: () -> void
   def lint = nil
 
-  function generator: true, start: true, agent: true, deprecated: "use container"
+  function generator: true, start: true, agent: true, deprecated: "use container", cache: "session"
   arg :color, doc: "Which one"
   #: (who: String?, ?color: Color) -> Array[Helper]
   def mob(who:, color: Color::BLUE) = [who, color]
 
-  function name: "isReady"
+  function name: "isReady", cache: "1h30m"
   #: () -> bool
   def ready? = true
 end

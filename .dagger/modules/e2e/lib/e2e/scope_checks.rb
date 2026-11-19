@@ -307,15 +307,15 @@ class E2E
     end
   end
 
-  function "A function with a cache policy and an unknown template are refused before anything is written.",
-           check: true
+  function "A function with an unsupported cache policy and an unknown template are refused before anything is " \
+           "written.", check: true
   #: (ws: Core::Workspace) -> void
   def refusals_check(ws:)
     ws = fixtures(ws)
     source = ws.file(path: "/#{APP}/lib/app.rb").contents
-    cached = with_function(source, %(function "Cached.", cache: "never"\n#: () -> String\ndef cached = "x"\n))
+    cached = with_function(source, %(function "Cached.", cache: "forever"\n#: () -> String\ndef cached = "x"\n))
     error = refusal { generate(ws.with_new_file(path: "/#{APP}/lib/app.rb", contents: cached), APP, name: "app") }
-    check_includes(error.to_s, "cache policy", "a cache policy was not refused")
+    check_includes(error.to_s, %(cache: takes "never", "session" or a time to live), "a cache policy was not refused")
 
     scope = "#{OUT}/legacy"
     legacy = ws.with_new_directory(path: "/#{scope}", source: core.directory)
