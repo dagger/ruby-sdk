@@ -100,7 +100,11 @@ class OfflineScope < RubySdk::Scope
     FakeTree.new(".dagger-generated" => "core", "lib/dagger/clients/core.rb" => 'CORE_DIGEST = "sha256:c"')
   end
 
-  def client_member(member, _digest) = FakeTree.new(".dagger-generated" => "client", "ref" => member.ref)
+  def client_member(member, digest)
+    FakeTree.new(".dagger-generated" => "client", "ref" => member.ref, "digest" => digest)
+  end
+
+  def roots_member(_members) = FakeTree.new(".dagger-generated" => "roots")
 
   def bundled(_existing, target, _members) = target
 
@@ -108,14 +112,5 @@ class OfflineScope < RubySdk::Scope
     target.with_new_file(path: at("dagger-module.toml"), contents: RubySdk::Manifest.render(@name))
   end
 
-  def sdk_tree = FakeTree.new(".dagger-generated" => "sdk", "lib/dagger.rb" => "")
-
   def main_class = @name.capitalize
-
-  def written(target, members)
-    target = target.with_new_directory(path: at("sdk"), source: sdk_tree)
-    target = target.with_new_directory(path: at("clients/core"), source: core_member)
-    members.each { target = target.with_new_directory(path: at("clients/#{it.dir}"), source: client_member(it, "")) }
-    target.with_new_file(path: at("dagger.gemfile"), contents: dagger_gemfile(members))
-  end
 end

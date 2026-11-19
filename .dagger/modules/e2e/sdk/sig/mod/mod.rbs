@@ -238,6 +238,7 @@ module Dagger
       def type_name: (::Module klass) -> String
       def annotate: (Signatures signatures) -> void
       def fields: (described_class klass) -> Hash[Symbol, FieldDecl]
+      def field_args: (described_class klass) -> Array[ArgDecl]
       def functions: (described_class klass) -> Hash[Symbol, FunctionDecl]
       def constructor: (described_class klass) -> FunctionDecl?
       def describe: (String? main_object) -> Description::Module
@@ -387,16 +388,14 @@ module Dagger
       def construct: (described_class klass, Hash[String, untyped] args) -> untyped
       def invoke: (described_class klass, Hash[String, untyped] state, String name, Hash[String, untyped] args) -> untyped
       def arguments: (Array[ArgDecl] decls, Hash[String, untyped] args, String where) -> Hash[Symbol, untyped]
-      def field_arguments: (described_class klass, Hash[String, untyped] args, String where) -> Hash[Symbol, untyped]
       def user_code: [T] () { () -> T } -> T
     end
 
     module CLI
       USAGE: String
 
-      def self?.run: (Array[String] argv, ?input: IO, ?out: IO) -> void
+      def self?.run: (Array[String] argv, ?input: IO) -> void
       def self?.parse: (Array[String] args) -> Hash[Symbol, String]
-      def self?.describe: (Hash[Symbol, String] options) -> Description::Module
       def self?.entrypoint: (Hash[Symbol, String] options) -> void
       def self?.objects: (Hash[Symbol, String] options) -> void
       def self?.call: (Hash[Symbol, String] options, IO input) -> void

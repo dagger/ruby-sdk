@@ -8,16 +8,15 @@ module Dagger
     # container. The module comes from --name and --file, or from the
     # DAGGER_MODULE and DAGGER_MODULE_FILE the module's container sets.
     module CLI
-      USAGE = "usage: dagger-mod describe|call|entrypoint|objects [--name <module>] [--file <path>] " \
+      USAGE = "usage: dagger-mod call|entrypoint|objects [--name <module>] [--file <path>] " \
               "[--output <path>] [--client-version <version>] [--main-object <class>]".freeze
 
       module_function
 
-      def run(argv, input: $stdin, out: $stdout)
+      def run(argv, input: $stdin)
         command, *rest = argv
         options = parse(rest)
         case command
-        when "describe" then out.puts(describe(options).to_json)
         when "call" then call(options, input)
         when "entrypoint" then entrypoint(options)
         when "objects" then objects(options)
@@ -31,11 +30,6 @@ module Dagger
 
           [flag.delete_prefix("--").tr("-", "_").to_sym, value]
         end
-      end
-
-      def describe(options)
-        ::Dagger::Client.registering { load_module(options) }
-        Mod.registry.describe(options[:main_object])
       end
 
       # The candidates for the main object, which the engine picks by the

@@ -1,8 +1,8 @@
 module Dagger
   module Mod
     # A module's container, described once: generation builds it through the
-    # API to lock and to describe the module, and renders the same steps to
-    # the build.dang its entrypoint runs.
+    # API to describe the module, and renders the same steps to the
+    # build.dang its entrypoint runs.
     #
     # A module that uses path gems outside its directory builds from its
     # context directory, where it sits at a subpath beside them: /src is the
@@ -60,19 +60,16 @@ module Dagger
                                                                                  exclude: excludes(subpath))
       end
 
-      def lock(root, source, files: DEPENDENCY_FILES, subpath: nil)
-        dependencies = Type.new(dependencies(root, source, files:, subpath:))
-        base(root, env(frozen: false, subpath:), subpath).select("withDirectory", path: "/src", source: dependencies)
-                                                         .select("withExec", args: %w[bundle lock])
-                                                         .select("file", path: "#{src(subpath)}/Gemfile.lock")
-      end
-
       # The module's directory below the one that holds it and its path gems
       # outside it: the end of its path that its context and its workspace
       # share, which build.dang trims from the context's subpath.
       def tail = module_path.split("/").last(ups).join("/")
 
       def to_dang = context? ? format(CONTEXT, **dang_parts) : format(ALONE, **dang_parts)
+
+      def src(subpath) = subpath ? "/src/#{subpath}" : "/src"
+
+      def self.dang_strings(values) = JSON.generate(values).gsub(",", ", ")
 
       # The install opts out of Dagger in Dagger: the engine keys a nested exec
       # of an entrypoint on its module, source included, so an edit to lib/
@@ -158,15 +155,13 @@ module Dagger
         parts.join("/")
       end
 
-      def src(subpath) = subpath ? "/src/#{subpath}" : "/src"
-
       def excludes(subpath) = subpath ? CONTEXT_EXCLUDES : EXCLUDES
 
       def dang_parts
         { header: HEADER, files: dang_list(DEPENDENCY_FILES + gemspecs), outside: dang_outside, layer: dang_layer,
           tail: tail.dump, image: image.dump, env: dang_env,
           cache_path: CACHE_PATH.dump, cache_volume: CACHE_VOLUME.dump, install: JSON.generate(call_install),
-          excludes: dang_strings(EXCLUDES), context_excludes: dang_strings(CONTEXT_EXCLUDES) }
+          excludes: Build.dang_strings(EXCLUDES), context_excludes: Build.dang_strings(CONTEXT_EXCLUDES) }
       end
 
       # At call time a failed install most likely follows a Gemfile, lock or
@@ -177,8 +172,6 @@ module Dagger
       # file of it would key the install on any edit to the module. A missing
       # file is left out, for Bundler to name what is missing.
       def dang_list(names) = names.map { "      #{it.dump},\n" }.join
-
-      def dang_strings(values) = JSON.generate(values).gsub(",", ", ")
 
       # The directory the dependencies end up in, the last that adds to it.
       def dang_layer
@@ -193,7 +186,7 @@ module Dagger
       # whole context, exact, arrives after the install. Each reduce only when
       # it has something to add.
       def dang_outside
-        gem = %(source.directory(anchor + path).filter(exclude: #{dang_strings(EXCLUDES)}))
+        gem = %(source.directory(anchor + path).filter(exclude: #{Build.dang_strings(EXCLUDES)}))
         gems = "    let gems = [\n#{dang_list(outside.map { anchored(it) })}    ]" \
                ".reduce(dependencies) { files, path =>\n      " \
                "#{gem}.glob(\"**\")\n        .filter { file => file.hasSuffix(\"/\") == false }\n        " \
@@ -229,8 +222,8 @@ module Dagger
         container.select("withMountedCache", path: CACHE_PATH, cache:).select("withWorkdir", path: src(subpath))
       end
 
-      def dependencies(root, source, files: DEPENDENCY_FILES, subpath: nil)
-        query = (files + gemspecs).reduce(root.select("directory")) do |selected, name|
+      def dependencies(root, source, subpath: nil)
+        query = (DEPENDENCY_FILES + gemspecs).reduce(root.select("directory")) do |selected, name|
           path = subpath ? "#{subpath}/#{name}" : name
           selected.select("withFile", path:, source: Type.new(source.query.select("file", path:)))
         end

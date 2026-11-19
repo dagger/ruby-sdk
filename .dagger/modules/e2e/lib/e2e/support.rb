@@ -32,7 +32,7 @@ class E2E
       "#{FIXTURES}/include/app" => { name: "include-app" },
       "#{FIXTURES}/include/caller" => { name: "include-caller", clients: ["#{FIXTURES}/include/app"] }
     }.freeze
-    EXCLUDED = [".git", "**/vendor/bundle", "**/.bundle", OUT].freeze
+    EXCLUDED = [".git", *Dagger::Mod::Build::CONTEXT_EXCLUDES, OUT].freeze
     EVAL_LINE = %(eval_gemfile "dagger.gemfile").freeze
 
     class Failure < StandardError; end

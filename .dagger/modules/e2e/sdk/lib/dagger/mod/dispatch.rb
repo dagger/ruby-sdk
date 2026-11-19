@@ -40,7 +40,7 @@ module Dagger
           if decl
             user_code { klass.create(**arguments(decl.args, args, where)) }
           else
-            user_code { klass.new(**field_arguments(klass, args, where)) }
+            user_code { klass.new(**arguments(@registry.field_args(klass), args, where)) }
           end
         @convert.output(object, klass, where)
       end
@@ -68,13 +68,6 @@ module Dagger
           kwargs[arg.ruby_name] = @convert.input(value, arg.type, "#{where}(#{arg.ruby_name})")
         end
         kwargs
-      end
-
-      def field_arguments(klass, args, where)
-        decls = @registry.fields(klass).values.map do |field|
-          ArgDecl.new(field.name, field.type, nil, field.default, !field.default.equal?(UNSET), nil, nil, nil, nil)
-        end
-        arguments(decls, args, where)
       end
 
       def user_code

@@ -1,7 +1,6 @@
 module Dagger
   module Mod
     module Entrypoint
-      HEADER: String
       COMMAND: Array[String]
       MAIN: String
       SOURCES: String

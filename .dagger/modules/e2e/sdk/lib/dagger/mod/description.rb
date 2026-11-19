@@ -1,5 +1,3 @@
-require "json"
-
 module Dagger
   module Mod
     # The module's types as plain data: what generation renders to Dang.
@@ -31,18 +29,6 @@ module Dagger
       ObjectType = Data.define(:name, :interface, :description, :fields, :functions, :constructor, :collection)
 
       Module = Data.define(:main_object, :description, :objects, :enums)
-
-      class Module
-        def to_json(*) = JSON.generate(Description.plain(self))
-      end
-
-      def self.plain(value)
-        case value
-        when Data then value.to_h.transform_values { plain(it) }
-        when Array then value.map { plain(it) }
-        else value
-        end
-      end
     end
   end
 end

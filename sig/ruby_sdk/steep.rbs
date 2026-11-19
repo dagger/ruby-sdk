@@ -25,7 +25,6 @@ class RubySdk
     def modules: () -> Array[String]
     def module_at: (String path) -> String
     def authored?: (String root) -> bool
-    def self.normalize: (String path) -> String
     def self.failure: (Array[Outcome] failed, Integer count) -> String
     def self.summary: (Array[Outcome] outcomes) -> String
 
@@ -39,7 +38,6 @@ class RubySdk
     def checked: (String root, Dagger::Clients::Core::Directory dir, Dagger::Mod::Build build, Array[String] refusals,
                   [Dagger::Clients::Core::Directory, String?] layout) -> Outcome
     def with_module_rbs: (Dagger::Clients::Core::Container installed, Dagger::Clients::Core::Container described,
-                          String? subpath) -> Dagger::Clients::Core::Container
-    def client_dirs: (Dagger::Clients::Core::Directory dir) -> Array[String]
+                          String src) -> Dagger::Clients::Core::Container
   end
 end

@@ -10,8 +10,6 @@ class RubySdk
     # Paths are relative to the module's directory, cleaned.
     Found = Data.define(:path, :directory, :at)
 
-    EXCLUDED = %w[.bundle vendor/bundle].freeze
-
     # read: the contents of a file of the workspace by its path relative to
     # the module's directory, or nil. depth: how many directories the module
     # sits below the workspace's root.
@@ -40,7 +38,10 @@ class RubySdk
     # What the module's context holds outside its directory, as include and
     # ! exclude patterns: each directory whole but for Bundler's own, then
     # each file.
-    def patterns = (directories + files).sort + directories.flat_map { |dir| EXCLUDED.map { "!#{dir}/#{it}" } }.sort
+    def patterns
+      excluded = directories.flat_map { |dir| Dagger::Mod::Build::EXCLUDES.map { "!#{dir}/#{it}" } }
+      (directories + files).sort + excluded.sort
+    end
 
     # Whether the lock's path gem at remote, relative to the module, is one
     # of the directories found.
