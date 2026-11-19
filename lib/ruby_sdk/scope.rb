@@ -23,6 +23,7 @@ class RubySdk
     GEMFILE = %(source "https://rubygems.org"\n\n#{EVAL_LINE}\n).freeze
     SIGNATURES = Dagger::Mod::Signatures::FILE
     DESCRIBE = %w[ruby -rbundler/setup sdk/exe/dagger-mod entrypoint --output /dagger/entrypoint].freeze
+    OBJECTS = %w[ruby -rbundler/setup sdk/exe/dagger-mod objects --output /dagger/objects.json].freeze
 
     Member = Data.define(:name, :dir, :ref, :pin, :source)
 
@@ -253,12 +254,18 @@ class RubySdk
     end
 
     # dagger-mod entrypoint on the module's annotations as they are now, in
-    # its installed container: the registry's every rule.
-    def self.describe(installed, scope, target_version, subpath: nil)
+    # its installed container: the registry's every rule. The main object is
+    # the class the engine picks by the module's name, at the target's rules.
+    def self.describe(installed, scope, name, target_version, subpath: nil)
       signatures = "#{subpath ? "/src/#{subpath}" : "/src"}/#{SIGNATURES}"
-      installed.with_new_file(path: signatures, contents: Signatures.json(scope))
-               .with_exec(args: [*DESCRIBE, "--client-version", target_version], disable_dagger_in_dagger: true,
-                          expect: Core::ReturnType::ANY)
+      annotated = installed.with_new_file(path: signatures, contents: Signatures.json(scope))
+      listed = annotated.with_exec(args: OBJECTS, disable_dagger_in_dagger: true, expect: Core::ReturnType::ANY)
+      return listed unless listed.exit_code.zero?
+
+      candidates = JSON.parse(listed.file(path: "/dagger/objects.json").contents) #: Array[String]
+      main = Core.core.naming(version: target_version).module(name:).main_object(candidates:)
+      annotated.with_exec(args: [*DESCRIBE, "--client-version", target_version, *(main ? ["--main-object", main] : [])],
+                          disable_dagger_in_dagger: true, expect: Core::ReturnType::ANY)
     end
 
     def self.describe_refusal(path, described)
@@ -322,7 +329,7 @@ class RubySdk
     end
 
     def template_files
-      class_name = Dagger::Mod::Naming.to_camel(@name)
+      class_name = main_class
       file = Dagger::Mod::Naming.file_name(@name)
       directory = @sdk.directory(path: "templates/#{@template}")
       walk(directory).to_h do |relative|
@@ -331,6 +338,8 @@ class RubySdk
         [rendered, contents.gsub("{{name}}", @name).gsub("{{class}}", class_name).gsub("{{file}}", file)]
       end
     end
+
+    def main_class = Core.core.naming(version: @target_version).module(name: @name).type_names(names: [@name])[0]
 
     def walk(directory, prefix = "")
       directory.entries.flat_map do |entry|
@@ -381,10 +390,14 @@ class RubySdk
     def codegen(schema, args) = codegen_with({ "/schemas/schema.json" => schema }, args)
 
     def codegen_with(schemas, args)
+      names = Codegen::Naming.identifiers(schemas.values.map { JSON.parse(it.contents) })
+      snake = Core.core.naming(version: @target_version).format_identifiers(names:, casing: Core::Casing::SNAKE)
       container = Core.core.container.from(address: @image)
                       .with_mounted_directory(path: "/codegen", source: @sdk.directory(path: "lib"))
+                      .with_new_file(path: "/schemas/names.json", contents: JSON.generate(names.zip(snake).to_h))
       schemas.reduce(container) { |ctr, (path, schema)| ctr.with_mounted_file(path:, source: schema) }
-             .with_exec(args: ["ruby", "/codegen/ruby_sdk/codegen/cli.rb", *args], disable_dagger_in_dagger: true)
+             .with_exec(args: ["ruby", "/codegen/ruby_sdk/codegen/cli.rb", args.first.to_s, "/schemas/names.json",
+                               *args.drop(1)], disable_dagger_in_dagger: true)
              .directory(path: "/out")
     end
 
@@ -439,7 +452,7 @@ class RubySdk
       build = build(target, members)
       source, subpath = layout(target, build)
       installed = Core::Container.new(build.installed(Core.core.query, source, subpath:))
-      described = self.class.describe(installed, scope, @target_version, subpath:)
+      described = self.class.describe(installed, scope, @name, @target_version, subpath:)
       refused = self.class.describe_refusal(@path, described)
       raise Error, refused if refused
 

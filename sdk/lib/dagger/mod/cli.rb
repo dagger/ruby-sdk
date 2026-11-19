@@ -8,8 +8,8 @@ module Dagger
     # container. The module comes from --name and --file, or from the
     # DAGGER_MODULE and DAGGER_MODULE_FILE the module's container sets.
     module CLI
-      USAGE = "usage: dagger-mod describe|call|entrypoint [--name <module>] [--file <path>] [--output <path>] " \
-              "[--client-version <version>]".freeze
+      USAGE = "usage: dagger-mod describe|call|entrypoint|objects [--name <module>] [--file <path>] " \
+              "[--output <path>] [--client-version <version>] [--main-object <class>]".freeze
 
       module_function
 
@@ -20,6 +20,7 @@ module Dagger
         when "describe" then out.puts(describe(options).to_json)
         when "call" then call(options, input)
         when "entrypoint" then entrypoint(options)
+        when "objects" then objects(options)
         else raise Error, USAGE
         end
       end
@@ -33,15 +34,24 @@ module Dagger
       end
 
       def describe(options)
-        name = ::Dagger::Client.registering { load_module(options) }
-        Mod.registry.describe(Naming.to_camel(name))
+        ::Dagger::Client.registering { load_module(options) }
+        Mod.registry.describe(options[:main_object])
+      end
+
+      # The candidates for the main object, which the engine picks by the
+      # module's name, in a file: module code may print as it loads.
+      def objects(options)
+        output = options.fetch(:output) { raise Error, USAGE }
+        ::Dagger::Client.registering { load_module(options) }
+        ::FileUtils.mkdir_p(::File.dirname(output))
+        ::File.write(output, JSON.generate(Mod.registry.objects.map { Mod.registry.type_name(it) }))
       end
 
       def entrypoint(options)
         output = options.fetch(:output) { raise Error, USAGE }
         client_version = options.fetch(:client_version) { raise Error, USAGE }
         name = ::Dagger::Client.registering { load_module(options) }
-        Entrypoint.write(Mod.registry.describe(Naming.to_camel(name)), name:, output:, client_version:)
+        Entrypoint.write(Mod.registry.describe(options[:main_object]), name:, output:, client_version:)
         ::File.write(::File.join(output, "module.rbs"), Entrypoint.render_rbs(Mod.registry))
       end
 

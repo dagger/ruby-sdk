@@ -35,7 +35,7 @@ module Dagger
         expect(state, ::Hash, where)
         klass.allocate.tap do |object|
           @registry.fields(klass).each_value do |field|
-            value = input(state[Naming.api_name(field.name)], field.type, "#{where}.#{field.name}")
+            value = input(state[field.name.to_s], field.type, "#{where}.#{field.name}")
             object.instance_variable_set(:"@#{field.name}", value)
           end
           object.instance_variable_set(BASE_VARIABLE, state[COLLECTION_BASE]) if state.key?(COLLECTION_BASE)
@@ -47,7 +47,7 @@ module Dagger
       def state(object, klass, where)
         fields = @registry.fields(klass).each_value.to_h do |field|
           value = object.instance_variable_get(:"@#{field.name}")
-          [Naming.api_name(field.name), output(value, field.type, "#{where}.#{field.name}")]
+          [field.name.to_s, output(value, field.type, "#{where}.#{field.name}")]
         end
         base = object.instance_variable_get(BASE_VARIABLE)
         base.nil? ? fields : fields.merge(COLLECTION_BASE => base)

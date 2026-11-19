@@ -153,8 +153,10 @@ class DispatchTest < Minitest::Test
     refute dispatch("copy", receiver: state).key?("__daggerCollectionBase")
   end
 
+  # The engine calls a function by the name the module declared: its Ruby name.
   def test_a_core_object_arrives_by_id_and_is_loaded_with_node
-    assert_equal "Directory", dispatch("nodeType", receiver: state, dir: "some-id")
+    assert_equal "Directory", dispatch("node_type", receiver: state, dir: "some-id")
+    assert_raises(Dagger::Mod::InvalidInputError) { dispatch("nodeType", receiver: state, dir: "some-id") }
   end
 
   def test_errors
@@ -200,6 +202,25 @@ class DispatchTest < Minitest::Test
 
       assert_equal 2, status.exitstatus
       assert_match(%r{sdk/entrypoint/signatures.json is missing: run `dagger generate`}, out)
+    end
+  end
+
+  # Module code may print as it loads; the candidates for the main object go to
+  # a file of their own.
+  def test_objects_writes_the_candidates_to_a_file_whatever_the_module_prints
+    Dir.mktmpdir do |dir|
+      source = %(require "dagger"\nputs "main"\nclass Main\n  extend Dagger::Mod::Object\nend\n)
+      File.write(File.join(dir, "main.rb"), source)
+      FileUtils.mkdir_p(File.join(dir, "sdk/entrypoint"))
+      File.write(File.join(dir, Dagger::Mod::Signatures::FILE),
+                 JSON.generate(RubySdk::Signatures.parse("main.rb" => source)))
+      sdk = File.expand_path("../../sdk", __dir__)
+      out, status = Open3.capture2e({ "DAGGER_MODULE" => "main", "DAGGER_MODULE_FILE" => "main.rb" }, "ruby", "-I",
+                                    "#{sdk}/lib", "#{sdk}/exe/dagger-mod", "objects", "--output", "out/objects.json",
+                                    chdir: dir)
+
+      assert status.success?, out
+      assert_equal ["Main"], JSON.parse(File.read(File.join(dir, "out/objects.json")))
     end
   end
 

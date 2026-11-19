@@ -24,9 +24,9 @@ module Dagger
         check_get(get, check_keys(keys))
         delta = member(:delta)
         check_delta(delta) if delta
-        Description::Collection.new(keys: keys&.role && Naming.api_name(keys.name),
-                                    get: get.get ? get.api_name || Naming.api_name(get.method_name) : nil,
-                                    delta: delta&.role && Naming.api_name(delta.name))
+        Description::Collection.new(keys: keys&.role && keys.name.to_s,
+                                    get: get.get ? get.api_name || get.method_name.to_s : nil,
+                                    delta: delta&.role && delta.name.to_s)
       end
 
       private
@@ -59,7 +59,7 @@ module Dagger
           names = marked.map(&:method_name).join(" and ")
           raise RegistrationError, "#{@klass.dagger_collection}: #{@name} marks #{names} get:; a collection has one"
         end
-        get = marked.first || @functions.find { (it.api_name || Naming.api_name(it.method_name)) == "get" }
+        get = marked.first || @functions.find { (it.api_name || it.method_name.to_s) == "get" }
         get or raise RegistrationError, "#{@klass.dagger_collection}: the collection #{@name} has no get function; " \
                                         "declare def get(key:) returning an object, or mark one get: true"
       end

@@ -1,17 +1,21 @@
 class E2E
   # name => main class, lib/ file, client directory, client constant. The
-  # main class is strcase.ToCamel's, which the engine names the module with.
+  # engine names the main class of a new module; the SDK names the rest.
   NAMES = {
     "my-module" => %w[MyModule my_module my_module MyModule],
     "my_module" => %w[MyModule my_module my_module MyModule],
     "myModule" => %w[MyModule my_module mymodule Mymodule],
     "MyModule" => %w[MyModule my_module mymodule Mymodule],
-    "HTTPServer" => %w[Httpserver http_server httpserver Httpserver],
+    "HTTPServer" => %w[HTTPServer http_server httpserver Httpserver],
+    "http-server" => %w[HTTPServer http_server http_server HttpServer],
     "s3-bucket" => %w[S3Bucket s3_bucket s3_bucket S3Bucket],
     "app2" => %w[App2 app2 app2 App2],
     "e2e" => %w[E2E e2e e2e E2e],
-    "p11lib" => %w[P11Lib p11lib p11lib P11lib]
+    "p11lib" => %w[P11lib p11lib p11lib P11lib]
   }.freeze
+
+  # Main classes the engine still takes for a module that has one already.
+  MAIN_CLASSES = { "http-server" => "HttpServer", "sha256sum" => "Sha256Sum", "p11lib" => "P11Lib" }.freeze
 
   RAINBOW = <<~'RUBY'.freeze
     function "A user gem's version."
@@ -35,8 +39,7 @@ class E2E
     require "ruby_sdk/codegen/naming"
     naming = RubySdk::Codegen::Naming
     puts JSON.generate(ARGV.to_h do |name|
-      [name, [Dagger::Mod::Naming.to_camel(name), Dagger::Mod::Naming.file_name(name), naming.client_file(name),
-              naming.client_constant(name)]]
+      [name, [Dagger::Mod::Naming.file_name(name), naming.client_file(name), naming.client_constant(name)]]
     end)
   RUBY
 
@@ -117,8 +120,8 @@ class E2E
     check(bundlers.uniq.size == 2, "the ruby:3.4 module was not locked by its own Bundler: #{bundlers}")
   end
 
-  function "The SDK's naming rules over a table of names: main class, lib/ file, client directory and constant. " \
-           "cliModuleNameCheck checks main classes against the engine.", check: true
+  function "Names over a table of module names: the engine's main class, the SDK's lib/ file, client directory " \
+           "and constant; and the main classes of existing modules, which the engine still takes.", check: true
   #: (ws: Core::Workspace) -> void
   def naming_check(ws:)
     output = development_image(ws).with_directory(path: "/module", source: ws.directory(path: "/lib"))
@@ -127,7 +130,33 @@ class E2E
                                   .with_exec(args: ["ruby", "-I/sdk", "-I/module", "/naming.rb", *NAMES.keys])
                                   .stdout
     got = JSON.parse(output)
-    NAMES.each { |name, want| check(got[name] == want, "#{name} names #{got[name]}, not #{want}") }
+    naming = core.naming(version: target_version(ws))
+    NAMES.each do |name, want|
+      named = [naming.module(name:).type_names(names: [name]).first, *got[name]]
+      check(named == want, "#{name} names #{named}, not #{want}")
+    end
+    MAIN_CLASSES.each do |name, main|
+      taken = naming.module(name:).main_object(candidates: [main])
+      check(taken == main, "the engine takes #{taken.inspect}, not #{main}, as the main object of #{name}")
+    end
+  end
+
+  function "The engine names a module's Ruby declarations: load_json(base_url:) is load-json --base-url, and a " \
+           "call through the module's own interface selects the engine's names on the implementing object.",
+           check: true
+  #: (ws: Core::Workspace) -> void
+  def engine_naming_check(ws:)
+    ground = playground(fixtures(ws))
+    listed = cli(ground, "-m", NAMING_APP, "functions").stdout
+    %w[load-json loader arch].each { check_includes(listed, it, "dagger functions did not list #{it}") }
+    {
+      ["call", "load-json", "--base-url", "https://x"] => "https://x/app.json",
+      %w[call arch] => "ARM64",
+      ["-c", "load-through $(loader) --base-url https://x"] => "https://x/dep.json"
+    }.each do |args, want|
+      got = cli(ground, "-m", NAMING_APP, *args).stdout.strip
+      check(got == want, "#{args.join(" ")}: got #{got.inspect}, want #{want.inspect}")
+    end
   end
 
   function "dagger generate over every registered scope, the SDK module's Ruby half and this harness included, " \

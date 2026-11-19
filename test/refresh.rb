@@ -1,6 +1,6 @@
 # Records core's client-facing schema through the stand-in, in the SDK's target
-# version, then rewrites the goldens from it. The e2e module's goldens generator runs it in the
-# development image.
+# version, and the engine's snake_case of its names, then rewrites the goldens
+# from them. The e2e module's goldens generator runs it in the development image.
 require "json"
 $LOAD_PATH.unshift File.expand_path("../sdk/lib", __dir__), File.expand_path("../lib", __dir__)
 require "dagger"
@@ -19,6 +19,12 @@ File.write(File.expand_path("fixtures/core-schema.json", __dir__),
 
 require_relative "codegen/codegen_helper"
 require "dagger/mod"
+
+names = RubySdk::Codegen::Naming.identifiers([CodegenHelper.client_document])
+snake = Dagger::QueryBuilder.new.select("naming", version: target_version)
+                            .select("formatIdentifiers", names:, casing: Dagger::Enum.new("SNAKE", "SNAKE")).execute
+RubySdk::Codegen::Naming.names = names.zip(snake).to_h
+File.write(CodegenHelper::NAMES, "#{JSON.pretty_generate(RubySdk::Codegen::Naming.names)}\n")
 
 golden = File.expand_path("golden", __dir__)
 write = lambda do |path, contents|

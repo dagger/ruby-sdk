@@ -8,6 +8,16 @@ class RootsTest < Minitest::Test
   Roots = RubySdk::Codegen::Roots
   Schema = RubySdk::Codegen::Schema
 
+  def setup
+    @names = RubySdk::Codegen::Naming.names
+    RubySdk::Codegen::Naming.names = @names.merge(%w[tap display format begin my_module].to_h { [it, it] },
+                                                  "myModule" => "my_module")
+  end
+
+  def teardown
+    RubySdk::Codegen::Naming.names = @names
+  end
+
   def roots_of(*names) = Roots.files(names.map { [schema_of(it), it] })
 
   # The module's schema, its constructor field named field, as the engine
@@ -28,14 +38,6 @@ class RootsTest < Minitest::Test
 
     assert_includes ruby, "def self.clients = { core: \"core\" }.freeze"
     assert_includes ruby, "def core(session: nil) = ::Dagger::Clients::Core.core(session:)"
-  end
-
-  # The engine's constructor field for the module, in snake case.
-  def test_a_client_method_is_its_entry_point_in_snake_case
-    { "greetings" => "greetings", "myModule" => "my_module", "p11Lib" => "p11_lib", "s3Bucket" => "s3_bucket",
-      "httpserver" => "httpserver", "module3" => "module3", "e2e" => "e2e" }.each do |field, method|
-      assert_equal method, Roots.method_name(field), field
-    end
   end
 
   def test_the_method_passes_every_argument_through_and_is_typed_as_the_entry_point

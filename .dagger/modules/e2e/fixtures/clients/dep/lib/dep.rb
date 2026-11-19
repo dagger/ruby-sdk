@@ -8,4 +8,8 @@ class Dep
   function "Greet someone."
   #: (?name: String) -> String
   def greeting(name: "world") = "hello, #{name}"
+
+  function "Where JSON loads from: the naming fixture's interface."
+  #: (base_url: String) -> String
+  def load_json(base_url:) = "#{base_url}/dep.json"
 end

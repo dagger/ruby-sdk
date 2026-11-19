@@ -42,9 +42,6 @@ module Dagger
     UNSET: ::Object
 
     module Naming
-      def self?.to_camel: (String name) -> String
-      def self?.snake: (String name) -> String
-      def self?.api_name: (Symbol | String ruby_name) -> String
       def self?.file_name: (String module_name) -> String
       def self?.module_file: (String module_name) -> String
     end
@@ -169,9 +166,11 @@ module Dagger
       include Declaring
 
       self.@bindings: Hash[untyped, singleton(::Dagger::Type)]?
+      self.@field_names: Hash[Registry, Hash[String, String]]?
 
       def self.extended: (untyped base) -> void
       def self.binding: (untyped interface, Registry registry) -> singleton(::Dagger::Type)
+      def self.field_names: (Registry registry, ::Dagger::QueryBuilder root) -> Hash[String, String]
 
       class Binding
         @interface: untyped
@@ -180,11 +179,13 @@ module Dagger
 
         def initialize: (untyped interface, Registry registry) -> void
         def build: () -> singleton(::Dagger::Type)
-        def call: (untyped instance, FunctionDecl decl, String field, Hash[Symbol, untyped] kwargs) -> untyped
+        def call: (untyped instance, FunctionDecl decl, Hash[Symbol, untyped] kwargs) -> untyped
         def result: (QueryBuilder query, untyped type) -> untyped
 
         private
 
+        def arguments: (Hash[String, String] names, FunctionDecl decl, Hash[Symbol, untyped] kwargs)
+                     -> Hash[Symbol, untyped]
         def concrete: (QueryBuilder query) -> QueryBuilder
         def define: (singleton(::Dagger::Type) klass, FunctionDecl decl) -> void
         def single: (QueryBuilder query, untyped type) -> untyped
@@ -232,19 +233,19 @@ module Dagger
       def add_object: (described_class klass) -> Array[described_class]
       def add_enum: (singleton(Enum) klass) -> Array[singleton(Enum)]
       def add_interface: (described_class mod) -> Array[described_class]
-      def object_named: (String name) -> described_class?
+      def object_named: (String? name) -> described_class?
       def type_name: (::Module klass) -> String
       def annotate: (Signatures signatures) -> void
       def fields: (described_class klass) -> Hash[Symbol, FieldDecl]
       def functions: (described_class klass) -> Hash[Symbol, FunctionDecl]
       def constructor: (described_class klass) -> FunctionDecl?
-      def describe: (String main_object) -> Description::Module
+      def describe: (String? main_object) -> Description::Module
       def type_ref: (untyped type, String context, ?optional: bool) -> Description::TypeRef
       def member_at: (described_class klass, Symbol kind, Symbol name) -> String
 
       private
 
-      def missing_main: (String name) -> String
+      def missing_main: (String? name) -> String
       def typed_field: (described_class klass, FieldDecl field, Signatures signatures) -> FieldDecl
       def typed_function: (described_class klass, FunctionDecl decl, Signatures signatures) -> FunctionDecl
       def location: (Method | UnboundMethod method) -> String
@@ -395,6 +396,7 @@ module Dagger
       def self?.parse: (Array[String] args) -> Hash[Symbol, String]
       def self?.describe: (Hash[Symbol, String] options) -> Description::Module
       def self?.entrypoint: (Hash[Symbol, String] options) -> void
+      def self?.objects: (Hash[Symbol, String] options) -> void
       def self?.call: (Hash[Symbol, String] options, IO input) -> void
       def self?.parse_request: (String text) -> Hash[String, untyped]
       def self?.load_module: (Hash[Symbol, String] options) -> String

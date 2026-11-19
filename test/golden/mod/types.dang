@@ -7,7 +7,7 @@ type ModuleTypes {
         .withField("level", typeDef.withEnum("Color"), description: "A color."),
       typeDef.withObject("Main", description: "The main object.")
         .withField("greeting", typeDef.withKind(TypeDefKind.STRING_KIND))
-        .withField("howMany", typeDef.withKind(TypeDefKind.INTEGER_KIND), description: "How many")
+        .withField("how_many", typeDef.withKind(TypeDefKind.INTEGER_KIND), description: "How many")
         .withFunction(
           function("container", typeDef.withKind(TypeDefKind.STRING_KIND))
             .withDescription("A \"container\".\n\nBuilt from\\a base image.\tTabbed.")
@@ -32,7 +32,7 @@ type ModuleTypes {
         .withConstructor(
           function("", typeDef.withObject("Main"))
             .withArg("greeting", typeDef.withKind(TypeDefKind.STRING_KIND), defaultValue: ("\"hello\"" :: Dagger.JSON!))
-            .withArg("howMany", typeDef.withKind(TypeDefKind.INTEGER_KIND), description: "How many", defaultValue: ("1" :: Dagger.JSON!))
+            .withArg("how_many", typeDef.withKind(TypeDefKind.INTEGER_KIND), description: "How many", defaultValue: ("1" :: Dagger.JSON!))
             .withArg("source", typeDef.withObject("Directory"), ignore: ["vendor"])
         ),
       typeDef.withEnum("Color", description: "A color.")

@@ -11,6 +11,7 @@ class RubySdk
     GEMFILE: String
     SIGNATURES: String
     DESCRIBE: Array[String]
+    OBJECTS: Array[String]
     SCOPE_BUNDLER: String
 
     class Member < Data
@@ -54,8 +55,8 @@ class RubySdk
     def self.bundler_dir: (String? subpath) -> String
     def self.bundler_refusal: (String path, Dagger::Clients::Core::Container checked) -> String?
     def self.lock_refusal: (String path, String lock, Resources resources) -> String?
-    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, String target_version,
-                         ?subpath: String?)
+    def self.describe: (Dagger::Clients::Core::Container installed, directory scope, String name,
+                         String target_version, ?subpath: String?)
                      -> Dagger::Clients::Core::Container
     def self.describe_refusal: (String path, Dagger::Clients::Core::Container described) -> String?
 
@@ -83,6 +84,7 @@ class RubySdk
     def codegen: (Dagger::Clients::Core::File schema, Array[String] args) -> directory
     def roots_member: (Array[Member] members) -> directory
     def client_schema: (Member member) -> Dagger::Clients::Core::File
+    def main_class: () -> String
     def codegen_with: (Hash[String, Dagger::Clients::Core::File] schemas, Array[String] args) -> directory
     def bundled: (directory existing, workspace target, Array[Member] members) -> workspace
     def with_gemfile: (workspace target) -> workspace

@@ -1,4 +1,5 @@
 require_relative "error"
+require_relative "schema"
 
 class RubySdk
   module Codegen
@@ -12,10 +13,25 @@ class RubySdk
       # and the reader that holds each object's query.
       RESERVED_METHODS = %w[class send object_id hash method freeze dup clone then tap display query].freeze
 
+      class << self
+        # The engine's snake_case of each name the generator styles, asked by
+        # the SDK module before the exec: formatIdentifiers at the schema's version.
+        attr_accessor :names
+      end
+
       module_function
 
       def snake(name)
-        name.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
+        Naming.names.fetch(name) { raise Error, "the engine was not asked to name #{name.inspect}" }
+      end
+
+      def identifiers(documents)
+        documents.flat_map do |document|
+          Schema.new(document).types.each_value.flat_map do |type|
+            fields = (type["fields"] || []).flat_map { [it["name"], *it["args"].map { |arg| arg["name"] }] }
+            [type["name"], *fields, *(type["inputFields"] || []).map { it["name"] }]
+          end
+        end.uniq.sort
       end
 
       def method_name(graphql_name)

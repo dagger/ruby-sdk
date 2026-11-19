@@ -59,10 +59,19 @@ class InterfaceTest < Minitest::Test
     end
   RUBY
 
+  # The engine's schema names of Duck's functions and arguments, in the
+  # order the binding asks for them.
+  NAMING = { "naming" => { "module" => { "fieldNames" => %w[quack times itselfAgain mob mood nickname] } } }.freeze
+
   def setup
     super
     declare(DUCK)
     annotate
+    ENV["DAGGER_MODULE"] = "main"
+  end
+
+  def teardown
+    ENV.delete("DAGGER_MODULE")
   end
 
   def test_an_interface_is_described_with_its_functions
@@ -71,7 +80,7 @@ class InterfaceTest < Minitest::Test
     assert duck.interface
     assert_empty duck.fields
     assert_nil duck.constructor
-    assert_equal %w[itselfAgain mob mood nickname quack], duck.functions.map(&:name).sort
+    assert_equal %w[itself_again mob mood nickname quack], duck.functions.map(&:name).sort
     assert_equal "INTERFACE_KIND", function(describe, "Main", "pass").returns.kind
     assert_equal "INTERFACE_KIND", function(describe, "Duck", "mob").returns.elem.kind
   end
@@ -109,13 +118,13 @@ class InterfaceTest < Minitest::Test
 
   def test_a_binding_runs_leaves_and_chains_objects
     data = { "node" => { "__typename" => "Mallard", "quack" => "quack quack", "mood" => "SAD", "nickname" => nil } }
-    connection = FakeConnection.new(data)
+    connection = FakeConnection.new(data.merge(NAMING))
     session = Dagger::Session.new(connection)
     klass = Dagger::Mod::Interface.binding(ModHelper::Fixtures::Duck, Dagger::Mod.registry)
     duck = klass.new(Dagger::QueryBuilder.new(session:).node("duck-id", "Node"))
 
     assert_equal "quack quack", duck.quack(times: 2)
-    assert_match(/\.\.\. on Node \{\s+__typename/, connection.documents.first)
+    assert_match(/\.\.\. on Node \{\s+__typename/, connection.documents[1])
     assert_match(/node\(id: "duck-id"\) \{\s+\.\.\. on Mallard \{\s+quack\(times: 2\)/, connection.documents.last)
     assert_equal ModHelper::Fixtures::Mood::SAD, duck.mood
     assert_nil duck.nickname
@@ -124,8 +133,20 @@ class InterfaceTest < Minitest::Test
     assert_equal(1, connection.documents.count { it.include?("__typename") })
   end
 
+  # The engine names the functions and arguments a binding selects, once.
+  def test_a_binding_asks_the_engine_for_its_names_once
+    connection = FakeConnection.new({ "node" => { "__typename" => "Mallard", "quack" => "quack" } }.merge(NAMING))
+    klass = Dagger::Mod::Interface.binding(ModHelper::Fixtures::Duck, Dagger::Mod.registry)
+    duck = klass.new(Dagger::QueryBuilder.new(session: Dagger::Session.new(connection)).node("duck-id", "Node"))
+
+    2.times { duck.quack }
+    assert_match(/naming \{\s+module\(name: "main"\) \{\s+fieldNames\(names: \["quack", "times", "itself_again"/,
+                 connection.documents.first)
+    assert_equal(1, connection.documents.count { it.include?("fieldNames") })
+  end
+
   def test_a_binding_chains_an_interface_result
-    connection = FakeConnection.new({ "node" => { "__typename" => "Mallard" } })
+    connection = FakeConnection.new({ "node" => { "__typename" => "Mallard" } }.merge(NAMING))
     klass = Dagger::Mod::Interface.binding(ModHelper::Fixtures::Duck, Dagger::Mod.registry)
     duck = klass.new(Dagger::QueryBuilder.new(session: Dagger::Session.new(connection)).node("duck-id", "Node"))
 

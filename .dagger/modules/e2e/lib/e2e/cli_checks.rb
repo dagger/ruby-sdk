@@ -32,13 +32,13 @@ class E2E
     empty = cli(initialized, "module", "init", "ruby", "-y", "--name", "sdk-empty",
                 "--path", ".dagger/modules/sdk-empty", "--template", "empty")
     source = file_in(empty, ".dagger/modules/sdk-empty/lib/sdk_empty.rb")
-    check_includes(source, "class SdkEmpty", "the empty template")
+    check_includes(source, "class SDKEmpty", "the empty template")
     check_includes(source, "include Dagger::Clients::Roots", "the empty template")
     check_excludes(source, "def container", "the empty template has a function")
   end
 
-  # name => lib/ file. A module runs only if its main class is the one the
-  # engine names with strcase.ToCamel; e2e, the harness's own name, is another.
+  # name => lib/ file. A module runs only if the engine takes its main class
+  # as the main object; e2e, the harness's own name, is another.
   MODULE_NAMES = {
     "module3" => "module3", "MyModule" => "my_module", "HTTPServer" => "http_server", "p11lib" => "p11lib",
     "s3-bucket" => "s3_bucket"

@@ -5,277 +5,283 @@ type ModuleTypes {
     [
       typeDef.withObject("E2E", description: "End-to-end checks of the Ruby SDK, run by dagger check on the engine under test.")
         .withFunction(
-          function("findClientRootCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("find_client_root_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("findClientRoot answers with the directory of the nearest Gemfile, lifts a member to its scope, and answers null where there is none.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopeInitCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_init_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("generateScope initialises a module: the template, the manifest and the scope tree, with the cwd and existing files untouched; settings pick the template and the Ruby.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopeExistingCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_existing_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("generateScope regenerates an existing module and keeps the user's files; a dagger.json is refused, not migrated.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopeClientsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_clients_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Adding a client writes its member, one dagger.gemfile line and its method in the client roots, and relocks; removing it undoes all three; a manifest with [[dependencies]] is refused.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopePinsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_pins_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A git client records the commit its ref resolved to, and a newly resolved commit replaces it.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopePlainCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_plain_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A scope without a module gets the same members and no module files; a member is byte-identical whichever scope holds it.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateScopeUserContentCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_scope_user_content_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The SDK owns dagger.gemfile, its members and one Gemfile line: the user's Gemfile, and what is under clients/ without the marker, survive and are never written over.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generateSkipsExistingFilesCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("generate_skips_existing_files_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Generation reports only what it produced: files a scope already has are not added.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("vendoringCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("vendoring_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A scope vendors the library alone: lib/, sig/, exe/, the gemspec and LICENSE, and in a module the entrypoint; never tests, the generator or development files.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("manifestCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("manifest_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The manifest is exactly name and [entrypoint]; what manifest version 2 on the generated entrypoint cannot carry is refused, naming it.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("refusalsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("refusals_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A function with a cache policy and an unknown template are refused before anything is written.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("dangConfigCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("dang_config_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module's dang.toml names the target version its entrypoint declares, in Dang 2.1: generation keeps other settings, replaces the Dagger version, refuses what contradicts them, leaves ancestors alone, keeps the cwd, and changes nothing the second time.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("typesLoadCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("types_load_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger functions loads a generated module, so the engine evaluates its rendered types.dang.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("editWithoutGenerateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("edit_without_generate_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A function body edited without dagger generate runs at once and returns the new result; so does a permission-only change.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("missedGenerationCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("missed_generation_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Without dagger generate, a new function is unknown to the CLI, and a changed signature, a missing client, a stripped clients/core or an edited Gemfile show Ruby's or Bundler's own error, then the hint to run dagger generate.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("moduleBuildCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("module_build_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module installs its path gems with its lock, installs a user gem and keeps it installed across an edit to lib/, and with .ruby-version builds and locks on that Ruby.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("namingCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("The SDK's naming rules over a table of names: main class, lib/ file, client directory and constant. cliModuleNameCheck checks main classes against the engine.")
+          function("naming_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("Names over a table of module names: the engine's main class, the SDK's lib/ file, client directory and constant; and the main classes of existing modules, which the engine still takes.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("generatedUpToDateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("engine_naming_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("The engine names a module's Ruby declarations: load_json(base_url:) is load-json --base-url, and a call through the module's own interface selects the engine's names on the implementing object.")
+            .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
+          function("generated_up_to_date_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger generate over every registered scope, the SDK module's Ruby half and this harness included, changes nothing.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("cliSdkCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("cli_sdk_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("With the SDK installed by path from this repository's dagger.toml, dagger sdk list shows ruby, and dagger module init ruby writes a module that runs, with the default and the empty template; both include the scope's client roots, the default one runs core through them, and dagger functions lists no client method.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("cliModuleNameCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("cli_module_name_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Modules named module3, MyModule, HTTPServer, p11lib and s3-bucket initialise, regenerate and run, so the SDK names their main classes as the engine does; as clients, their methods are the engine's constructor fields in snake case.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("settingsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("settings_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger module init ruby --ruby-version writes .ruby-version, and regeneration keeps it.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sdkTestCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sdk_test_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Minitest passes on the library, the SDK module and the generator.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sdkLintCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sdk_lint_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("RuboCop passes on the repository.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sdkTypesCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sdk_types_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Steep passes on the library, the SDK module and the generated core.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("entrypointClientCallCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("entrypoint_client_call_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module on its generated entrypoint calls a local client whose module is on one too, from dagger module init to dagger call; it runs from its own source, which holds none of the caller's files, and a declared Workspace argument reaches them.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("clientCacheCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("client_cache_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("With the same arguments, an unchanged target hits the cache, and a changed local target returns its new value, one hop and two. One line per assertion.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("typesRoundTripCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("types_round_trip_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Every row of the type mapping through dagger call: strings that need quoting, lists, nested lists as arguments, optionals, enums, module objects as arguments, results and state, interfaces, core objects and scalars in and out, void, defaults and ignore.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("errorCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("error_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A function that raises fails the call, and the output names the error; an ExecError from the API keeps its exit code and stderr.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("annotationsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("annotations_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A new module's template is annotated and passes Steep, installed from its lock's development group; a wrong result type fails Steep, and an annotation that disagrees with its def fails generation, naming its file and line.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("functionsListingCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("functions_listing_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger functions shows each function's description, and dagger call --help each argument's type, default and requiredness, as the annotations and defs of the types fixture give them.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("modulesSteepCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("modules_steep_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger check runs the SDK's Steep check on every Ruby module the SDK generated, and names each that fails with Steep's output; dagger call ruby-sdk mod --path checks one; plain scopes, the SDK module and a module without a Steepfile are not checked, a module dagger generate would refuse fails with generation's message even where Steep passes, and a module's own container stays without the development group.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sdkInstalledByGitRefCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sdk_installed_by_git_ref_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The SDK installed by a git ref to this repository's root, served by a git server, generates a module from its own files, and never from files of the workspace at the same paths.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("clientMethodClashCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("client_method_clash_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Generation refuses a field, function, constructor argument or method of a class that includes the client roots with the name of a client method, and a client whose method a keyword or every Ruby object has, naming both.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("collectionsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("collections_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A collection through dagger call and the API: keys, get, list, subset, its delta after a subset and after a change of keys, with marked members and with the engine's member names.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("collectionClientCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("collection_client_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A Ruby module calls a collection module through its generated client: subset, delta, get and list.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("collectionChecksCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("collection_checks_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger check runs a collection's checks: one per item of its item type, and the collection's own check once.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("artifactsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("artifacts_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A function returns core artifacts, which the CLI selects on, and reads them in the module.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesGenerateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_generate_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module that uses a path gem outside its directory returns it from its entrypoint's sources and builds from its context; a module without one keeps its build; generating again changes nothing, and writes nothing outside the module.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesCallCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_call_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A call reads the path gem outside the module; a second session reuses its result, and an edit to the gem gives a new one, through the module and through a caller's client.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesContractCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_contract_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The engine runs the contract every entrypoint declares: the include app and the control module declare sources and get no workspace in types and call, and the engine lists the functions of both.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesScopeCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_scope_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The engine keys a call on what sources returns and nothing else outside the module: a file beside the gem, or an edit in the gem's Bundler directories, leaves the result as it was.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesAloneScopeCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_alone_scope_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module with nothing outside its directory keys a call on its own files only: a file beside it leaves the result as it was, and an edit in its lib/ gives a new one.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesRefusalsCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_refusals_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("Generation refuses a path gem it cannot load with the module, naming the Gemfile's line, and so does the Steep check; a Gemfile that names a gem outside without dagger generate fails the call with the hint to run it.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("sourcesGitCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("sources_git_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A module that uses a path gem outside its directory loads by a git ref, with the gem from the same commit.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("plainProgramCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("plain_program_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A plain Ruby program calls a client under dagger run and with a session it provisions, and leaves no dagger session behind; another calls it through the client roots, from the top level and from a class. It runs in an exec with a session of its own, whose CLI serves dagger run's child.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("gitWorkspaceGenerateCheck", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+          function("git_workspace_generate_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("A workspace opened from a git ref generates what its checkout generates. There a client of a module of the same repository resolves as a git source at the workspace's commit; generation still binds it by path, with the ref's selector and without one.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
@@ -287,7 +293,7 @@ type ModuleTypes {
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
-          function("rootScope", typeDef.withObject("Changeset"))
+          function("root_scope", typeDef.withObject("Changeset"))
             .withDescription("The root's plain scope, which holds the SDK module's own core client: the SDK's generation skips it.")
             .withGenerator
             .withArg("ws", typeDef.withObject("Workspace"))
