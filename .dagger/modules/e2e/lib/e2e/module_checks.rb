@@ -159,6 +159,61 @@ class E2E
     end
   end
 
+  CACHE_FRESH = <<~RUBY.freeze
+    require "dagger"
+    require "securerandom"
+
+    class CacheFresh
+      extend Dagger::Mod::Object
+
+      function "New on every run, cached by default."
+      #: () -> String
+      def cached = SecureRandom.hex(8)
+
+      function "New on every call.", cache: "never"
+      #: () -> String
+      def never = SecureRandom.hex(8)
+
+      function "New in every session.", cache: "session"
+      #: () -> String
+      def session = SecureRandom.hex(8)
+
+      function "Cached for an hour.", cache: "1h"
+      #: () -> String
+      def hourly = SecureRandom.hex(8)
+    end
+  RUBY
+  CACHE_QUERY = "{ cached cachedAgain: cached never neverAgain: never session sessionAgain: session " \
+                "hourly }".freeze
+
+  function "A function's cache policy reaches the engine: never runs on every call; one session cannot tell session, " \
+           "a time to live and the default apart. One line per assertion.", check: true
+  #: (ws: Core::Workspace) -> void
+  def function_cache_check(ws:)
+    path = ".dagger/modules/cache-fresh"
+    ground = playground(fixtures(ws))
+             .with_new_file(path: "#{PLAYGROUND}/#{path}/lib/cache_fresh.rb", contents: CACHE_FRESH)
+             .with_new_file(path: "#{PLAYGROUND}/cache.graphql", contents: CACHE_QUERY)
+    ground = cli(ground, "module", "init", "ruby", "-y", "--name", "cache-fresh", "--path", path)
+    # A nested CLI joins the check's session, and the module's own exec can
+    # answer a repeated call too: only never is observable here. The other
+    # lines show that the engine takes each rendered policy and the function
+    # still answers.
+    first, second = %w[first second].map do |call|
+      queried = cli(ground.with_env_variable(name: "E2E_CALL", value: call), "query", "--doc", "cache.graphql",
+                    "-m", path)
+      JSON.parse(queried.stdout)
+    end
+    lines = {
+      "never-runs-every-call" => first["never"] != first["neverAgain"],
+      "session-reused" => first["session"] == first["sessionAgain"] && first["session"] == second["session"],
+      "default-reused" => first["cached"] == second["cached"],
+      "ttl-reused" => first["hourly"] == second["hourly"]
+    }.map { |name, ok| "functionCacheCheck #{name}: #{ok ? "ok" : "FAIL #{first} then #{second}"}" }
+    lines.each { puts it }
+    check(lines.all? { it.end_with?(": ok") }, lines.join("\n"))
+  end
+
   function "dagger generate over every registered scope, the SDK module's Ruby half and this harness included, " \
            "changes nothing.", check: true
   #: (ws: Core::Workspace) -> void

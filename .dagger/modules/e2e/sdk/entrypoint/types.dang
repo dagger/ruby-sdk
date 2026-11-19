@@ -113,6 +113,12 @@ type ModuleTypes {
             .withArg("ws", typeDef.withObject("Workspace"))
         )
         .withFunction(
+          function("function_cache_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("A function's cache policy reaches the engine: never runs on every call; one session cannot tell session, a time to live and the default apart. One line per assertion.")
+            .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
           function("generated_up_to_date_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("dagger generate over every registered scope, the SDK module's Ruby half and this harness included, changes nothing.")
             .withCheck
