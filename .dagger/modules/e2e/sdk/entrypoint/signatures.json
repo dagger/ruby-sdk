@@ -316,8 +316,18 @@
           ],
           "returns": "void"
         },
+        "function_cache_check": {
+          "line": 192,
+          "params": [
+            {
+              "name": "ws",
+              "type": "Core::Workspace"
+            }
+          ],
+          "returns": "void"
+        },
         "generated_up_to_date_check": {
-          "line": 165,
+          "line": 220,
           "params": [
             {
               "name": "ws",

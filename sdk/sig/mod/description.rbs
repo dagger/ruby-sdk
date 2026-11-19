@@ -35,9 +35,10 @@ module Dagger
         attr_reader generator: bool
         attr_reader up: bool
         attr_reader agent: bool
+        attr_reader cache: String?
         attr_reader args: Array[Argument]
 
-        def self.new: (String, TypeRef, String?, String?, bool, bool, bool, bool, Array[Argument]) -> Function
+        def self.new: (String, TypeRef, String?, String?, bool, bool, bool, bool, String?, Array[Argument]) -> Function
       end
 
       class Field < Data

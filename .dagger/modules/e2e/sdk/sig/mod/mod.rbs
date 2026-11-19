@@ -219,6 +219,7 @@ module Dagger
       ARGUMENT: Regexp
       ROOTS: String
       EXAMPLE: String
+      TIME_TO_LIVE: Regexp
 
       @fields: Hash[described_class, Hash[Symbol, FieldDecl]]
       @functions: Hash[described_class, Hash[Symbol, FunctionDecl]]
@@ -264,6 +265,7 @@ module Dagger
       def check_interface_result: (described_class mod, untyped type) -> void
       def describe_constructor: (described_class klass) -> Description::Function
       def describe_function: (described_class klass, FunctionDecl decl) -> Description::Function
+      def check_cache: (String member, String? cache) -> void
       def function_name: (FunctionDecl decl, String where) -> String
       def describe_arg: (String where, ArgDecl arg) -> Description::Argument
       def default_json: (untyped default, Description::TypeRef type, String context) -> String?

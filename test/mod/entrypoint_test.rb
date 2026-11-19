@@ -60,11 +60,8 @@ class EntrypointTest < Minitest::Test
     assert_includes types, '.withDescription("A \"container\".\n\nBuilt from\\\\a base image.\tTabbed.")'
   end
 
-  def test_the_main_object_alone_has_a_constructor_and_no_function_has_a_cache_policy
-    types = Entrypoint.render_types(describe)
-
-    assert_equal 1, types.scan(".withConstructor(").size
-    refute_includes types, "withCachePolicy"
+  def test_the_main_object_alone_has_a_constructor
+    assert_equal 1, Entrypoint.render_types(describe).scan(".withConstructor(").size
   end
 
   def test_a_nullable_argument_is_optional_once

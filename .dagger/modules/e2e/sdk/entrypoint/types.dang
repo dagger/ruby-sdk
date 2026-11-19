@@ -66,7 +66,7 @@ type ModuleTypes {
         )
         .withFunction(
           function("refusals_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
-            .withDescription("A function with a cache policy and an unknown template are refused before anything is written.")
+            .withDescription("A function with an unsupported cache policy and an unknown template are refused before anything is written.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )
@@ -109,6 +109,12 @@ type ModuleTypes {
         .withFunction(
           function("engine_naming_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
             .withDescription("The engine names a module's Ruby declarations: load_json(base_url:) is load-json --base-url, and a call through the module's own interface selects the engine's names on the implementing object.")
+            .withCheck
+            .withArg("ws", typeDef.withObject("Workspace"))
+        )
+        .withFunction(
+          function("function_cache_check", typeDef.withOptional(true).withKind(TypeDefKind.VOID_KIND))
+            .withDescription("A function's cache policy reaches the engine: never runs on every call; one session cannot tell session, a time to live and the default apart. One line per assertion.")
             .withCheck
             .withArg("ws", typeDef.withObject("Workspace"))
         )

@@ -18,6 +18,7 @@ module Dagger
       def self?.object: (Description::ObjectType type) -> Array[String]
       def self?.collection: (Description::Collection members) -> Array[String]
       def self?.function: (Description::Function definition) -> Array[String]
+      def self?.cache_policy: (String cache) -> String
       def self?.argument: (Description::Argument arg) -> String
       def self?.enum: (Description::Enum type) -> Array[String]
       def self?.type_ref: (Description::TypeRef ref) -> String
