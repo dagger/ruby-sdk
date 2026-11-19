@@ -65,7 +65,7 @@ class RubySdk
 
     def initialize(ws:, is_module:, name:, clients:, sdk:, image:, target_version:, template: nil, ruby_version: "")
       @ws = ws
-      @path = normalize(ws.cwd)
+      @path = Resources.clean(ws.cwd)
       @is_module = is_module
       @name = name
       @clients = clients
@@ -132,8 +132,16 @@ class RubySdk
     end
 
     def self.local_ref(subpath)
-      trimmed = subpath.delete_prefix("./").delete_prefix("/").delete_suffix("/")
-      trimmed.empty? || trimmed == "." ? "/" : "/#{trimmed}"
+      path = Resources.clean(subpath)
+      path == "." ? "/" : "/#{path}"
+    end
+
+    # The clients generation last wrote, which are the scope's members.
+    def self.client_dirs(existing)
+      return [] unless existing.exists(path: "clients")
+
+      existing.directory(path: "clients").entries.map { it.delete_suffix("/") }.reject { %w[core roots].include?(it) }
+              .select { kind(existing, "clients/#{it}") == "client" }.sort
     end
 
     # Generation's refusals, as class methods that read only what they are
@@ -227,6 +235,15 @@ class RubySdk
       ws.directory(path: "/", include:, exclude:, gitignore: true).with_directory(path:, source: scope)
     end
 
+    # What Bundler and the module's container see: the scope alone, or the
+    # context it sits in at a subpath, beside what it uses outside it.
+    def self.layout(ws, path, build, resources)
+      scope = ws.directory(path: local_ref(path), exclude: SKIPPED)
+      return [scope, nil] unless build.context? && resources
+
+      [context(ws, path, scope, resources), path]
+    end
+
     # Bundler reads the Gemfile at generation as at build: the gems it
     # resolves from sdk/ and clients/ must be the members, exactly. With a
     # subpath, scope is its context and the scope sits there.
@@ -258,8 +275,8 @@ class RubySdk
     # dagger-mod entrypoint on the module's annotations as they are now, in
     # its installed container: the registry's every rule. The main object is
     # the class the engine picks by the module's name, at the target's rules.
-    def self.describe(installed, scope, name, target_version, subpath: nil)
-      signatures = "#{subpath ? "/src/#{subpath}" : "/src"}/#{SIGNATURES}"
+    def self.describe(installed, scope, name, target_version, src:)
+      signatures = "#{src}/#{SIGNATURES}"
       annotated = installed.with_new_file(path: signatures, contents: Signatures.json(scope))
       listed = annotated.with_exec(args: OBJECTS, disable_dagger_in_dagger: true, expect: Core::ReturnType::ANY)
       return listed unless listed.exit_code.zero?
@@ -296,23 +313,11 @@ class RubySdk
                    "`dagger module client add`, which pins it, then run dagger generate again"
     end
 
-    def normalize(cwd)
-      trimmed = cwd.delete_prefix("/").delete_suffix("/")
-      trimmed.empty? ? "." : trimmed
-    end
-
-    def root = @path == "." ? "/" : "/#{@path}"
+    def root = self.class.local_ref(@path)
 
     def at(relative) = @path == "." ? "/#{relative}" : "/#{@path}/#{relative}"
 
-    def stale_clients(existing, members)
-      return [] unless existing.exists(path: "clients")
-
-      declared = members.map(&:dir)
-      existing.directory(path: "clients").entries.map { it.delete_suffix("/") }.select do |dir|
-        dir != "core" && !declared.include?(dir) && self.class.kind(existing, "clients/#{dir}") == "client"
-      end
-    end
+    def stale_clients(existing, members) = self.class.client_dirs(existing) - members.map(&:dir)
 
     # A module scope with no manifest yet gets the template's files, each
     # only where the scope has none.
@@ -406,7 +411,7 @@ class RubySdk
     def bundled(existing, target, members)
       lock = @is_module || existing.exists(path: "Gemfile.lock")
       build = build(target, members)
-      source, subpath = layout(target, build)
+      source, subpath = self.class.layout(target, @path, build, @resources)
       checked = self.class.bundler(build, source, lock, members.map(&:dir), subpath:)
       refused = self.class.bundler_refusal(@path, checked)
       raise Error, refused if refused
@@ -420,15 +425,6 @@ class RubySdk
       raise Error, refused if refused
 
       target.with_file(path: at("Gemfile.lock"), source: locked)
-    end
-
-    # What Bundler and the module's container see: the scope alone, or the
-    # context it sits in at a subpath, beside what it uses outside it.
-    def layout(target, build)
-      scope = target.directory(path: root, exclude: SKIPPED)
-      return [scope, nil] unless build.context?
-
-      [self.class.context(target, @path, scope, @resources), @path]
     end
 
     # A scope without a Gemfile gets one; a new module has its template's.
@@ -449,9 +445,9 @@ class RubySdk
     def with_entrypoint(target, members)
       scope = target.directory(path: root, exclude: SKIPPED)
       build = build(target, members)
-      source, subpath = layout(target, build)
+      source, subpath = self.class.layout(target, @path, build, @resources)
       installed = Core::Container.new(build.installed(Core.core.query, source, subpath:))
-      described = self.class.describe(installed, scope, @name, @target_version, subpath:)
+      described = self.class.describe(installed, scope, @name, @target_version, src: build.src(subpath))
       refused = self.class.describe_refusal(@path, described)
       raise Error, refused if refused
 
@@ -462,7 +458,7 @@ class RubySdk
     # What dagger-mod wrote, with the build and, for a module that reads
     # files outside its directory, the main.dang that returns them.
     def rendered(described, build, subpath)
-      signatures = described.file(path: "#{subpath ? "/src/#{subpath}" : "/src"}/#{SIGNATURES}")
+      signatures = described.file(path: "#{build.src(subpath)}/#{SIGNATURES}")
       rendered = described.directory(path: "/dagger/entrypoint")
                           .with_new_file(path: "build.dang", contents: build.to_dang)
                           .with_file(path: ::File.basename(SIGNATURES), source: signatures)

@@ -24,12 +24,12 @@ module Dagger
       def installed: (QueryBuilder root, Type source, ?development: bool, ?subpath: String?) -> QueryBuilder
       def tail: () -> String
       def to_dang: () -> String
+      def src: (String? subpath) -> String
 
       private
 
       def ups: () -> Integer
       def anchored: (String dir) -> String
-      def src: (String? subpath) -> String
       def excludes: (String? subpath) -> Array[String]
       def dang_parts: () -> Hash[Symbol, String]
       def call_install: () -> String

@@ -67,6 +67,8 @@ module Dagger
 
       def to_dang = context? ? format(CONTEXT, **dang_parts) : format(ALONE, **dang_parts)
 
+      def src(subpath) = subpath ? "/src/#{subpath}" : "/src"
+
       # The install opts out of Dagger in Dagger: the engine keys a nested exec
       # of an entrypoint on its module, source included, so an edit to lib/
       # would reinstall the gems.
@@ -150,8 +152,6 @@ module Dagger
         end
         parts.join("/")
       end
-
-      def src(subpath) = subpath ? "/src/#{subpath}" : "/src"
 
       def excludes(subpath) = subpath ? CONTEXT_EXCLUDES : EXCLUDES
 

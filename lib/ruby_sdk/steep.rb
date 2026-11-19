@@ -53,7 +53,7 @@ class RubySdk
     end
 
     def modules
-      @root_ws.find_roots(markers: [Manifest::FILE], exclude: PRUNED).map { self.class.normalize(it) }
+      @root_ws.find_roots(markers: [Manifest::FILE], exclude: PRUNED).map { Resources.clean(it) }
               .select { authored?(it) }.sort
     end
 
@@ -62,7 +62,7 @@ class RubySdk
     def module_at(path)
       found = @ws.find_up(name: Manifest::FILE, from: path) or
         raise Error, "no module at or above #{path}: no #{Manifest::FILE} there or above"
-      root = self.class.normalize(::File.dirname(found))
+      root = Resources.clean(::File.dirname(found))
       return root if authored?(root)
 
       raise Error, "#{root} is a module, but not a Ruby module this SDK generated"
@@ -72,11 +72,6 @@ class RubySdk
       dir = directory(root)
       dir.exists(path: "Gemfile") && Scope.kind(dir, "sdk") == "sdk" &&
         Manifest.entrypoint?(dir.file(path: Manifest::FILE).contents)
-    end
-
-    def self.normalize(path)
-      trimmed = path.delete_prefix("/").delete_prefix("./").delete_suffix("/")
-      trimmed.empty? ? "." : trimmed
     end
 
     def self.failure(failed, count)
@@ -101,15 +96,15 @@ class RubySdk
 
     private
 
-    def directory(root) = @root_ws.directory(path: root == "." ? "/" : "/#{root}")
+    def directory(root) = @root_ws.directory(path: Scope.local_ref(root))
 
     def outcome(root)
       dir = directory(root)
-      client_dirs = client_dirs(dir)
+      client_dirs = Scope.client_dirs(dir)
       name = PerfectTOML.parse(dir.file(path: Manifest::FILE).contents).fetch("name", "").to_s
       resources, resources_refusal = resources_of(root)
       build = Scope.build_for(dir, @image, name, client_dirs, resources:, path: root)
-      source, subpath = build.context? && resources ? [Scope.context(@root_ws, root, dir, resources), root] : [dir, nil]
+      source, subpath = Scope.layout(@root_ws, root, build, resources)
       refusals = [scope_refusal(root, dir, client_dirs), resources_refusal,
                   Scope.bundler_refusal(root, Scope.bundler(build, source, false, client_dirs, subpath:)),
                   lock_refusal(root, dir, resources)].compact
@@ -146,13 +141,14 @@ class RubySdk
     # install is reported as Steep's.
     def checked(root, dir, build, refusals, layout)
       source, subpath = layout
+      src = build.src(subpath)
       installed = Core::Container.new(build.installed(Core.core.query, source, development: true, subpath:))
-      described = Scope.describe(installed, dir, build.module_name, @target_version, subpath:)
+      described = Scope.describe(installed, dir, build.module_name, @target_version, src:)
       refused = Scope.describe_refusal(root, described)
       all = refusals + [refused].compact
       return Outcome.new(root, all, false, 0, "") unless dir.exists(path: "Steepfile")
 
-      steeped = refused ? installed : with_module_rbs(installed, described, subpath)
+      steeped = refused ? installed : with_module_rbs(installed, described, src)
       ran = steeped.with_exec(args: COMMAND, expect: Core::ReturnType::ANY)
       Outcome.new(root, all, true, ran.exit_code, ran.combined_output)
     rescue ::Dagger::ExecError => e
@@ -160,17 +156,9 @@ class RubySdk
       Outcome.new(root, refusals, true, e.exit_code || 1, failed)
     end
 
-    def with_module_rbs(installed, described, subpath)
+    def with_module_rbs(installed, described, src)
       rbs = described.file(path: "/dagger/entrypoint/module.rbs")
-      installed.with_file(path: "#{subpath ? "/src/#{subpath}" : "/src"}/sdk/entrypoint/module.rbs", source: rbs)
-    end
-
-    # The clients generation last wrote, which are the scope's members.
-    def client_dirs(dir)
-      return [] unless dir.exists(path: "clients")
-
-      dir.directory(path: "clients").entries.map { it.delete_suffix("/") }.reject { %w[core roots].include?(it) }
-         .select { Scope.kind(dir, "clients/#{it}") == "client" }.sort
+      installed.with_file(path: "#{src}/sdk/entrypoint/module.rbs", source: rbs)
     end
   end
 end
