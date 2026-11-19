@@ -29,7 +29,7 @@ class E2E
 
   def app_config = "/#{APP}/sdk/entrypoint/dang.toml"
 
-  # By its settings: TOML.encode chooses the layout, which indents nested tables.
+  # By its settings: sdk-helpers chooses the layout.
   def check_versioned(toml, version, what)
     check_includes(toml, %(dang = "2.1"\n), "#{what} is not on Dang 2.1")
     check_includes(toml, "[imports.Dagger]", "#{what} has no Dagger import")

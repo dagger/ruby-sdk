@@ -28,8 +28,8 @@ include = [
 [runtime]
 source = "dang"
 
-# sdk-helpers v1.0.8, by commit: a version query or a tag records its lookups in
+# sdk-helpers v1.0.12, by commit: a version query or a tag records its lookups in
 # the dagger.lock of whatever workspace loads this module.
 [[dependencies]]
 name = "sdk-helpers"
-source = "github.com/dagger/sdk-helpers@31dafd0c74d9a08faa00c09dce87a5af072e7a9d"
+source = "github.com/dagger/sdk-helpers@69e2b90a3dce437cb07f5ee19ad901bf83fff097"
