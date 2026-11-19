@@ -52,6 +52,13 @@ module Dagger
 
       def fields(klass) = @fields.fetch(klass)
 
+      def field_args(klass)
+        fields(klass).values.map do |field|
+          ArgDecl.new(field.name, field.type, nil, field.default, !field.default.equal?(UNSET), nil, field.ignore,
+                      field.doc, field.deprecated)
+        end
+      end
+
       def functions(klass) = @functions.fetch(klass)
 
       def constructor(klass) = @constructors.fetch(klass)
@@ -257,12 +264,8 @@ module Dagger
         declared = constructor(klass)
         return describe_function(klass, declared) if declared
 
-        args = fields(klass).values.map do |field|
-          ArgDecl.new(field.name, field.type, nil, field.default, !field.default.equal?(UNSET), nil, field.ignore,
-                      field.doc, field.deprecated)
-        end
         Description::Function.new("", object_ref(klass), nil, nil, false, false, false, false, nil,
-                                  args.map { describe_arg(type_name(klass), it) })
+                                  field_args(klass).map { describe_arg(type_name(klass), it) })
       end
 
       def describe_function(klass, decl)

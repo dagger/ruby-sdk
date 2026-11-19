@@ -48,9 +48,11 @@ class RubySdk
       end
       missing = expected.sort - gems
       extra = gems - expected.sort
-      unless missing.empty? && extra.empty?
-        abort "the Gemfile does not resolve the SDK's gems as generated: " \
-              "#{["missing #{missing.join(", ")}", "unexpected #{extra.join(", ")}"].reject { it.end_with?(" ") }.join("; ")}. " \
+      problems = []
+      problems << "missing #{missing.join(", ")}" unless missing.empty?
+      problems << "unexpected #{extra.join(", ")}" unless extra.empty?
+      unless problems.empty?
+        abort "the Gemfile does not resolve the SDK's gems as generated: #{problems.join("; ")}. " \
               "Keep #{line} in the Gemfile and remove other gems named dagger-sdk or dagger-clients-*"
       end
       exit unless lock == "true"

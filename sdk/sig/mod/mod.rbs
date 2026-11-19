@@ -238,6 +238,7 @@ module Dagger
       def type_name: (::Module klass) -> String
       def annotate: (Signatures signatures) -> void
       def fields: (described_class klass) -> Hash[Symbol, FieldDecl]
+      def field_args: (described_class klass) -> Array[ArgDecl]
       def functions: (described_class klass) -> Hash[Symbol, FunctionDecl]
       def constructor: (described_class klass) -> FunctionDecl?
       def describe: (String? main_object) -> Description::Module
@@ -387,7 +388,6 @@ module Dagger
       def construct: (described_class klass, Hash[String, untyped] args) -> untyped
       def invoke: (described_class klass, Hash[String, untyped] state, String name, Hash[String, untyped] args) -> untyped
       def arguments: (Array[ArgDecl] decls, Hash[String, untyped] args, String where) -> Hash[Symbol, untyped]
-      def field_arguments: (described_class klass, Hash[String, untyped] args, String where) -> Hash[Symbol, untyped]
       def user_code: [T] () { () -> T } -> T
     end
 
