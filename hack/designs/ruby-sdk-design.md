@@ -145,6 +145,12 @@ sequenceDiagram
 
 - The request carries `callDigest`, which keys the exec on the call's whole
   identity, its declared clients included (dagger/dagger#14491).
+- A function's `cache:` renders `withCachePolicy` in `types.dang`. The engine
+  changes `callDigest` on every call of a `never` function, once per session
+  of a `session` function, and on every evaluation of a function with a time
+  to live (dagger/dagger `core/sdk/dang/v2/entrypoint.go`, the same at
+  v1.0.0-beta.26 and v1.0.0-beta.27). The exec of a call therefore runs again
+  whenever the engine evaluates the function again.
 - It carries the module's own source by ID, which `Dagger::Mod.module_source`
   gives module code.
 - The gems install from `Gemfile`, `Gemfile.lock`, `dagger.gemfile` and the

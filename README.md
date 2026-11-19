@@ -242,9 +242,15 @@ end
 - `field :name, default:, ignore:, private:, doc:, deprecated: #: Type`
   declares state; its type is the `#:` comment that ends its line. On the main
   class without `constructor`, the fields are the constructor's arguments.
-- `function "doc", name:, check:, generator:, start:, agent:, deprecated:`
+- `function "doc", name:, check:, generator:, start:, agent:, deprecated:, cache:`
   declares the next instance method. `constructor` declares `def self.create`
   on the main class, annotated like a function, returning the class.
+- `cache:` sets how the engine reuses a function's result. `"never"` runs
+  every call. `"session"` reuses a result within one session. A time to live
+  from `"1s"` to `"168h"`, in hours, minutes and seconds such as `"5m"` or
+  `"1h30m"`, reuses a result across sessions for that long. Without `cache:`,
+  the engine reuses a result across sessions for up to a week. Generation
+  refuses any other value.
 - A function's annotation is its method type, keywords only, one signature:
   `#: (name: String, ?mood: Mood) -> String`. It comes after `function` and
   `arg`, right above the `def`. A `?` keyword has its default in the `def`.
@@ -563,7 +569,6 @@ A function that raises fails its call. A calling module receives an
 
 ## What the generated entrypoint cannot do
 
-- Cache policies: `function cache:` is refused at generation.
 - Structured errors: a caller sees the failed call and its stderr.
 - An interface function returning a module object: return an interface instead.
 
