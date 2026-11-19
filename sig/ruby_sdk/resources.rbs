@@ -8,8 +8,6 @@ class RubySdk
       def self.new: (String, bool, String) -> Found
     end
 
-    EXCLUDED: Array[String]
-
     @read: ^(String) -> String?
     @depth: Integer
     @found: Array[Found]?

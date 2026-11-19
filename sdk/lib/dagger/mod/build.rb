@@ -69,6 +69,8 @@ module Dagger
 
       def src(subpath) = subpath ? "/src/#{subpath}" : "/src"
 
+      def self.dang_strings(values) = JSON.generate(values).gsub(",", ", ")
+
       # The install opts out of Dagger in Dagger: the engine keys a nested exec
       # of an entrypoint on its module, source included, so an edit to lib/
       # would reinstall the gems.
@@ -159,7 +161,7 @@ module Dagger
         { header: HEADER, files: dang_list(DEPENDENCY_FILES + gemspecs), outside: dang_outside, layer: dang_layer,
           tail: tail.dump, image: image.dump, env: dang_env,
           cache_path: CACHE_PATH.dump, cache_volume: CACHE_VOLUME.dump, install: JSON.generate(call_install),
-          excludes: dang_strings(EXCLUDES), context_excludes: dang_strings(CONTEXT_EXCLUDES) }
+          excludes: Build.dang_strings(EXCLUDES), context_excludes: Build.dang_strings(CONTEXT_EXCLUDES) }
       end
 
       # At call time a failed install most likely follows a Gemfile, lock or
@@ -170,8 +172,6 @@ module Dagger
       # file of it would key the install on any edit to the module. A missing
       # file is left out, for Bundler to name what is missing.
       def dang_list(names) = names.map { "      #{it.dump},\n" }.join
-
-      def dang_strings(values) = JSON.generate(values).gsub(",", ", ")
 
       # The directory the dependencies end up in, the last that adds to it.
       def dang_layer
@@ -186,7 +186,7 @@ module Dagger
       # whole context, exact, arrives after the install. Each reduce only when
       # it has something to add.
       def dang_outside
-        gem = %(source.directory(anchor + path).filter(exclude: #{dang_strings(EXCLUDES)}))
+        gem = %(source.directory(anchor + path).filter(exclude: #{Build.dang_strings(EXCLUDES)}))
         gems = "    let gems = [\n#{dang_list(outside.map { anchored(it) })}    ]" \
                ".reduce(dependencies) { files, path =>\n      " \
                "#{gem}.glob(\"**\")\n        .filter { file => file.hasSuffix(\"/\") == false }\n        " \

@@ -6,7 +6,6 @@ class RubySdk
     Core: singleton(Dagger::Clients::Core)
     MARKER: String
     EVAL_LINE: String
-    SKIPPED: Array[String]
     SDK_FILES: Array[String]
     GEMFILE: String
     SIGNATURES: String
