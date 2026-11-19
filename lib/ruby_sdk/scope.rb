@@ -98,8 +98,10 @@ class RubySdk
     def client_members
       members = @clients.map do |client|
         name = client.module_name
-        next Member.new(name, Codegen::Naming.client_file(name), local_ref(client.source_root_subpath), nil, client) \
-          if client.kind != Core::ModuleSourceKind::GIT_SOURCE || GitWorkspace.includes?(@ws, client)
+        if client.kind != Core::ModuleSourceKind::GIT_SOURCE || GitWorkspace.includes?(@ws, client)
+          next Member.new(name, Codegen::Naming.client_file(name), self.class.local_ref(client.source_root_subpath),
+                          nil, client)
+        end
 
         Member.new(name, Codegen::Naming.client_file(name), client.as_string, git_pin(client), client)
       end
@@ -284,8 +286,6 @@ class RubySdk
 
     private
 
-    def local_ref(subpath) = self.class.local_ref(subpath)
-
     # A git client loads the commit its ref resolved to when it was declared,
     # never whatever the ref names at load time.
     def git_pin(client)
@@ -401,9 +401,8 @@ class RubySdk
              .directory(path: "/out")
     end
 
-    # Bundler reads the Gemfile at generation as at build: the gems it
-    # resolves from sdk/ and clients/ must be the members, exactly. A module
-    # always has a lock, written by the Bundler of the image that builds it.
+    # A module always has a lock, written by the Bundler of the image that
+    # builds it.
     def bundled(existing, target, members)
       lock = @is_module || existing.exists(path: "Gemfile.lock")
       build = build(target, members)

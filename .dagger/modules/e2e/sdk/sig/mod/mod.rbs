@@ -394,9 +394,8 @@ module Dagger
     module CLI
       USAGE: String
 
-      def self?.run: (Array[String] argv, ?input: IO, ?out: IO) -> void
+      def self?.run: (Array[String] argv, ?input: IO) -> void
       def self?.parse: (Array[String] args) -> Hash[Symbol, String]
-      def self?.describe: (Hash[Symbol, String] options) -> Description::Module
       def self?.entrypoint: (Hash[Symbol, String] options) -> void
       def self?.objects: (Hash[Symbol, String] options) -> void
       def self?.call: (Hash[Symbol, String] options, IO input) -> void

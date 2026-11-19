@@ -22,7 +22,6 @@ module Dagger
       def context?: () -> bool
       def env: (?frozen: bool, ?development: bool, ?subpath: String?) -> Hash[String, String]
       def installed: (QueryBuilder root, Type source, ?development: bool, ?subpath: String?) -> QueryBuilder
-      def lock: (QueryBuilder root, Type source, ?files: Array[String], ?subpath: String?) -> QueryBuilder
       def tail: () -> String
       def to_dang: () -> String
 
@@ -41,7 +40,7 @@ module Dagger
       def user_cache: (bool development) -> String
       def dang_env: () -> String
       def base: (QueryBuilder root, Hash[String, String] variables, String? subpath) -> QueryBuilder
-      def dependencies: (QueryBuilder root, Type source, ?files: Array[String], ?subpath: String?) -> QueryBuilder
+      def dependencies: (QueryBuilder root, Type source, ?subpath: String?) -> QueryBuilder
     end
   end
 end

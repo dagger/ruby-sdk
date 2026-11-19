@@ -68,7 +68,6 @@ class RubySdk
 
     private
 
-    def local_ref: (String subpath) -> String
     def git_pin: (Dagger::Clients::Core::ModuleSource client) -> String
     def normalize: (String cwd) -> String
     def root: () -> String

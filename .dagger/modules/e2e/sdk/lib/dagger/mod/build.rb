@@ -1,8 +1,8 @@
 module Dagger
   module Mod
     # A module's container, described once: generation builds it through the
-    # API to lock and to describe the module, and renders the same steps to
-    # the build.dang its entrypoint runs.
+    # API to describe the module, and renders the same steps to the
+    # build.dang its entrypoint runs.
     #
     # A module that uses path gems outside its directory builds from its
     # context directory, where it sits at a subpath beside them: /src is the
@@ -58,13 +58,6 @@ module Dagger
                                                         .select("withExec", args: %w[bundle install])
                                                         .select("withDirectory", path: "/src", source:,
                                                                                  exclude: excludes(subpath))
-      end
-
-      def lock(root, source, files: DEPENDENCY_FILES, subpath: nil)
-        dependencies = Type.new(dependencies(root, source, files:, subpath:))
-        base(root, env(frozen: false, subpath:), subpath).select("withDirectory", path: "/src", source: dependencies)
-                                                         .select("withExec", args: %w[bundle lock])
-                                                         .select("file", path: "#{src(subpath)}/Gemfile.lock")
       end
 
       # The module's directory below the one that holds it and its path gems
@@ -229,8 +222,8 @@ module Dagger
         container.select("withMountedCache", path: CACHE_PATH, cache:).select("withWorkdir", path: src(subpath))
       end
 
-      def dependencies(root, source, files: DEPENDENCY_FILES, subpath: nil)
-        query = (files + gemspecs).reduce(root.select("directory")) do |selected, name|
+      def dependencies(root, source, subpath: nil)
+        query = (DEPENDENCY_FILES + gemspecs).reduce(root.select("directory")) do |selected, name|
           path = subpath ? "#{subpath}/#{name}" : name
           selected.select("withFile", path:, source: Type.new(source.query.select("file", path:)))
         end
