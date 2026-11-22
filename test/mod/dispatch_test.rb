@@ -229,6 +229,23 @@ class DispatchTest < Minitest::Test
     end
   end
 
+  # A module file that doesn't parse shows Ruby's own error, without the
+  # hint, and reports its first line, which names the file and the line.
+  def test_a_module_that_does_not_parse_reports_ruby_syntax_error
+    Dir.mktmpdir do |dir|
+      write_module(dir)
+      File.write(File.join(dir, "main.rb"), "this is not ruby)\n", mode: "a")
+      report = File.join(dir, "error.json")
+      out, status = run_cli(dir, "greet", "{}", env: { Dagger::Mod::ErrorReport::PATH_ENV => report })
+      message = JSON.parse(File.read(report))["message"]
+
+      assert_equal 1, status.exitstatus
+      assert_match(/\A\S+main\.rb:\d+: syntax errors found\z/, message)
+      assert out.start_with?("#{message} (SyntaxError)\n"), out
+      refute_includes out, "dagger generate"
+    end
+  end
+
   def test_a_call_without_signatures_asks_for_dagger_generate
     Dir.mktmpdir do |dir|
       write_module(dir)

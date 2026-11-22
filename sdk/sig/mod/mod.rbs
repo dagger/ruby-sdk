@@ -394,6 +394,10 @@ module Dagger
       SHORTENED_LENGTH: Integer
       MARKER_LIMIT: Integer
       ORIGIN: Regexp
+      RAW: Array[Encoding]
+      TRACE_HEAD: Integer
+      TRACE_TAIL: Integer
+      TRACE_MAX: Integer
 
       @framework: Array[String]
       @cwd: String
@@ -423,7 +427,8 @@ module Dagger
       def write_marker: (Exception error) -> void
       def sdk_error?: (Exception error) -> bool
       def describe: (Exception error) -> String
-      def detailed_message: (Exception error) -> String
+      def from_lines: (Exception error, Array[String] frames) -> String
+      def detailed_message: (Exception error, raised_here: bool) -> String
       def module_frames: (Exception error) -> Array[String]
       def module_file?: (String? path) -> bool
       def without_origins: (String text) -> String

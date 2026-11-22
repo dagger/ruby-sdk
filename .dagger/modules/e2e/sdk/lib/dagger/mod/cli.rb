@@ -58,9 +58,10 @@ module Dagger
 
       # Runs the call, and reports the error it fails with (ErrorReport),
       # followed by the hint to run dagger generate after one that most
-      # likely follows an edit made without it. Returns the exit status: 1
-      # when the module doesn't load, 2 for any other error. An exit of the
-      # function's own, or a signal, ends the process as it would.
+      # likely follows an edit made without it, such as a file or a constant
+      # the module no longer finds as it loads. Returns the exit status: 1
+      # when the module's code doesn't load, 2 for any other error. An exit of
+      # the function's own, or a signal, ends the process as it would.
       def call(argv, input: $stdin, report: ErrorReport.for_module)
         loaded = false
         options = parse(argv)
@@ -75,10 +76,10 @@ module Dagger
       rescue SystemExit, SignalException
         raise
       rescue Exception => e # rubocop:disable Lint/RescueException
-        unloaded = !loaded && (e.is_a?(LoadError) || e.is_a?(NameError))
-        stale = unloaded || STALE.any? { e.is_a?(it) }
+        unloadable = !loaded && (e.is_a?(ScriptError) || e.is_a?(NameError))
+        stale = (unloadable && !e.is_a?(SyntaxError)) || STALE.any? { e.is_a?(it) }
         report.report(e, hint: stale ? "dagger-mod: #{REGENERATE_HINT}" : nil)
-        unloaded ? 1 : 2
+        unloadable ? 1 : 2
       end
 
       def parse_request(text)

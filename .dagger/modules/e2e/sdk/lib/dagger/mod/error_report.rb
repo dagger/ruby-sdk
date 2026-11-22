@@ -37,6 +37,15 @@ module Dagger
       # reports it from.
       ORIGIN = /\s*\[traceparent:[0-9a-f]{32}-[0-9a-f]{16}\]/
 
+      # The encodings whose bytes are read as UTF-8.
+      RAW = [Encoding::UTF_8, Encoding::BINARY].freeze
+
+      # How Ruby shortens the trace of a stack overflow: the first frames, the
+      # count of those it leaves out, the last frames (error.c, print_backtrace).
+      TRACE_HEAD = 8
+      TRACE_TAIL = 5
+      TRACE_MAX = TRACE_HEAD + TRACE_TAIL + 5
+
       # The report for the module the process runs, whose code is everything
       # but the SDK, the clients generation writes, the installed gems (Gem.path
       # holds Bundler's path once bundler/setup ran) and Ruby's own library. A
@@ -115,7 +124,7 @@ module Dagger
       def shows_trace?(error)
         return false if error.is_a?(Mod::Error)
 
-        !(error.is_a?(::Dagger::QueryError) && ORIGIN.match?(error.message))
+        !(error.is_a?(::Dagger::QueryError) && ORIGIN.match?(self.class.utf8(error.message)))
       end
 
       # The error's message, or its class when it has none: the engine takes
@@ -123,7 +132,7 @@ module Dagger
       # is the file's annotated source, which the function's logs show; its
       # first line names the file and the line.
       def self.message_of(error)
-        message = error.message
+        message = utf8(error.message)
         message = message.lines.first.to_s.chomp if error.is_a?(SyntaxError)
         message.strip.empty? ? error.class.name.to_s : message
       end
@@ -167,9 +176,14 @@ module Dagger
         end
       end
 
+      # The value with each string in UTF-8, what can't be read replaced: a
+      # message may hold any bytes, such as a command's output.
       def self.utf8(value)
         case value
-        when String then value.dup.force_encoding(Encoding::UTF_8).scrub
+        when String
+          return value.encode(Encoding::UTF_8, invalid: :replace, undef: :replace) unless RAW.include?(value.encoding)
+
+          value.dup.force_encoding(Encoding::UTF_8).scrub
         when Hash then value.to_h { |key, item| [utf8(key.to_s), utf8(item)] }
         when Array then value.map { utf8(it) }
         else value
@@ -207,21 +221,35 @@ module Dagger
       def sdk_error?(error) = error.is_a?(Mod::Error) || error.is_a?(::Dagger::QueryError)
 
       # One error of the chain, as Ruby's full_message gives it: the first
-      # frame, the message and its class, then a line for each other frame.
+      # frame, the message and its class, then a line for each other frame,
+      # those of a stack overflow shortened as Ruby shortens them.
       def describe(error)
         frames = module_frames(error)
-        text = without_origins(detailed_message(error)).rstrip
-        text = "#{frames.first}: #{text}" unless frames.empty?
-        "#{text}\n#{frames.drop(1).map { "\tfrom #{it}\n" }.join}"
+        text = without_origins(detailed_message(error, raised_here: frames.first == error.backtrace&.first)).rstrip
+        return "#{text}\n" if frames.empty?
+
+        "#{frames.first}: #{text}\n#{from_lines(error, frames)}"
       end
 
-      # Ruby's message and class. SyntaxError's is its own: syntax_suggest's
+      def from_lines(error, frames)
+        lines = frames.drop(1).map { "\tfrom #{it}\n" }
+        return lines.join unless error.is_a?(SystemStackError) && frames.size > TRACE_MAX
+
+        skipped = frames.size - TRACE_MAX + 1
+        [*lines.first(TRACE_HEAD), "\t ... #{skipped} levels...\n", *lines.drop(TRACE_HEAD + skipped)].join
+      end
+
+      # Ruby's message and class. error_highlight's snippet is of the frame
+      # that raised, so it goes when that frame is not the module's, which
+      # heads the trace instead. SyntaxError's is its own: syntax_suggest's
       # guess at the unmatched code reads the file again, and it points at a
       # module's first lines as often as at what doesn't parse.
-      def detailed_message(error)
-        return error.detailed_message(highlight: false) unless error.is_a?(SyntaxError)
-
-        Exception.instance_method(:detailed_message).bind_call(error, highlight: false)
+      def detailed_message(error, raised_here:)
+        if error.is_a?(SyntaxError)
+          Exception.instance_method(:detailed_message).bind_call(error, highlight: false)
+        else
+          error.detailed_message(highlight: false, error_highlight: raised_here)
+        end
       end
 
       # A frame's path is its location's, when the frame is still the one
@@ -244,7 +272,7 @@ module Dagger
         @framework.none? { full.start_with?(it) }
       end
 
-      def without_origins(text) = text.gsub(ORIGIN, "")
+      def without_origins(text) = self.class.utf8(text).gsub(ORIGIN, "")
     end
   end
 end

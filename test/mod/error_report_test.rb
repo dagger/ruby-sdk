@@ -121,9 +121,48 @@ class ErrorReportTest < Minitest::Test
   end
 
   def test_invalid_utf8_is_reported
-    file, = report_to_file(raised(RuntimeError.new("bad \xff byte".b), "/src/lib/main.rb:3:in 'Main#fail'"))
+    ["bad \xff byte".b, "bad \xff byte".dup.force_encoding(Encoding::UTF_8)].each do |message|
+      error = raised(RuntimeError.new(message), "/src/lib/main.rb:3:in 'Main#fail'")
+      file, logs = report_to_file(error)
 
-    assert_equal "bad \uFFFD byte", JSON.parse(file)["message"]
+      assert_equal "bad \uFFFD byte", JSON.parse(file)["message"]
+      assert_includes logs, "bad \uFFFD byte (RuntimeError)"
+      assert_includes report(error, path: nil), %(::dagger-function-error::"bad \uFFFD byte")
+    end
+  end
+
+  # Ruby prints the first frames of a stack overflow, how many it leaves
+  # out, and the last.
+  def test_a_stack_overflow_is_shortened_as_ruby_shortens_it
+    frames = (1..30).map { "/src/lib/main.rb:#{it}:in 'Main#deep'" }
+    _, logs = report_to_file(raised(SystemStackError.new("stack level too deep"), *frames))
+    lines = logs.lines(chomp: true)
+
+    assert_equal "/src/lib/main.rb:1:in 'Main#deep': stack level too deep (SystemStackError)", lines.first
+    assert_equal (2..9).map { "\tfrom /src/lib/main.rb:#{it}:in 'Main#deep'" }, lines[1..8]
+    assert_equal "\t ... 13 levels...", lines[9]
+    assert_equal (23..30).map { "\tfrom /src/lib/main.rb:#{it}:in 'Main#deep'" }, lines[10..]
+  end
+
+  # error_highlight points at the code of the frame that raised: not the
+  # module's, which heads the trace, when a gem raised.
+  def test_an_error_raised_in_a_gem_has_no_snippet_of_the_gems_code
+    Dir.mktmpdir do |gems|
+      File.write(File.join(gems, "shout.rb"), "module Shout\n  def self.up(value) = value.upcase\nend\n")
+      load File.join(gems, "shout.rb")
+      error = begin
+        Shout.up(nil)
+      rescue NoMethodError => e
+        e
+      end
+      stderr = StringIO.new
+      Dagger::Mod::ErrorReport.new(framework: ["#{gems}/"], cwd: "/", path: File.join(gems, "error.json"), stderr:)
+                              .report(error)
+
+      assert_match(/\A\S+error_report_test\.rb:\d+:in .*: undefined method 'upcase' for nil \(NoMethodError\)\n\tfrom /,
+                   stderr.string)
+      refute_includes stderr.string, "^^^"
+    end
   end
 
   def test_the_framework_is_the_sdk_the_clients_the_gems_and_ruby

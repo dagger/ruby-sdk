@@ -176,8 +176,9 @@ sequenceDiagram
 
 `dagger-mod call` lets what the module's code raises propagate as it is, and
 reports it (`Dagger::Mod::ErrorReport`), then exits 2, so its exec is not
-cached; 1 when the module does not load. An `exit` of the function's own ends
-the process with its status, and reports nothing.
+cached; 1 when the module's code does not load (a `ScriptError` or a
+`NameError` as it loads). An `exit` of the function's own ends the process
+with its status, and reports nothing.
 
 - On an engine that sets `DAGGER_FUNCTION_ERROR_PATH`, the report goes to that
   file: `{"message", "values"}`, the message whole, its `[traceparent:…]`
