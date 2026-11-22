@@ -80,7 +80,8 @@ class EntrypointTest < Minitest::Test
     [Entrypoint.render_main("main", client_version: "v9"),
      Entrypoint.render_main("main", client_version: "v9", outside: ["../shared"])].each do |main|
       assert_includes main, %(  let clientVersion: String! = "v9"\n)
-      assert_match(/\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n\s*\.withExec\(\["ruby"/, main)
+      version = /\.withEnvVariable\("DAGGER_CLIENT_VERSION", clientVersion\)\n/
+      assert_match(/#{version}(?:\s*(?:#|\.withEnvVariable).*\n)*\s*\.withExec\(\["ruby"/, main)
     end
   end
 
@@ -90,12 +91,37 @@ class EntrypointTest < Minitest::Test
     assert_includes error.message, "--client-version"
   end
 
-  def test_the_call_declares_the_call_digest_and_sends_it
+  # The digest keys the exec on the call, and marks it, and no other exec,
+  # as the module process: the install before it is the module's build.
+  def test_the_call_declares_the_call_digest_and_marks_its_exec_with_it
     main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
+    install = main.index("let installed = runtime.sync")
+    marked = main.index('.withEnvVariable("DAGGER_MODULE_CALL_DIGEST", callDigest ?? "")')
+    exec = main.index('.withExec(["ruby", "-rbundler/setup", "sdk/exe/dagger-mod", "call", "--output", ' \
+                      '"/dagger/result.json"], stdin: request)')
 
     assert_includes main, "    callDigest: String,\n  ): JSON! {"
-    assert_includes main, "      callDigest: callDigest,\n"
-    assert_includes main, '.withExec(["ruby", "-rbundler/setup", "sdk/exe/dagger-mod", "call", "--output", ' \
-                          '"/dagger/result.json"], stdin: request)'
+    assert_equal 1, main.scan("DAGGER_MODULE_CALL_DIGEST").size
+    assert_operator install, :<, marked
+    assert_operator marked, :<, exec
+  end
+
+  # The engine builds prebuild ahead of a call, as the module's build: the
+  # module's container, its gems installed.
+  def test_the_entrypoint_declares_the_install_as_its_prebuild
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
+
+    assert_includes main, "  pub prebuild: File! {\n    runtime.file(\"Gemfile.lock\")\n  }\n"
+  end
+
+  # The exec's error is raised as it is when the engine read the function's
+  # error from its file; otherwise the dispatcher's last marker line has it.
+  def test_the_call_raises_the_function_error
+    main = Entrypoint.render_main("main", client_version: CLIENT_VERSION)
+
+    assert_includes main, ".contents rescue {\n        err: GraphQLError => raiseFunctionError(err)\n      }"
+    assert_includes main, "functionError: {{message: String, id: String}}"
+    assert_includes main, %(let marker = "#{Dagger::Mod::ErrorReport::MARKER}")
+    assert_includes main, 'stderr.split("\n")'
   end
 end

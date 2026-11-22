@@ -45,3 +45,9 @@ The first release. It requires Dagger v1.0.0-beta.26 or later.
   `P11lib`. A class already named after the module by other rules keeps
   working: the engine takes `HttpServer` for `http-server` and `P11Lib` for
   `p11lib`.
+- A failed function fails its call with its own error: in the engine's
+  function error file (`DAGGER_FUNCTION_ERROR_PATH`) where the engine gives
+  one, with the values of the API error it was raised from, and a short trace
+  of the module's own frames in its logs; on an older engine, with its message.
+  The entrypoint marks its function's exec with `DAGGER_MODULE_CALL_DIGEST`,
+  and declares the gems' install as its `prebuild`.

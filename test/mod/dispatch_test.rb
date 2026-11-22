@@ -64,6 +64,10 @@ class DispatchTest < Minitest::Test
       def fail = raise(ArgumentError, "boom")
 
       function
+      #: () -> void
+      def quit = exit(3)
+
+      function
       #: () -> String
       def wrong = 42
     end
@@ -160,7 +164,7 @@ class DispatchTest < Minitest::Test
   end
 
   def test_errors
-    assert_raises(Dagger::Mod::FunctionError) { dispatch("fail", receiver: state) }
+    assert_raises(ArgumentError) { dispatch("fail", receiver: state) }
     assert_raises(Dagger::Mod::InvalidResultError) { dispatch("wrong", receiver: state) }
     assert_raises(Dagger::Mod::InvalidInputError) { dispatch("greet", receiver: state, mood: "SAD") }
     assert_raises(Dagger::Mod::InvalidInputError) { dispatch("nope", receiver: state) }
@@ -175,8 +179,39 @@ class DispatchTest < Minitest::Test
 
       assert_equal [0, '"hi, cli (happy)"'], [ok_status.exitstatus, File.read(File.join(dir, "ok.json"))], ok
       assert_equal 2, failed_status.exitstatus
-      assert_match(/FunctionError: .*boom/, failed)
+      assert_match(/main\.rb:\d+:in 'Main#fail': boom \(ArgumentError\)\n/, failed)
+      assert_includes failed, "dagger/mod/cli.rb"
+      assert failed.end_with?(%(::dagger-function-error::"boom"\n)), failed
       refute_path_exists File.join(dir, "fail.json")
+    end
+  end
+
+  # An engine that names a file for the function's error reads it there, and
+  # the function's logs get the module's own frames only.
+  def test_the_cli_reports_a_failed_call_in_the_engines_file
+    Dir.mktmpdir do |dir|
+      write_module(dir)
+      report = File.join(dir, "error.json")
+      failed, failed_status = run_cli(dir, "fail", "{}", env: { Dagger::Mod::ErrorReport::PATH_ENV => report })
+
+      assert_equal 2, failed_status.exitstatus
+      assert_equal({ "message" => "boom", "values" => {} }, JSON.parse(File.read(report)))
+      # Ruby's error_highlight may point at the call that raised.
+      assert_match(/\A\S*main\.rb:\d+:in 'Main#fail': boom \(ArgumentError\)\n/, failed)
+      refute_match(/dispatch\.rb|cli\.rb|dagger-mod|from /, failed)
+    end
+  end
+
+  # An exit of the function's own ends the process with its status, and
+  # reports nothing: the engine fails the call with the exec's error.
+  def test_a_function_that_exits_keeps_its_status
+    Dir.mktmpdir do |dir|
+      write_module(dir)
+      report = File.join(dir, "error.json")
+      out, status = run_cli(dir, "quit", "{}", env: { Dagger::Mod::ErrorReport::PATH_ENV => report })
+
+      assert_equal [3, ""], [status.exitstatus, out]
+      refute_path_exists report
     end
   end
 
@@ -236,12 +271,12 @@ class DispatchTest < Minitest::Test
                JSON.generate(RubySdk::Signatures.parse("main.rb" => source)))
   end
 
-  def run_cli(dir, fn_name, args)
+  def run_cli(dir, fn_name, args, env: {})
     request = JSON.generate("receiverType" => "Main", "receiverValue" => JSON.generate(state), "fnName" => fn_name,
                             "fnArgs" => args)
     output = File.join(dir, fn_name == "fail" ? "fail.json" : "ok.json")
     sdk = File.expand_path("../../sdk", __dir__)
-    Open3.capture2e({ "DAGGER_MODULE" => "main", "DAGGER_MODULE_FILE" => "main.rb" },
+    Open3.capture2e({ "DAGGER_MODULE" => "main", "DAGGER_MODULE_FILE" => "main.rb", **env },
                     "ruby", "-I", "#{sdk}/lib", "#{sdk}/exe/dagger-mod", "call", "--output", output,
                     stdin_data: request, chdir: dir)
   end

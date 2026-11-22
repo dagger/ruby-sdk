@@ -11,13 +11,20 @@ module Dagger
       USAGE = "usage: dagger-mod call|entrypoint|objects [--name <module>] [--file <path>] " \
               "[--output <path>] [--client-version <version>] [--main-object <class>]".freeze
 
+      # What a call whose request or signatures no longer match the module's
+      # code fails with: most likely an edit made without generation.
+      STALE = [InvalidInputError, RegistrationError].freeze
+
       module_function
 
+      # A call returns its exit status, as it reports its own errors (see
+      # call); the other commands raise theirs.
       def run(argv, input: $stdin)
         command, *rest = argv
+        return call(rest, input:) if command == "call"
+
         options = parse(rest)
         case command
-        when "call" then call(options, input)
         when "entrypoint" then entrypoint(options)
         when "objects" then objects(options)
         else raise Error, USAGE
@@ -49,13 +56,29 @@ module Dagger
         ::File.write(::File.join(output, "module.rbs"), Entrypoint.render_rbs(Mod.registry))
       end
 
-      def call(options, input)
+      # Runs the call, and reports the error it fails with (ErrorReport),
+      # followed by the hint to run dagger generate after one that most
+      # likely follows an edit made without it. Returns the exit status: 1
+      # when the module doesn't load, 2 for any other error. An exit of the
+      # function's own, or a signal, ends the process as it would.
+      def call(argv, input: $stdin, report: ErrorReport.for_module)
+        loaded = false
+        options = parse(argv)
         output = options.fetch(:output) { raise Error, USAGE }
         request = parse_request(input.read)
         load_module(options)
+        loaded = true
         result = Dispatch.new(Mod.registry).call(request)
         ::FileUtils.mkdir_p(::File.dirname(output))
         ::File.write(output, JSON.generate(result))
+        0
+      rescue SystemExit, SignalException
+        raise
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        unloaded = !loaded && (e.is_a?(LoadError) || e.is_a?(NameError))
+        stale = unloaded || STALE.any? { e.is_a?(it) }
+        report.report(e, hint: stale ? "dagger-mod: #{REGENERATE_HINT}" : nil)
+        unloaded ? 1 : 2
       end
 
       def parse_request(text)
