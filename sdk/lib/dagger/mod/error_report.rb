@@ -111,7 +111,8 @@ module Dagger
       # The error as Ruby prints one it doesn't rescue, causes after it, each
       # through the module's own frames only, and without the origins the
       # messages name. An error without a frame of the module's, such as a
-      # file of it that doesn't parse, is its message alone.
+      # file of it that doesn't parse, is Ruby's message alone, with what Ruby
+      # prints beside it, such as syntax_suggest's section.
       def short_trace(error)
         self.class.chain(error).map { describe(it) }.join
       end

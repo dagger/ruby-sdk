@@ -187,7 +187,7 @@ with its status, and reports nothing.
   short trace in Ruby's own top-first form, through the module's own frames
   only (not the SDK's, the generated clients', the gems' or Ruby's), causes
   after, without origins; an error with no frame of the module's, such as a
-  file that doesn't parse, is its message and class alone. An API error that
+  file that doesn't parse, is Ruby's message for it alone. An API error that
   names its origin, and an error of the SDK's own, log nothing: the engine
   shows them. A SyntaxError logs as Ruby prints it, syntax_suggest's section
   included; its message is its annotated source, so its report is its first
