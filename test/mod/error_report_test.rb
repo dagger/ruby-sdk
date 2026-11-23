@@ -51,20 +51,24 @@ class ErrorReportTest < Minitest::Test
     assert_equal "dagger-mod: run `dagger generate`\n", logs
   end
 
-  # Without a frame of the module's, an error is its message and class alone;
-  # a SyntaxError's, without syntax_suggest's guess, and its report the first
-  # line, which names the file and the line.
+  # Without a frame of the module's, an error is its message and class alone,
+  # as Ruby prints them: a SyntaxError's with syntax_suggest's section, which
+  # reads the file. Its report is the first line of its message, which names
+  # the file and the line.
   def test_a_module_file_that_does_not_parse
-    error = syntax_error("class Main\nend\n\nthis is not ruby)\n")
-    file, logs = report_to_file(raised(error, "/usr/local/lib/ruby/4.0.0/bundled_gems.rb:60:in 'Kernel.require'",
-                                       *SDK_FRAMES))
-    path = error.path
+    Dir.mktmpdir do |dir|
+      error = syntax_error(dir, "class Main\nend\n\nthis is not ruby)\n")
+      file, logs = report_to_file(raised(error, "/usr/local/lib/ruby/4.0.0/bundled_gems.rb:60:in 'Kernel.require'",
+                                         *SDK_FRAMES))
+      path = error.path
 
-    assert_equal "#{path}:4: syntax errors found", JSON.parse(file)["message"]
-    assert_match(/\A#{Regexp.escape(path)}:4: syntax errors found \(SyntaxError\)\n.*> 4 \| this is not ruby\)\n/m,
-                 logs)
-    refute_includes logs, "-->"
-    assert logs.end_with?("expecting end-of-input\n"), logs
+      assert_equal "#{path}:4: syntax errors found", JSON.parse(file)["message"]
+      assert_equal "#{error.detailed_message(highlight: false).rstrip}\n", logs
+      assert_match(/^#{Regexp.escape(path)}:4: syntax errors found \(SyntaxError\)\n.*> 4 \| this is not ruby\)\n/m,
+                   logs)
+      assert logs.start_with?("--> #{path}\n"), logs if defined?(SyntaxSuggest)
+      assert logs.end_with?("expecting end-of-input\n"), logs
+    end
   end
 
   def test_an_error_without_a_message_reports_its_class
@@ -197,12 +201,10 @@ class ErrorReportTest < Minitest::Test
     end
   end
 
-  def syntax_error(source)
-    Dir.mktmpdir do |dir|
-      path = File.join(dir, "main.rb")
-      File.write(path, source)
-      load path
-    end
+  def syntax_error(dir, source)
+    path = File.join(dir, "main.rb")
+    File.write(path, source)
+    load path
     flunk "the source parsed"
   rescue SyntaxError => e
     e

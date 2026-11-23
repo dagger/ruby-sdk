@@ -189,9 +189,9 @@ with its status, and reports nothing.
   after, without origins; an error with no frame of the module's, such as a
   file that doesn't parse, is its message and class alone. An API error that
   names its origin, and an error of the SDK's own, log nothing: the engine
-  shows them. A SyntaxError's message is its annotated source, so its report
-  is its first line, which names the file and the line, and its trace leaves
-  out syntax_suggest's guess, which reads the file again.
+  shows them. A SyntaxError logs as Ruby prints it, syntax_suggest's section
+  included; its message is its annotated source, so its report is its first
+  line, which names the file and the line.
 - Otherwise, the error goes to stderr as Ruby prints it, then a last line,
   `::dagger-function-error::` and the message as a JSON string, cut to 16 KiB,
   which `call` in `main.dang` raises. `call` raises the exec's error as it is

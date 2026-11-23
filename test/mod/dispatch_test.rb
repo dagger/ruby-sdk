@@ -229,8 +229,9 @@ class DispatchTest < Minitest::Test
     end
   end
 
-  # A module file that doesn't parse shows Ruby's own error, without the
-  # hint, and reports its first line, which names the file and the line.
+  # A module file that doesn't parse shows Ruby's own error, syntax_suggest's
+  # section first, as Ruby prints it, without the SDK's frames or the hint,
+  # and reports its first line, which names the file and the line.
   def test_a_module_that_does_not_parse_reports_ruby_syntax_error
     Dir.mktmpdir do |dir|
       write_module(dir)
@@ -241,8 +242,9 @@ class DispatchTest < Minitest::Test
 
       assert_equal 1, status.exitstatus
       assert_match(/\A\S+main\.rb:\d+: syntax errors found\z/, message)
-      assert out.start_with?("#{message} (SyntaxError)\n"), out
-      refute_includes out, "dagger generate"
+      assert out.start_with?("--> #{message[/\A(.+):\d+:/, 1]}\n"), out
+      assert_includes out, "\n#{message} (SyntaxError)\n"
+      refute_match(/dagger generate|from /, out)
     end
   end
 

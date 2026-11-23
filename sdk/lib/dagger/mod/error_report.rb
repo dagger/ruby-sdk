@@ -239,17 +239,12 @@ module Dagger
         [*lines.first(TRACE_HEAD), "\t ... #{skipped} levels...\n", *lines.drop(TRACE_HEAD + skipped)].join
       end
 
-      # Ruby's message and class. error_highlight's snippet is of the frame
-      # that raised, so it goes when that frame is not the module's, which
-      # heads the trace instead. SyntaxError's is its own: syntax_suggest's
-      # guess at the unmatched code reads the file again, and it points at a
-      # module's first lines as often as at what doesn't parse.
+      # Ruby's message and class, as Ruby prints them: a SyntaxError's with
+      # syntax_suggest's section before it. error_highlight's snippet is of the
+      # frame that raised, so it goes when that frame is not the module's,
+      # which heads the trace instead.
       def detailed_message(error, raised_here:)
-        if error.is_a?(SyntaxError)
-          Exception.instance_method(:detailed_message).bind_call(error, highlight: false)
-        else
-          error.detailed_message(highlight: false, error_highlight: raised_here)
-        end
+        error.detailed_message(highlight: false, error_highlight: raised_here)
       end
 
       # A frame's path is its location's, when the frame is still the one
