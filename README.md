@@ -562,14 +562,20 @@ again (8 s for a module with one native extension).
 | `Dagger::ConnectionError` | no session, and none can be started |
 | `Dagger::ClientLoadError`, `Dagger::StaleClientError` | a client cannot load, or was generated for another core or module |
 | `Dagger::Mod::RegistrationError` | a declaration or annotation is wrong; raised at generation, naming its file and line |
-| `Dagger::Mod::FunctionError` | module code raised |
 
-A function that raises fails its call. A calling module receives an
-`ExecError` whose stderr holds the error.
+A function that raises fails its call with its own error. On an engine that
+gives the module's process a file for it (`DAGGER_FUNCTION_ERROR_PATH`), the
+process reports the error there: its message whole, and the values of the API
+error it is or was raised from, so a caller of a function that let an
+`ExecError` propagate gets an `ExecError` with its exit code and output. The
+function's logs then get a short trace in Ruby's own form, through the
+module's own frames only, causes included; an API error that names the call
+that failed, which the engine shows with that call's logs, logs nothing.
+On an older engine the error goes to stderr as Ruby prints it, and the call
+fails with its message only.
 
 ## What the generated entrypoint cannot do
 
-- Structured errors: a caller sees the failed call and its stderr.
 - An interface function returning a module object: return an interface instead.
 
 ## Known engine limitations

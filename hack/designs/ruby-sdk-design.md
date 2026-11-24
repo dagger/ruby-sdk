@@ -143,8 +143,11 @@ sequenceDiagram
   M-->>E: the result as JSON
 ```
 
-- The request carries `callDigest`, which keys the exec on the call's whole
-  identity, its declared clients included (dagger/dagger#14491).
+- The exec sets `DAGGER_MODULE_CALL_DIGEST` to `callDigest`, which keys it on
+  the call's whole identity, its declared clients included
+  (dagger/dagger#14491), and marks it, and no other exec, as the module
+  process: the engine serves the module to it and reports its logs on the
+  function's call. The install, before it, is the module's build.
 - A function's `cache:` renders `withCachePolicy` in `types.dang`. The engine
   changes `callDigest` on every call of a `never` function, once per session
   of a `session` function, and on every evaluation of a function with a time
@@ -166,6 +169,34 @@ sequenceDiagram
 - A failed install prints Bundler's error, then the hint to run
   `dagger generate`: nothing records whether a module was generated since its
   last edit, so the hint follows the errors that a missed generation causes.
+- The entrypoint declares `prebuild`, a file of the installed container, so
+  the engine builds the install ahead of the call, under `build <module>`.
+
+### A failed call
+
+`dagger-mod call` lets what the module's code raises propagate as it is, and
+reports it (`Dagger::Mod::ErrorReport`), then exits 2, so its exec is not
+cached; 1 when the module's code does not load (a `ScriptError` or a
+`NameError` as it loads). An `exit` of the function's own ends the process
+with its status, and reports nothing.
+
+- On an engine that sets `DAGGER_FUNCTION_ERROR_PATH`, the report goes to that
+  file: `{"message", "values"}`, the message whole, its `[traceparent:…]`
+  origins included, and the extensions of the first API error in the error's
+  chain of causes, verbatim. The engine fails the call with it. The logs get a
+  short trace in Ruby's own top-first form, through the module's own frames
+  only (not the SDK's, the generated clients', the gems' or Ruby's), causes
+  after, without origins; an error with no frame of the module's, such as a
+  file that doesn't parse, is Ruby's message for it alone. An API error that
+  names its origin, and an error of the SDK's own, log nothing: the engine
+  shows them. A SyntaxError logs as Ruby prints it, syntax_suggest's section
+  included; its message is its annotated source, so its report is its first
+  line, which names the file and the line.
+- Otherwise, the error goes to stderr as Ruby prints it, then a last line,
+  `::dagger-function-error::` and the message as a JSON string, cut to 16 KiB,
+  which `call` in `main.dang` raises. `call` raises the exec's error as it is
+  when the engine put the report in it (`functionError`), or when there is no
+  marker line, as after an `exit`.
 
 ## The entrypoint contract
 

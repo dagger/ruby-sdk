@@ -129,9 +129,10 @@ A module's `sdk/entrypoint/dang.toml` is the user's despite the marker on
   `sdk/entrypoint/dang.toml`, which the check does not read.
 - The entrypoint contract: `types` returns the literal typedefs; `call` runs
   `dagger-mod call` with the request on stdin and declares a nullable
-  `callDigest`, which keys its exec. Every module declares `sources`, so its
-  `types` and `call` take no workspace; a module without gems outside its
-  directory returns its manifest alone.
+  `callDigest`, which it sets as `DAGGER_MODULE_CALL_DIGEST` on that exec
+  alone: it keys the exec, and marks it as the module process. Every module
+  declares `sources`, so its `types` and `call` take no workspace; a module
+  without gems outside its directory returns its manifest alone.
 - Code style: RuboCop's configuration, lines up to 120 characters, comments
   that say why, not what. In Steep, a literal symbol widens to `Symbol`
   (annotate `Symbol?`), `grep` does not narrow (use a local and `is_a?`), and
