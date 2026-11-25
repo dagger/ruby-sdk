@@ -10,7 +10,7 @@ The first release. It requires Dagger v1.0.0-beta.26 or later.
 ### Added
 
 - `sdk/entrypoint/dang.toml` in a module, written through `sdk-helpers`, with
-  the Dagger version the module was generated for: v1.0.0-beta.27, which its
+  the Dagger version the module was generated for: v1.0.0-beta.30, which its
   `DAGGER_CLIENT_VERSION` and clients' API view also use. Generation manages
   that version and the language, and keeps other settings without comments or
   formatting.

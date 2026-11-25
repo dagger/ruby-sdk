@@ -8,7 +8,7 @@
 # client, which would otherwise get the view the engine decides. The engine adds
 # include to "*", so "!*" first makes it the whole of the source.
 name = "ruby-sdk"
-engineVersion = "v1.0.0-beta.27"
+engineVersion = "v1.0.0-beta.30"
 include = [
   "!*",
   "dagger-module.toml",
