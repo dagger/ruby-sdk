@@ -22,10 +22,10 @@ module Dagger
         def filter_types: (types: ::Array[::String], ?exclude: bool?) -> Artifacts
         def filter_path: (path: ::Array[::String]) -> Artifacts
         def filter_path_pattern: (pattern: ::String) -> Artifacts
-        def filter_dimensions: (dimensions: ::Array[::String]) -> Artifacts
+        def filter_dimensions: (dimensions: ::Array[::String], ?exclude: bool?) -> Artifacts
         def filter_dimension_keys: (dimension: ::String, keys: ::Array[::String]) -> Artifacts
         def filter_uri: (uri: ::String) -> Artifacts
-        def dimensions: () -> ::Array[::String]
+        def dimensions: (?all: bool?) -> ::Array[::String]
         def dimension_keys: (dimension: ::String) -> ::Array[::String]
         def dimension_items: (dimension: ::String) -> ::Array[Artifact]
         def items: () -> ::Array[Artifact]

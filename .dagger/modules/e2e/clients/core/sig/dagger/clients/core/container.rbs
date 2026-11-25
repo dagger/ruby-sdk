@@ -46,7 +46,7 @@ module Dagger
         def with_mounted_directory: (path: ::String, source: Directory, ?owner: ::String?, ?inherit_owner: bool?, ?read_only: bool?, ?expand: bool?) -> Container
         def with_mounted_file: (path: ::String, source: File, ?owner: ::String?, ?inherit_owner: bool?, ?expand: bool?, ?read_only: bool?) -> Container
         def with_mounted_files: (path: ::String, sources: ::Array[::Dagger::Type], ?expand: bool?) -> Container
-        def with_mounted_temp: (path: ::String, ?size: ::Integer?, ?expand: bool?) -> Container
+        def with_mounted_temp: (path: ::String, ?size: ::Integer?, ?expand: bool?, ?disk: bool?) -> Container
         def with_mounted_cache: (path: ::String, cache: CacheVolume, ?source: Directory?, ?sharing: CacheSharingMode?, ?owner: ::String?, ?inherit_owner: bool?, ?expand: bool?) -> Container
         def with_mounted_volume: (path: ::String, volume: Volume, ?read_only: bool?, ?expand: bool?) -> Container
         def with_mounted_secret: (path: ::String, source: Secret, ?owner: ::String?, ?inherit_owner: bool?, ?mode: ::Integer?, ?expand: bool?) -> Container

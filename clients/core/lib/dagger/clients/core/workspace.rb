@@ -270,7 +270,7 @@ module Dagger
 
         # Return this workspace with the given Git-compatible patch file applied, without mutating the source.
         #
-        # Paths in the patch are relative to the workspace root, whatever its cwd, as `git diff` writes them. Patching a path at or under a mount is an error.
+        # Paths in the patch are relative to the workspace root, whatever its cwd, as `git diff` writes them. Sections for paths in a mount apply to the mounted content; a section cannot move a file across a mount boundary or delete a mount point.
         # @param patch File containing the patch to apply
         # @param on_conflict How to handle hunks that no longer apply to the target content: fail (default), or apply what fits and leave git-style conflict markers where it doesn't.
         # @note Experimental: This API is highly experimental and may be removed or replaced entirely.
@@ -284,18 +284,18 @@ module Dagger
           Workspace.new(@query.select("withWorkdir", path:))
         end
 
-        # Return this workspace with a directory mounted read-only at the given path, without mutating the source.
+        # Return this workspace with a directory mounted at the given path, without mutating the source.
         #
-        # Mounted content is readable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: it never appears in changes, is never exported, and cannot be modified.
+        # Mounted content is readable and editable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: neither it nor edits to it appear in changes or are exported. Use withoutMount to remove the mount.
         # @param path Location of the mounted directory. Relative paths resolve from the workspace cwd.
         # @param source Directory to mount.
         def with_mounted_directory(path:, source:)
           Workspace.new(@query.select("withMountedDirectory", path:, source:))
         end
 
-        # Return this workspace with a file mounted read-only at the given path, without mutating the source.
+        # Return this workspace with a file mounted at the given path, without mutating the source.
         #
-        # Mounted content is readable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: it never appears in changes, is never exported, and cannot be modified.
+        # Mounted content is readable and editable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: neither it nor edits to it appear in changes or are exported. Use withoutMount to remove the mount.
         # @param path Location of the mounted file. Relative paths resolve from the workspace cwd.
         # @param source File to mount.
         def with_mounted_file(path:, source:)

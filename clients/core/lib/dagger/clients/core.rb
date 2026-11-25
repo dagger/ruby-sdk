@@ -5,7 +5,7 @@ require "dagger"
 module Dagger
   module Clients
     module Core
-      CORE_DIGEST = "sha256:d2bb153ec234c81f03f78497bf78d70e12f23defa6266ab1497eb88dc2408bab".freeze
+      CORE_DIGEST = "sha256:259e7b1367309d7244b5a9050bc3549d95ec7ebba01fddb82f61c83e05705e06".freeze
 
       autoload :AcronymStyle, "dagger/clients/core/acronym_style"
       autoload :Address, "dagger/clients/core/address"

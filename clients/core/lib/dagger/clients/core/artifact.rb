@@ -47,9 +47,10 @@ module Dagger
           @query.select("path").execute
         end
 
-        # The module name, collection keys, and full path key in the artifact type dimension.
-        def dimension_keys
-          @query.select("dimensionKeys").execute_object_list(ArtifactDimensionKey)
+        # The artifact coordinates in its source selection's visible dimensions. Without a source selection, return all coordinates.
+        # @param all Return all artifact coordinates, including constant dimensions.
+        def dimension_keys(all: nil)
+          @query.select("dimensionKeys", all:).execute_object_list(ArtifactDimensionKey)
         end
 
         # The directives carried by this artifact.

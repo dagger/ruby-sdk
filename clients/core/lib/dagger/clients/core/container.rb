@@ -276,8 +276,9 @@ module Dagger
         # @param path Location of the temporary directory (e.g., "/tmp/temp_dir").
         # @param size Size of the temporary directory in bytes.
         # @param expand Replace "${VAR}" or "$VAR" in the value of path according to the current environment variables defined in the container (e.g. "/$VAR/foo").
-        def with_mounted_temp(path:, size: nil, expand: nil)
-          Container.new(@query.select("withMountedTemp", path:, size:, expand:))
+        # @param disk Keep the temporary directory on the engine's disk instead of in memory, for contents too large for memory. Each process gets an empty directory of its own, removed once the process ends. It can't be combined with size.
+        def with_mounted_temp(path:, size: nil, expand: nil, disk: nil)
+          Container.new(@query.select("withMountedTemp", path:, size:, expand:, disk:))
         end
 
         # Retrieves this container plus a cache volume mounted at the given path.
