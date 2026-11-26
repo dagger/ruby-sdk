@@ -299,6 +299,7 @@
   "disableDaggerInDagger": "disable_dagger_in_dagger",
   "disableFindUp": "disable_find_up",
   "discardGitDir": "discard_git_dir",
+  "disk": "disk",
   "diskSpaceBytes": "disk_space_bytes",
   "disposition": "disposition",
   "doNotFollowSymlinks": "do_not_follow_symlinks",

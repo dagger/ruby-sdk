@@ -97,8 +97,9 @@ module Dagger
         end
 
         # Keep artifacts selected through any listed dimension.
-        def filter_dimensions(dimensions:)
-          Artifacts.new(@query.select("filterDimensions", dimensions:))
+        # @param exclude Remove artifacts with any listed dimension.
+        def filter_dimensions(dimensions:, exclude: nil)
+          Artifacts.new(@query.select("filterDimensions", dimensions:, exclude:))
         end
 
         # Keep artifacts with any listed key in this dimension. Replace collection references with matching subsets. Skip absent keys and leave the source view unchanged.
@@ -116,9 +117,10 @@ module Dagger
           Artifacts.new(@query.select("filterUri", uri:))
         end
 
-        # List dimension identifiers represented in this selection, sorted with no duplicates.
-        def dimensions
-          @query.select("dimensions").execute
+        # List dimensions whose cells differ across selected rows. Missing cells differ from present keys.
+        # @param all List all workspace schema dimensions without runtime discovery.
+        def dimensions(all: nil)
+          @query.select("dimensions", all:).execute
         end
 
         # List keys represented in this selection for the given dimension, sorted with no duplicates.
@@ -126,7 +128,7 @@ module Dagger
           @query.select("dimensionKeys", dimension:).execute
         end
 
-        # List collection items represented in this selection for the given dimension. Preserve parent keys and remove duplicate item addresses. Does not evaluate item values.
+        # List collection items represented in this selection. Retain the source selection's visible dimensions without evaluating item values.
         def dimension_items(dimension:)
           @query.select("dimensionItems", dimension:).execute_object_list(Artifact)
         end
@@ -136,7 +138,7 @@ module Dagger
           @query.select("items").execute_object_list(Artifact)
         end
 
-        # Require exactly one artifact; fail if there are zero or multiple matches. Several matches are listed, one address per line.
+        # Require exactly one artifact from the selected items snapshot; fail if there are zero or multiple matches.
         def one
           Artifact.new(@query.select("one"))
         end

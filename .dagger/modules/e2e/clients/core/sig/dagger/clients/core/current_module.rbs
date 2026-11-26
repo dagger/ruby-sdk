@@ -9,6 +9,7 @@ module Dagger
         def context_directory: () -> Directory
         def dependencies: () -> ::Array[Module]
         def generated_context_directory: () -> Directory
+        def git_ref: () -> GitRef?
         def name: () -> ::String
         def naming: () -> ModuleNaming
         def source: () -> Directory

@@ -7,6 +7,7 @@ module Dagger
         COLLECTION = new("COLLECTION", "COLLECTION")
         MODULE = new("MODULE", "MODULE")
         TYPE = new("TYPE", "TYPE")
+        NAME = new("NAME", "NAME")
       end
     end
   end

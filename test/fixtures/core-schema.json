@@ -1447,7 +1447,7 @@
           },
           {
             "name": "dimensionKeys",
-            "description": "The module name, collection keys, and full path key in the artifact type dimension.",
+            "description": "The artifact coordinates in its source selection's visible dimensions. Without a source selection, return all coordinates.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -1461,7 +1461,20 @@
                 }
               }
             },
-            "args": [],
+            "args": [
+              {
+                "name": "all",
+                "description": "Return all artifact coordinates, including constant dimensions.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
@@ -1579,7 +1592,7 @@
           },
           {
             "name": "identifier",
-            "description": "Stable identifier: collection schema path, type:TypeName for an artifact type, or module.",
+            "description": "Collection schema type name, module, name, or a legacy selector identifier.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -1762,6 +1775,13 @@
           },
           {
             "name": "TYPE",
+            "description": "",
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "NAME",
             "description": "",
             "isDeprecated": false,
             "deprecationReason": null,
@@ -2458,6 +2478,18 @@
                 "directives": [],
                 "isDeprecated": false,
                 "deprecationReason": null
+              },
+              {
+                "name": "exclude",
+                "description": "Remove artifacts with any listed dimension.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
               }
             ],
             "isDeprecated": false,
@@ -2549,7 +2581,7 @@
           },
           {
             "name": "dimensions",
-            "description": "List dimension identifiers represented in this selection, sorted with no duplicates.",
+            "description": "List dimensions whose cells differ across selected rows. Missing cells differ from present keys.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2563,7 +2595,20 @@
                 }
               }
             },
-            "args": [],
+            "args": [
+              {
+                "name": "all",
+                "description": "List all workspace schema dimensions without runtime discovery.",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
             "isDeprecated": false,
             "deprecationReason": null,
             "directives": []
@@ -2607,7 +2652,7 @@
           },
           {
             "name": "dimensionItems",
-            "description": "List collection items represented in this selection for the given dimension. Preserve parent keys and remove duplicate item addresses. Does not evaluate item values.",
+            "description": "List collection items represented in this selection. Retain the source selection's visible dimensions without evaluating item values.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2665,7 +2710,7 @@
           },
           {
             "name": "one",
-            "description": "Require exactly one artifact; fail if there are zero or multiple matches. Several matches are listed, one address per line.",
+            "description": "Require exactly one artifact from the selected items snapshot; fail if there are zero or multiple matches.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -5360,6 +5405,18 @@
               {
                 "name": "expand",
                 "description": "Replace \"${VAR}\" or \"$VAR\" in the value of path according to the current environment variables defined in the container (e.g. \"/$VAR/foo\").",
+                "defaultValue": "false",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                },
+                "directives": [],
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "disk",
+                "description": "Keep the temporary directory on the engine's disk instead of in memory, for contents too large for memory. Each process gets an empty directory of its own, removed once the process ends. It can't be combined with size.",
                 "defaultValue": "false",
                 "type": {
                   "kind": "SCALAR",
@@ -8799,6 +8856,18 @@
                 "kind": "OBJECT",
                 "name": "Directory"
               }
+            },
+            "args": [],
+            "isDeprecated": false,
+            "deprecationReason": null,
+            "directives": []
+          },
+          {
+            "name": "gitRef",
+            "description": "The Git ref of the module's source: the resolved commit of a Git source, or the HEAD of the repository that contains a local source. Null for a Directory source, or a local source outside a Git repository.\n\nIts asRepository pins HEAD to that commit. For a local source, the repository holds the whole checkout, including files the module does not load, so asRepository.uncommitted lists the uncommitted changes of the whole checkout.\n\nFor a Git source loaded from a private remote, asRepository and tree are read without the credentials of the client that loaded the module and may fail to authenticate; commitSha needs none.\n\nA local repository is read when this field is first selected for a module load, not when the module loads: a file changed in between can differ from the module's contextDirectory.\n\nA function result cached across sessions is not recomputed when the repository changes: use the PER_SESSION or NEVER cache policy for a function that returns what it reads from this field.",
+            "type": {
+              "kind": "OBJECT",
+              "name": "GitRef"
             },
             "args": [],
             "isDeprecated": false,
@@ -16128,7 +16197,7 @@
             "args": [
               {
                 "name": "name",
-                "description": "Ref's name (can be a commit identifier, a tag name, a branch name, or a fully-qualified ref).\n\nCommit identifiers may be abbreviated: an unambiguous hex prefix (4-40 characters) of a commit SHA resolves like git rev-parse, with named refs taking precedence. Abbreviated SHAs resolve against locally available objects, so remote repositories (resolved via ls-remote) can only expand prefixes of already-fetched commits; use the full SHA or a named ref otherwise.\n\nThe name may be followed by git revision suffixes, applied left to right: `~N` follows first parents N times and `^N` selects the Nth parent (`~` and `^` mean 1, `^0` is the commit itself), e.g. `HEAD~3`, `main^2` or `abc1234~2`. The result is a detached ref of the resulting commit; remote repositories fetch the history the walk needs. Other git revision syntax (`^{...}`, `@{...}`, `:path`, ranges) is not supported.\n\nA repository derived from a remote one (e.g. a workspace's history after a snapshot or commit) resolves names and commits it does not contain itself through that remote, with its authentication. Its branches and tags listings include the remote's.",
+                "description": "Ref's name (can be a commit identifier, a tag name, a branch name, or a fully-qualified ref).\n\nCommit identifiers may be abbreviated: an unambiguous hex prefix (4-40 characters) of a commit SHA resolves like git rev-parse, with named refs taking precedence, to the full SHA. A remote repository that has not fetched the commit yet fetches the history of the refs it advertises to find it, so only commits reachable from those refs can be abbreviated.\n\nThe name may be followed by git revision suffixes, applied left to right: `~N` follows first parents N times and `^N` selects the Nth parent (`~` and `^` mean 1, `^0` is the commit itself), e.g. `HEAD~3`, `main^2` or `abc1234~2`. The result is a detached ref of the resulting commit; remote repositories fetch the history the walk needs. Other git revision syntax (`^{...}`, `@{...}`, `:path`, ranges) is not supported.\n\nA repository derived from a remote one (e.g. a workspace's history after a snapshot or commit) resolves names and commits it does not contain itself through that remote, with its authentication. Its branches and tags listings include the remote's.",
                 "defaultValue": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -16287,7 +16356,7 @@
             "args": [
               {
                 "name": "id",
-                "description": "Identifier of the commit (e.g., \"b6315d8f2810962c601af73f86831f6866ea798b\").\n\nMay be abbreviated to an unambiguous hex prefix (4-40 characters), which is expanded against locally available objects. Remote repositories (resolved via ls-remote) can only expand prefixes of already-fetched commits; use the full SHA otherwise.",
+                "description": "Identifier of the commit (e.g., \"b6315d8f2810962c601af73f86831f6866ea798b\").\n\nMay be abbreviated to an unambiguous hex prefix (4-40 characters), which is expanded to the full SHA. A remote repository that has not fetched the commit yet fetches the history of the refs it advertises to find it.",
                 "defaultValue": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -30318,7 +30387,7 @@
           },
           {
             "name": "withPatchFile",
-            "description": "Return this workspace with the given Git-compatible patch file applied, without mutating the source.\n\nPaths in the patch are relative to the workspace root, whatever its cwd, as `git diff` writes them. Patching a path at or under a mount is an error.",
+            "description": "Return this workspace with the given Git-compatible patch file applied, without mutating the source.\n\nPaths in the patch are relative to the workspace root, whatever its cwd, as `git diff` writes them. Sections for paths in a mount apply to the mounted content; a section cannot move a file across a mount boundary or delete a mount point.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -30412,7 +30481,7 @@
           },
           {
             "name": "withMountedDirectory",
-            "description": "Return this workspace with a directory mounted read-only at the given path, without mutating the source.\n\nMounted content is readable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: it never appears in changes, is never exported, and cannot be modified.",
+            "description": "Return this workspace with a directory mounted at the given path, without mutating the source.\n\nMounted content is readable and editable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: neither it nor edits to it appear in changes or are exported. Use withoutMount to remove the mount.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -30468,7 +30537,7 @@
           },
           {
             "name": "withMountedFile",
-            "description": "Return this workspace with a file mounted read-only at the given path, without mutating the source.\n\nMounted content is readable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: it never appears in changes, is never exported, and cannot be modified.",
+            "description": "Return this workspace with a file mounted at the given path, without mutating the source.\n\nMounted content is readable and editable through the normal workspace file tools but shadows the source at the mount path and stays out of the pending changeset: neither it nor edits to it appear in changes or are exported. Use withoutMount to remove the mount.",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -34284,5 +34353,5 @@
       }
     ]
   },
-  "__schemaVersion": "v1.0.0-beta.27"
+  "__schemaVersion": "v1.0.0-beta.30"
 }

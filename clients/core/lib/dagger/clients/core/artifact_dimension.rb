@@ -18,7 +18,7 @@ module Dagger
           @query.select("collectionType").execute(allow_nil: true)
         end
 
-        # Stable identifier: collection schema path, type:TypeName for an artifact type, or module.
+        # Collection schema type name, module, name, or a legacy selector identifier.
         def identifier
           @query.select("identifier").execute
         end

@@ -40,7 +40,7 @@ type RubyHalf {
   }
 
   # The manifest's engineVersion, which a unit test keeps it equal to.
-  let clientVersion: String! = "v1.0.0-beta.27"
+  let clientVersion: String! = "v1.0.0-beta.30"
 
   # The gems install from the Gemfiles and gemspecs alone, by content, before
   # the rest of the source arrives. Not frozen: after an edit to the Gemfile,
