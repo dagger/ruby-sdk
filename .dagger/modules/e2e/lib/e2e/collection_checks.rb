@@ -50,8 +50,8 @@ class E2E
                                     "--module", "collections", "-l", "--all", "-f=link"],
                              experimental_privileged_nesting: true)
                   .stdout.split
-    want = %w[suites/complete verify&collections-item=a verify&collections-item=b
-              verify&collections-item=c].map { "dag+check://?check=#{it}" }
+    want = %w[collections-item=a collections-item=b collections-item=c
+              name=suites.complete].map { "dag+check://?#{it}" }
     check(links.sort == want, "dagger check -l --all listed #{links.inspect}")
     item_c = links.find { it.end_with?("item=c") }
     (links - [item_c]).each { cli(ground, "-m", COLLECTIONS, "check", it).sync }
